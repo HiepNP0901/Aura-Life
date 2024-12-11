@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.LocationActivity">
+
+    <TextView
+        android:id="@+id/chooseLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="@font/yeon_sung"
+        android:text="@string/location_title"
+        android:textColor="@color/blue"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@+id/chooseLocationInput"
+        app:layout_constraintEnd_toEndOf="@+id/chooseLocationInput"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/chooseLocationInput" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/chooseLocationInput"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="19dp"
+        android:background="@drawable/rounded"
+        android:shadowColor="@color/white_dark"
+        android:textColor="@color/blue"
+        android:textColorHint="@color/grey"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:endIconDrawable="@drawable/ic_set_location"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.18">
+
+        <AutoCompleteTextView
+            android:id="@+id/listOfLocation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/lato"
+            android:inputType="none"
+            android:paddingStart="15dp"
+            android:paddingEnd="40dp"
+            android:text="@string/choose_location"
+            android:textSize="14sp"
+            tools:ignore="LabelFor" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="19dp"
+        android:layout_marginTop="28dp"
+        android:fontFamily="@font/lato"
+        android:text="@string/choose_location_description"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/chooseLocationInput"
+        app:layout_constraintStart_toStartOf="@+id/chooseLocationInput"
+        app:layout_constraintTop_toBottomOf="@+id/chooseLocationInput" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/locationDoneButton"
+        android:layout_width="157dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="84dp"
+        android:background="@drawable/button_gradient"
+        android:fontFamily="@font/yeon_sung"
+        android:shadowColor="@color/white_dark"
+        android:text="@string/done"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
