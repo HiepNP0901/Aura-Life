@@ -53,19 +53,25 @@ class RegisterActivity : AppCompatActivity() {
                 binding.createAccount.isEnabled = true
                 binding.progressBar.visibility = View.GONE
                 intent?.getStringExtra("nextActivity")?.let {
-                    startActivity(Intent(this@RegisterActivity, Class.forName(it)))
-                    finishAffinity()
+                    if (it.isNotEmpty()) {
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("RESULT", username.text.toString())
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
+                    }
                 }
             }
         }
     }
 
+    // Register the receiver and filter
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onStart() {
         super.onStart()
         registerReceiver(receiver, filter)
     }
 
+    // Unregister the receiver
     override fun onStop() {
         super.onStop()
         unregisterReceiver(receiver)
@@ -107,8 +113,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         binding.alreadyHaveAccountButton.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finishAffinity()
+            finish()
         }
     }
 

@@ -11,6 +11,8 @@ import android.view.Surface
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
@@ -27,6 +29,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var filter: IntentFilter
     private lateinit var receiver: BroadcastReceiver
     private lateinit var fragment: LogoFragment
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +60,21 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Initialize the result launcher
+        resultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            runOnUiThread {
+                if (result.resultCode == RESULT_OK) {
+                    val data = result.data?.getStringExtra("RESULT")
+                    username.setText(data)
+                }
+            }
+        }
     }
 
+    // Register the receiver and filter
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onStart() {
         super.onStart()
@@ -72,6 +88,7 @@ class LoginActivity : AppCompatActivity() {
         binding.mainLayout.orientation = orientation
     }
 
+    // Unregister the receiver
     override fun onStop() {
         super.onStop()
         unregisterReceiver(receiver)
@@ -110,7 +127,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.dontHaveAccountButton.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            resultLauncher.launch(Intent(this, RegisterActivity::class.java))
         }
     }
 
@@ -118,7 +135,7 @@ class LoginActivity : AppCompatActivity() {
     private fun setBindingEditText() {
         binding.username.doAfterTextChanged {
             if (!Patterns.EMAIL_ADDRESS.matcher(username.text.toString()).matches()) {
-                username.error = "Please enter a valid email or phone number"
+                username.error = "Email is not valid"
                 username.requestFocus()
             } else {
                 username.error = null

@@ -17,25 +17,26 @@
         <service
             android:name=".service.AuthService"
             android:enabled="true"
-            android:exported="false" />
+            />
         <activity
             android:name=".ui.home.HomeActivity"
-            android:exported="false" />
+            />
         <activity
             android:name=".ui.LocationActivity"
-            android:exported="false" />
+            />
         <activity
             android:name=".ui.auth.RegisterActivity"
-            android:exported="false" />
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.auth.LoginActivity"
-            android:exported="false" />
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.OnboardingActivity"
-            android:exported="false" />
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.SplashActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
