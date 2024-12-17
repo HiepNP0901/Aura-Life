@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="splash_description">Cảm nhận nhịp điệu, sống cùng âm nhạc</string>
+    <string name="onboarding_description">Trải nghiệm những giai điệu bất tận mọi lúc, mọi nơi</string>
+    <string name="login_failed">Đăng nhập không thành công</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="register_title">Đăng ký</string>
+    <string name="prompt_password">Mật khẩu</string>
+    <string name="invalid_email">Email không hợp lệ</string>
+    <string name="location_title">Chọn khu vực của bạn</string>
+    <string name="choose_location">Chọn khu vực</string>
+    <string name="choose_location_description">Để mang đến cho bạn trải nghiệm ăn uống tốt nhất, chúng tôi cần bạn cho phép truy cập vị trí thiết bị của bạn. Bằng cách bật dịch vụ vị trí, chúng tôi có thể cung cấp các đề xuất nhà hàng được cá nhân hóa, ước tính giao hàng chính xác và đảm bảo trải nghiệm giao đồ ăn liền mạch.\"</string>
+    <string name="done">Xong</string>
+    <string name="prompt_confirm_password">Xác nhận mật khẩu</string>
+    <string name="login_action">Đăng nhập</string>
+    <string name="create_account">Tạo tài khoản</string>
+    <string name="or">hoặc</string>
+    <string name="sign_up_with">Đăng nhập với</string>
+    <string name="continue_with">Tiếp tục với</string>
+    <string name="don_t_have_account">Không có tài khoản?</string>
+    <string name="already_have_an_account">Đã có tài khoản?</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="other_than_0">Trường phải là số khác 0</string>
+    <string name="invalid_password">Mật khẩu phải lớn hơn hoặc bằng 6 ký tự</string>
+    <string name="not_match_password">Mật khẩu không khớp</string>
+    <string name="required_field">Trường này là bắt buộc</string>
+    <string name="must_be_a_number">Trường này phải là một số</string>
+    <string name="logout">Đăng xuất</string>
+</resources>

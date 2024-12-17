@@ -16,20 +16,29 @@
         tools:targetApi="31">
         <service
             android:name=".service.AuthService"
-            android:enabled="true"
-            />
+            android:enabled="true" />
         <activity
             android:name=".ui.home.HomeActivity"
-            />
+            android:exported="false" />
         <activity
-            android:name=".ui.LocationActivity"
-            />
+            android:name=".ui.LocationActivity" />
         <activity
             android:name=".ui.auth.RegisterActivity"
             android:launchMode="singleTask"/>
         <activity
             android:name=".ui.auth.LoginActivity"
-            android:launchMode="singleTask"/>
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="com.drs.auralife"
+                    android:scheme="http"
+                    android:pathPrefix="/login" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.OnboardingActivity"
             android:launchMode="singleTask"/>
@@ -39,7 +48,6 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

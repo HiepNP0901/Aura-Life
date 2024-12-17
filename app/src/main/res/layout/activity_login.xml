@@ -53,7 +53,6 @@
                         android:drawablePadding="10dp"
                         android:elevation="5dp"
                         android:ems="10"
-                        android:fontFamily="@font/lato"
                         android:hint="@string/prompt_email"
                         android:inputType="textEmailAddress"
                         android:paddingStart="15dp"
@@ -71,30 +70,29 @@
                         android:drawablePadding="10dp"
                         android:elevation="5dp"
                         android:ems="10"
-                        android:fontFamily="@font/lato"
                         android:hint="@string/prompt_password"
+                        android:importantForAutofill="no"
                         android:inputType="textPassword"
                         android:paddingStart="15dp"
                         android:paddingEnd="15dp"
                         android:selectAllOnFocus="true"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        tools:ignore="TextContrastCheck" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="28dp"
-                        android:fontFamily="@font/yeon_sung"
                         android:text="@string/or"
                         android:textAlignment="center"
                         android:textColor="@color/blue"
-                        android:textSize="10sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
-                        tools:ignore="SmallSp" />
+                        tools:ignore="TextContrastCheck" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/yeon_sung"
                         android:text="@string/continue_with"
                         android:textAlignment="center"
                         android:textColor="@color/blue"
@@ -117,7 +115,6 @@
                             android:layout_marginBottom="20dp"
                             android:background="@drawable/rounded"
                             android:drawableStart="@drawable/ic_facebook"
-                            android:fontFamily="@font/lato"
                             android:paddingStart="15dp"
                             android:paddingEnd="15dp"
                             android:shadowColor="@color/white_dark"
@@ -136,7 +133,6 @@
                             android:layout_marginBottom="20dp"
                             android:background="@drawable/rounded"
                             android:drawableStart="@drawable/ic_google"
-                            android:fontFamily="@font/lato"
                             android:paddingStart="15dp"
                             android:paddingEnd="15dp"
                             android:shadowColor="@color/white_dark"
@@ -151,7 +147,6 @@
                         android:layout_width="157dp"
                         android:layout_height="57dp"
                         android:background="@drawable/button_gradient"
-                        android:fontFamily="@font/yeon_sung"
                         android:shadowColor="@color/white_dark"
                         android:text="@string/login_action"
                         android:textAllCaps="false"
@@ -172,13 +167,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:background="@null"
-                        android:fontFamily="@font/lato"
                         android:text="@string/don_t_have_account"
                         android:textAllCaps="false"
                         android:textColor="@color/blue"
-                        android:textSize="10sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
-                        tools:ignore="SmallSp" />
+                        tools:ignore="TextContrastCheck" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

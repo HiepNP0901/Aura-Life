@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Patterns
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +14,7 @@ import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.service.AuthService
 import com.drs.auralife.ui.auth.fragment.LogoFragment
+import com.drs.auralife.utils.Validator
 
 class RegisterActivity : AppCompatActivity() {
     private val binding: ActivityRegisterBinding by lazy {
@@ -24,9 +24,24 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var username: EditText
     private lateinit var password: EditText
     private lateinit var confirmPassword: EditText
-    private lateinit var filter: IntentFilter
-    private lateinit var receiver: BroadcastReceiver
     private lateinit var fragment: LogoFragment
+
+    private val filter = IntentFilter(AuthService.RESULT)
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            binding.createAccount.isEnabled = true
+            binding.progressBar.visibility = View.GONE
+            intent?.getStringExtra("nextActivity")?.let {
+                if (it.isNotEmpty()) {
+                    val resultIntent = Intent()
+                    resultIntent.putExtra("RESULT", username.text.toString())
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
+                }
+            }
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +51,8 @@ class RegisterActivity : AppCompatActivity() {
 
         // Initialize the fragment
         fragment = LogoFragment.setTitle(getString(R.string.register_title))
-        supportFragmentManager.beginTransaction().add(binding.containerFragment.id, fragment)
+        supportFragmentManager.beginTransaction()
+            .add(binding.containerFragment.id, fragment)
             .commit()
 
         // Initialize the views
@@ -45,23 +61,6 @@ class RegisterActivity : AppCompatActivity() {
         confirmPassword = binding.confirmPassword
         setBindingButton()
         setBindingEditText()
-
-        // Initialize the receiver and filter
-        filter = IntentFilter(AuthService.RESULT)
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                binding.createAccount.isEnabled = true
-                binding.progressBar.visibility = View.GONE
-                intent?.getStringExtra("nextActivity")?.let {
-                    if (it.isNotEmpty()) {
-                        val resultIntent = Intent()
-                        resultIntent.putExtra("RESULT", username.text.toString())
-                        setResult(RESULT_OK, resultIntent)
-                        finish()
-                    }
-                }
-            }
-        }
     }
 
     // Register the receiver and filter
@@ -80,16 +79,23 @@ class RegisterActivity : AppCompatActivity() {
     // Set the click listeners for the buttons
     private fun setBindingButton() {
         binding.createAccount.setOnClickListener {
-            if (username.text.toString().isEmpty()) {
-                username.error = "This field cannot be empty"
-                username.requestFocus()
-            } else if (password.text.toString().isEmpty()) {
-                password.error = "This field cannot be empty"
+            Validator(this).confirmPasswordValidator(password.text.toString())
+                .invoke(confirmPassword.text.toString())?.let {
+                    confirmPassword.error = it
+                    confirmPassword.requestFocus()
+                }
+
+            Validator(this).passwordValidator.invoke(password.text.toString())?.let {
+                password.error = it
                 password.requestFocus()
-            } else if (confirmPassword.text.toString().isEmpty()) {
-                confirmPassword.error = "This field cannot be empty"
-                confirmPassword.requestFocus()
-            } else if (confirmPassword.error == null && username.error == null && password.error == null) {
+            }
+
+            Validator(this).emailValidator.invoke(username.text.toString())?.let {
+                username.error = it
+                username.requestFocus()
+            }
+
+            if (confirmPassword.error == null && username.error == null && password.error == null) {
                 binding.createAccount.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
                 startService(Intent(this, AuthService::class.java).apply {
@@ -120,30 +126,29 @@ class RegisterActivity : AppCompatActivity() {
     // Set action do after text changed for the edit text
     private fun setBindingEditText() {
         binding.username.doAfterTextChanged {
-            if (!Patterns.EMAIL_ADDRESS.matcher(username.text.toString()).matches()) {
-                username.error = "Please enter a valid email or phone number"
+            Validator(this).emailValidator.invoke(username.text.toString())?.let {
+                username.error = it
                 username.requestFocus()
-            } else {
+            } ?: run {
                 username.error = null
-                username.requestFocus()
             }
         }
 
         binding.password.doAfterTextChanged {
-            if (password.text.toString().length < 6) {
-                password.error = "Password must be at least 6 characters"
+            Validator(this).passwordValidator.invoke(password.text.toString())?.let {
+                password.error = it
                 password.requestFocus()
-            } else {
+            } ?: run {
                 password.error = null
-                password.requestFocus()
             }
         }
 
         binding.confirmPassword.doAfterTextChanged {
-            if (password.text.toString() != confirmPassword.text.toString()) {
-                confirmPassword.error = "Passwords do not match"
-                confirmPassword.requestFocus()
-            } else {
+            Validator(this).confirmPasswordValidator(password.text.toString())
+                .invoke(confirmPassword.text.toString())?.let {
+                    confirmPassword.error = it
+                    confirmPassword.requestFocus()
+                } ?: run {
                 confirmPassword.error = null
             }
         }
