@@ -1,22 +1,21 @@
 package com.drs.auralife.ui.auth
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Surface
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
+import com.drs.auralife.data.AuthResponsible
 import com.drs.auralife.databinding.ActivityLoginBinding
-import com.drs.auralife.service.AuthService
 import com.drs.auralife.ui.auth.fragment.LogoFragment
+import com.drs.auralife.ui.home.HomeActivity
 import com.drs.auralife.utils.Validator
 
 class LoginActivity : AppCompatActivity() {
@@ -27,18 +26,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var password: EditText
     private lateinit var fragment: LogoFragment
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
-
-    private val filter= IntentFilter(AuthService.RESULT)
-    private val receiver= object: BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            binding.loginButton.isEnabled = true
-            binding.progressBar.visibility = View.GONE
-            intent?.getStringExtra("nextActivity")?.let {
-                startActivity(Intent(this@LoginActivity, Class.forName(it)))
-                finishAffinity()
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +61,6 @@ class LoginActivity : AppCompatActivity() {
     // Register the receiver and filter
     override fun onStart() {
         super.onStart()
-        registerReceiver(receiver, filter)
         @Suppress("DEPRECATION") val display = windowManager.defaultDisplay
         val orientation = when (display.rotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> LinearLayout.VERTICAL
@@ -82,12 +68,6 @@ class LoginActivity : AppCompatActivity() {
             else -> LinearLayout.VERTICAL // Default to vertical
         }
         binding.mainLayout.orientation = orientation
-    }
-
-    // Unregister the receiver
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(receiver)
     }
 
     // Set the click listeners for the buttons
@@ -106,24 +86,18 @@ class LoginActivity : AppCompatActivity() {
             if (username.error == null && password.error == null) {
                 binding.loginButton.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-                startService(Intent(this, AuthService::class.java).apply {
-                    action = AuthService.ACTION_LOGIN
-                    putExtra(AuthService.EXTRA_USERNAME, username.text.toString())
-                    putExtra(AuthService.EXTRA_PASSWORD, password.text.toString())
-                })
+                AuthResponsible().login(this, username.text.toString(), password.text.toString()) {
+                    if (it.isSuccess) {
+                        Toast.makeText(this, it.getOrNull(), Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, HomeActivity::class.java))
+                        finish()
+                    } else {
+                        binding.loginButton.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this, it.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-        }
-
-        binding.googleButton.setOnClickListener {
-            startService(Intent(this, AuthService::class.java).apply {
-                action = AuthService.GOOGLE_SIGN_IN
-            })
-        }
-
-        binding.facebookButton.setOnClickListener {
-            startService(Intent(this, AuthService::class.java).apply {
-                action = AuthService.FACEBOOK_SIGN_IN
-            })
         }
 
         binding.dontHaveAccountButton.setOnClickListener {

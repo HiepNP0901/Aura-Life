@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="splash_description">Cảm nhận nhịp điệu, sống cùng âm nhạc</string>
-    <string name="onboarding_description">Trải nghiệm những giai điệu bất tận mọi lúc, mọi nơi</string>
-    <string name="login_failed">Đăng nhập không thành công</string>
+    <string name="onboarding_description_1">Trải nghiệm những giai điệu bất tận mọi lúc, mọi nơi</string>
     <string name="login_title">Đăng nhập</string>
     <string name="register_title">Đăng ký</string>
+    <string name="prompt_email">Thư điện tử</string>
     <string name="prompt_password">Mật khẩu</string>
-    <string name="invalid_email">Email không hợp lệ</string>
+    <string name="invalid_email">Địa chỉ thư điện tử không hợp lệ</string>
+    <string name="start">Bắt đầu</string>
+    <string name="onboarding_description_3">Tham gia cộng đồng những người yêu âm nhạc toàn cầu</string>
     <string name="location_title">Chọn khu vực của bạn</string>
     <string name="choose_location">Chọn khu vực</string>
     <string name="choose_location_description">Để mang đến cho bạn trải nghiệm ăn uống tốt nhất, chúng tôi cần bạn cho phép truy cập vị trí thiết bị của bạn. Bằng cách bật dịch vụ vị trí, chúng tôi có thể cung cấp các đề xuất nhà hàng được cá nhân hóa, ước tính giao hàng chính xác và đảm bảo trải nghiệm giao đồ ăn liền mạch.\"</string>
@@ -26,4 +28,10 @@
     <string name="required_field">Trường này là bắt buộc</string>
     <string name="must_be_a_number">Trường này phải là một số</string>
     <string name="logout">Đăng xuất</string>
+    <string name="please_verify_account">Vui lòng kiểm tra hòm thư điện tử để xác thực tài khoản của bạn</string>
+    <string name="email_already_exist">Địa chỉ thư điện tử đã được một tài khoản khác sử dụng</string>
+    <string name="login_successful">Đăng nhập thành công</string>
+    <string name="login_failed">Địa chỉ thư điện tử hoặc mật khẩu không chính xác</string>
+    <string name="next">Tiếp theo</string>
+    <string name="onboarding_description_2">Khám phá danh sách phát được cá nhân hóa dành riêng cho bạn</string>
 </resources>

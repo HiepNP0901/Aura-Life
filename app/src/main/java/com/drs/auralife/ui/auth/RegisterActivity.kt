@@ -1,10 +1,6 @@
 package com.drs.auralife.ui.auth
 
-import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -12,9 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityRegisterBinding
-import com.drs.auralife.service.AuthService
 import com.drs.auralife.ui.auth.fragment.LogoFragment
 import com.drs.auralife.utils.Validator
+import android.widget.Toast
+import com.drs.auralife.data.AuthResponsible
 
 class RegisterActivity : AppCompatActivity() {
     private val binding: ActivityRegisterBinding by lazy {
@@ -25,23 +22,6 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var password: EditText
     private lateinit var confirmPassword: EditText
     private lateinit var fragment: LogoFragment
-
-    private val filter = IntentFilter(AuthService.RESULT)
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            binding.createAccount.isEnabled = true
-            binding.progressBar.visibility = View.GONE
-            intent?.getStringExtra("nextActivity")?.let {
-                if (it.isNotEmpty()) {
-                    val resultIntent = Intent()
-                    resultIntent.putExtra("RESULT", username.text.toString())
-                    setResult(RESULT_OK, resultIntent)
-                    finish()
-                }
-            }
-        }
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,19 +41,6 @@ class RegisterActivity : AppCompatActivity() {
         confirmPassword = binding.confirmPassword
         setBindingButton()
         setBindingEditText()
-    }
-
-    // Register the receiver and filter
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    override fun onStart() {
-        super.onStart()
-        registerReceiver(receiver, filter)
-    }
-
-    // Unregister the receiver
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(receiver)
     }
 
     // Set the click listeners for the buttons
@@ -98,24 +65,20 @@ class RegisterActivity : AppCompatActivity() {
             if (confirmPassword.error == null && username.error == null && password.error == null) {
                 binding.createAccount.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-                startService(Intent(this, AuthService::class.java).apply {
-                    action = AuthService.ACTION_REGISTER
-                    putExtra(AuthService.EXTRA_USERNAME, username.text.toString())
-                    putExtra(AuthService.EXTRA_PASSWORD, password.text.toString())
-                })
+                AuthResponsible().register(this, username.text.toString(), password.text.toString()) {
+                    if (it.isSuccess) {
+                        Toast.makeText(this, it.getOrNull(), Toast.LENGTH_SHORT).show()
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("RESULT", username.text.toString())
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
+                    } else {
+                        binding.createAccount.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this, it.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-        }
-
-        binding.googleButton.setOnClickListener {
-            startService(Intent(this, AuthService::class.java).apply {
-                action = AuthService.GOOGLE_SIGN_IN
-            })
-        }
-
-        binding.facebookButton.setOnClickListener {
-            startService(Intent(this, AuthService::class.java).apply {
-                action = AuthService.FACEBOOK_SIGN_IN
-            })
         }
 
         binding.alreadyHaveAccountButton.setOnClickListener {

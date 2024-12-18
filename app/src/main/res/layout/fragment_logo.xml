@@ -20,7 +20,7 @@
             android:layout_height="92dp"
             android:importantForAccessibility="no"
             android:paddingTop="10dp"
-            app:srcCompat="@drawable/background_logo" />
+            app:srcCompat="@drawable/bg_logo" />
 
         <TextView
             android:id="@+id/appName"

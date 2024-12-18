@@ -1,7 +1,13 @@
 <resources>
     <string name="app_name" translatable="false">Aura Life</string>
     <string name="splash_description">Feel the Beat, Live the Music</string>
-    <string name="onboarding_description">Experience Endless Tunes Anytime, Anywhere</string>
+
+    <!-- Strings related to onboarding -->
+    <string name="next">Next</string>
+    <string name="start">Start</string>
+    <string name="onboarding_description_1">Experience Endless Tunes Anytime, Anywhere</string>
+    <string name="onboarding_description_2">Discover personalized playlists curated just for you</string>
+    <string name="onboarding_description_3">Join the global community of music lovers</string>
 
     <!-- Strings related to location -->
     <string name="location_title">Choose Your Location</string>
@@ -15,12 +21,11 @@
     <string name="must_be_a_number">This field must be a number</string>
     <string name="other_than_0">Field must be a number other than 0</string>
     <string name="invalid_password">Password must be greater than or equal to 6 characters</string>
-    <string name="login_failed">"Login failed"</string>
 
     <!-- Strings related to login - register -->
     <string name="login_title">Login To Your Account</string>
     <string name="register_title">Sign Up Here</string>
-    <string name="prompt_email" translatable="false">Email</string>
+    <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_confirm_password">Confirm password</string>
     <string name="login_action">Login</string>
@@ -33,5 +38,9 @@
     <string name="forgot_password">Forgot Password?</string>
     <string name="not_match_password">Passwords do not match</string>
     <string name="logout">Logout</string>
+    <string name="please_verify_account">Please check your email to verify your account</string>
+    <string name="email_already_exist">The email address is already in use by another account</string>
+    <string name="login_successful">Login Successful</string>
+    <string name="login_failed">Email or password is incorrect</string>
 
 </resources>

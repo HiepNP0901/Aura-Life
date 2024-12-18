@@ -8,4 +8,5 @@
     <color name="blue_dark">#3F51B5</color>
     <color name="grey">#3B3B3B</color>
     <color name="antique_white">#FAEBD7</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>
