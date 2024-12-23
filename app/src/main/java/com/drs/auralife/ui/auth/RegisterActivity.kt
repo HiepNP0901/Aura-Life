@@ -8,10 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityRegisterBinding
-import com.drs.auralife.ui.auth.fragment.LogoFragment
 import com.drs.auralife.utils.Validator
 import android.widget.Toast
-import com.drs.auralife.data.AuthResponsible
 
 class RegisterActivity : AppCompatActivity() {
     private val binding: ActivityRegisterBinding by lazy {
@@ -65,9 +63,9 @@ class RegisterActivity : AppCompatActivity() {
             if (confirmPassword.error == null && username.error == null && password.error == null) {
                 binding.createAccount.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-                AuthResponsible().register(this, username.text.toString(), password.text.toString()) {
-                    if (it.isSuccess) {
-                        Toast.makeText(this, it.getOrNull(), Toast.LENGTH_SHORT).show()
+                AuthViewModel().register(this, username.text.toString(), password.text.toString()) { result ->
+                    if (result.isSuccess) {
+                        Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
                         val resultIntent = Intent()
                         resultIntent.putExtra("RESULT", username.text.toString())
                         setResult(RESULT_OK, resultIntent)
@@ -75,7 +73,8 @@ class RegisterActivity : AppCompatActivity() {
                     } else {
                         binding.createAccount.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this, it.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
+
                     }
                 }
             }

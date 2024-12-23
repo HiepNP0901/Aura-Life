@@ -12,10 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
-import com.drs.auralife.data.AuthResponsible
 import com.drs.auralife.databinding.ActivityLoginBinding
-import com.drs.auralife.ui.auth.fragment.LogoFragment
-import com.drs.auralife.ui.home.HomeActivity
+import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.utils.Validator
 
 class LoginActivity : AppCompatActivity() {
@@ -86,15 +84,15 @@ class LoginActivity : AppCompatActivity() {
             if (username.error == null && password.error == null) {
                 binding.loginButton.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-                AuthResponsible().login(this, username.text.toString(), password.text.toString()) {
-                    if (it.isSuccess) {
-                        Toast.makeText(this, it.getOrNull(), Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, HomeActivity::class.java))
+                AuthViewModel().login(this, username.text.toString(), password.text.toString()) { result ->
+                    if (result.isSuccess) {
+                        Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
                         finish()
-                    } else {
+                        } else {
                         binding.loginButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this, it.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
                     }
                 }
             }

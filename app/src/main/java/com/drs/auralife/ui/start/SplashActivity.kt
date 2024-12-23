@@ -7,16 +7,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.drs.auralife.R
-import com.drs.auralife.ui.auth.LoginActivity
-import com.drs.auralife.ui.home.HomeActivity
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.drs.auralife.ui.MainActivity
 import kotlin.properties.Delegates
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
     private var isFirstTime by Delegates.notNull<Boolean>()
-    private var auth = Firebase.auth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +26,7 @@ class SplashActivity : AppCompatActivity() {
             }, 3000)
         } else{
             Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(Intent(this, HomeActivity::class.java))
+                startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }, 1000)
         }

@@ -14,7 +14,7 @@
     <string name="choose_location_description">Để mang đến cho bạn trải nghiệm ăn uống tốt nhất, chúng tôi cần bạn cho phép truy cập vị trí thiết bị của bạn. Bằng cách bật dịch vụ vị trí, chúng tôi có thể cung cấp các đề xuất nhà hàng được cá nhân hóa, ước tính giao hàng chính xác và đảm bảo trải nghiệm giao đồ ăn liền mạch.\"</string>
     <string name="done">Xong</string>
     <string name="prompt_confirm_password">Xác nhận mật khẩu</string>
-    <string name="login_action">Đăng nhập</string>
+    <string name="login">Đăng nhập</string>
     <string name="create_account">Tạo tài khoản</string>
     <string name="or">hoặc</string>
     <string name="sign_up_with">Đăng nhập với</string>
@@ -34,4 +34,12 @@
     <string name="login_failed">Địa chỉ thư điện tử hoặc mật khẩu không chính xác</string>
     <string name="next">Tiếp theo</string>
     <string name="onboarding_description_2">Khám phá danh sách phát được cá nhân hóa dành riêng cho bạn</string>
+    <string name="home">Trang chủ</string>
+    <string name="library">Thư viện</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="explore">Khám phá</string>
+    <string name="profile">Hồ sơ</string>
+    <string name="settings">Cài đặt</string>
+    <string name="open">Mở</string>
+    <string name="close">Đóng</string>
 </resources>

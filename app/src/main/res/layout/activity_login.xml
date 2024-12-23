@@ -148,7 +148,7 @@
                         android:layout_height="57dp"
                         android:background="@drawable/button_gradient"
                         android:shadowColor="@color/white_dark"
-                        android:text="@string/login_action"
+                        android:text="@string/login"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
                         android:textSize="20sp" />

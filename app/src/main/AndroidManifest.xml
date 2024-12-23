@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -10,41 +11,51 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locale_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AuraLife"
+        tools:ignore="UnusedAttribute"
         tools:targetApi="31">
+        <service android:name=".data.AuthService"
+            android:enabled="true"
+            tools:ignore="Instantiatable" />
+        <service
+            android:name=".data.SoundsService"
+            android:enabled="true"
+            tools:ignore="Instantiatable" />
         <activity
-            android:name=".ui.home.HomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.LocationActivity" />
-        <activity
-            android:name=".ui.auth.RegisterActivity"
-            android:launchMode="singleTask"/>
-        <activity
-            android:name=".ui.auth.LoginActivity"
-            android:exported="true"
-            android:launchMode="singleTask">
+            android:name=".ui.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="com.drs.auralife"
-                    android:scheme="http"
-                    android:pathPrefix="/login" />
+                    android:pathPrefix="/login"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.LocationActivity" />
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.start.OnboardingActivity"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.start.SplashActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

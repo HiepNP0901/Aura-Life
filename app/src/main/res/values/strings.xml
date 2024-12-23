@@ -15,7 +15,7 @@
     <string name="choose_location_description">\"To provide you with the best dining experience, we need your permission to access your device\'s location. By enabling location services, we can offer personalized restaurant recommendations, accurate delivery estimates, and ensure a seamless food delivery experience.\"</string>
     <string name="done">Done</string>
 
-    <!-- Edit Text -->
+    <!-- Strings related to validation -->
     <string name="required_field">This field is required</string>
     <string name="invalid_email">Not a valid email</string>
     <string name="must_be_a_number">This field must be a number</string>
@@ -28,7 +28,8 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_confirm_password">Confirm password</string>
-    <string name="login_action">Login</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
     <string name="create_account">Create Account</string>
     <string name="or">or</string>
     <string name="sign_up_with">Sign Up With</string>
@@ -37,10 +38,20 @@
     <string name="already_have_an_account">Already Have An Account?</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="not_match_password">Passwords do not match</string>
-    <string name="logout">Logout</string>
     <string name="please_verify_account">Please check your email to verify your account</string>
     <string name="email_already_exist">The email address is already in use by another account</string>
     <string name="login_successful">Login Successful</string>
     <string name="login_failed">Email or password is incorrect</string>
+
+    <!-- Strings related to home -->
+    <string name="home">Home</string>
+    <string name="library">Library</string>
+    <string name="search">Search</string>
+    <string name="explore">Explore</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="example_email" translatable="false">user@example.com</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 
 </resources>

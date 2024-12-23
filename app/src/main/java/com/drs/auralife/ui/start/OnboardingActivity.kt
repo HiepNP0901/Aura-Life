@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
 import com.drs.auralife.data.model.OnboardingItem
-import com.drs.auralife.ui.home.HomeActivity
+import com.drs.auralife.ui.MainActivity
 import com.google.android.material.tabs.TabLayoutMediator
 
 class OnboardingActivity : AppCompatActivity() {
@@ -38,7 +38,7 @@ class OnboardingActivity : AppCompatActivity() {
                     btnNext.setOnClickListener {
                         val sharedPreferences = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                         sharedPreferences.edit().putBoolean("isFirstTime", false).apply()
-                        startActivity(Intent(this@OnboardingActivity, HomeActivity::class.java))
+                        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
                         finish()
                     }
                 } else {

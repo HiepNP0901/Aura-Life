@@ -1,4 +1,4 @@
-package com.drs.auralife.ui.auth.fragment
+package com.drs.auralife.ui.auth
 
 import android.os.Bundle
 import android.view.LayoutInflater
