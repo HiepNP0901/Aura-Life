@@ -20,24 +20,6 @@
         tools:ignore="UnusedAttribute"
         tools:targetApi="31">
 
-        <service
-            android:name=".data.FilmService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
-
-        <service
-            android:name=".data.AuthService"
-            android:enabled="true"
-            android:exported="false"
-            tools:ignore="Instantiatable" />
-
-        <service
-            android:name=".data.FilmAPI"
-            android:enabled="true"
-            android:exported="false"
-            tools:ignore="Instantiatable" />
-
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">

@@ -11,10 +11,9 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
-import com.drs.auralife.data.AuthService
+import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.ui.auth.LoginActivity
-import com.drs.auralife.ui.film.FilmAdapter
-import com.drs.auralife.ui.fragmentPage.HomeFragment
+import com.drs.auralife.ui.home.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 
@@ -40,14 +39,14 @@ class MainActivity : AppCompatActivity() {
         var navLogin = navigationDrawer.menu.findItem(R.id.navLogin)
         var navLogout = navigationDrawer.menu.findItem(R.id.navLogout)
 
-        if (AuthService.isLoggedIn()) {
+        if (Authentication.isLoggedIn()) {
             navLogin.isVisible = false
             navLogout.isVisible = true
 
             val navigationHeader = navigationDrawer.getHeaderView(0)
 
             val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
-            navEmail.text = AuthService.getEmail()
+            navEmail.text = Authentication.getEmail()
 
             val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
             navPic.setImageResource(R.drawable.bg_logo)
@@ -109,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.navLogout -> {
-                    AuthService.logout()
+                    Authentication.logout()
                     finish()
                     startActivity(intent)
                 }
@@ -130,6 +129,8 @@ class MainActivity : AppCompatActivity() {
         )
 
         viewPager = findViewById(R.id.viewPager)
+
+        viewPager.isUserInputEnabled = false
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
 

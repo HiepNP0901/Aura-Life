@@ -1,4 +1,4 @@
-package com.drs.auralife.data
+package com.drs.auralife.data.firebase
 
 import android.content.Context
 import com.google.firebase.auth.ktx.auth
@@ -7,8 +7,7 @@ import com.drs.auralife.R
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 
-class AuthService {
-
+class Authentication {
     companion object{
         private val auth = Firebase.auth
 
@@ -19,6 +18,9 @@ class AuthService {
 
 
         fun getEmail() = auth.currentUser?.email
+
+
+        fun getUserId() = auth.currentUser?.uid
 
 
         suspend fun login(context: Context, username: String, password: String): Result<String> {

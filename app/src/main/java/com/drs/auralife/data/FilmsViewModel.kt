@@ -1,7 +1,6 @@
-package com.drs.auralife.ui.film
+package com.drs.auralife.data
 
 import androidx.lifecycle.ViewModel
-import com.drs.auralife.data.FilmRepository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.drs.auralife.data.model.FilmDetails
@@ -10,52 +9,54 @@ import com.drs.auralife.data.model.films.Films
 class FilmsViewModel(private val repository: FilmRepository) : ViewModel() {
 
     private val _films = MutableLiveData<Films?>()
-    val films: LiveData<Films?> get() = _films
+    private val _filmDetails = MutableLiveData<FilmDetails?>()
 
-    fun fetchLatestFilms(page: Int) {
+    fun fetchLatestFilms(page: Int, callback: (Films?) -> Unit) {
         repository.getLatestFilms(page) { films ->
             _films.postValue(films)
+            callback(films)
         }
     }
 
-    fun fetchFilmsByCategory(slug: String, page: Int) {
+    fun fetchFilmsByCategory(slug: String, page: Int, callback: (Films?) -> Unit) {
         repository.getFilmsByCategory(slug, page) { films ->
             _films.postValue(films)
+            callback(films)
         }
     }
 
-    fun fetchFilmsByGenre(slug: String, page: Int) {
+    fun fetchFilmsByGenre(slug: String, page: Int, callback: (Films?) -> Unit) {
         repository.getFilmsByGenre(slug, page) { films ->
             _films.postValue(films)
+            callback(films)
         }
     }
 
-    fun fetchFilmsByCountry(slug: String, page: Int) {
+    fun fetchFilmsByCountry(slug: String, page: Int, callback: (Films?) -> Unit) {
         repository.getFilmsByCountry(slug, page) { films ->
             _films.postValue(films)
+            callback(films)
         }
     }
 
-    fun fetchFilmsByYear(slug: String, page: Int) {
+    fun fetchFilmsByYear(slug: String, page: Int, callback: (Films?) -> Unit) {
         repository.getFilmsByYear(slug, page) { films ->
             _films.postValue(films)
+            callback(films)
         }
     }
 
-    fun searchFilms(keyword: String) {
+    fun searchFilms(keyword: String, callback: (Films?) -> Unit) {
         repository.searchFilms(keyword) { films ->
             _films.postValue(films)
+            callback(films)
         }
     }
 
-
-
-    private val _filmDetails = MutableLiveData<FilmDetails?>()
-    val filmDetails: LiveData<FilmDetails?> get() = _filmDetails
-
-    fun fetchFilmDetails(slug: String) {
+    fun fetchFilmDetails(slug: String, callback: (FilmDetails?) -> Unit) {
         repository.getFilmDetails(slug) { filmDetails ->
             _filmDetails.postValue(filmDetails)
+            callback(filmDetails)
         }
     }
 }

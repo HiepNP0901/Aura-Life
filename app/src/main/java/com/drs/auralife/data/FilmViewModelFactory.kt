@@ -1,9 +1,8 @@
-package com.drs.auralife.ui.film
+package com.drs.auralife.data
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.drs.auralife.data.FilmRepository
 
 class FilmViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

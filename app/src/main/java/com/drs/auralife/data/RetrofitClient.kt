@@ -15,11 +15,11 @@ object RetrofitClient {
             .cache(cache)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .header("Cache-Control", "public, max-age=${60}") // Cache 1 phút
+                    .header("Cache-Control", "public, max-age=${60}") // Cache 1 minute
                     .build()
                 chain.proceed(request)
             }
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(50, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
     }

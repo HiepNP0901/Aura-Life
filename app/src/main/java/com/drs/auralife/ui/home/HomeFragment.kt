@@ -1,20 +1,21 @@
-package com.drs.auralife.ui.fragmentPage
+package com.drs.auralife.ui.home
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.drs.auralife.data.FilmViewModelFactory
+import com.drs.auralife.data.FilmsViewModel
+import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.data.model.films.FilmPreviews
 import com.drs.auralife.data.model.films.Paginate
 import com.drs.auralife.databinding.FragmentHomeBinding
-import com.drs.auralife.ui.film.FilmAdapter
-import com.drs.auralife.ui.film.FilmViewModelFactory
-import com.drs.auralife.ui.film.FilmsViewModel
 
 class HomeFragment : Fragment() {
 
@@ -22,89 +23,93 @@ class HomeFragment : Fragment() {
         FragmentHomeBinding.inflate(layoutInflater)
     }
 
-    private lateinit var recyclerView: RecyclerView
-
-    private lateinit var itemAdapter: FilmAdapter
-
     private var isLoading = false
 
-    private lateinit var viewModel: FilmsViewModel
+    private var filmAdapter = FilmAdapter(mutableListOf())
 
     private lateinit var viewModelFactory: FilmViewModelFactory
+
+    private lateinit var viewModel: FilmsViewModel
 
     private lateinit var paginate: Paginate
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        recyclerView = binding.recyclerView
+        super.onCreate(savedInstanceState)
 
         viewModelFactory = FilmViewModelFactory(requireContext())
 
         viewModel = ViewModelProvider(this, viewModelFactory)[FilmsViewModel::class.java]
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        val recyclerView = binding.recyclerView
+
+        recyclerView.adapter = filmAdapter
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        viewModel.fetchLatestFilms(1)
-        viewModel.fetchLatestFilms(2)
+        viewModel.fetchLatestFilms(1) { result ->
+            if (result != null) {
+                paginate = result.paginate
+                filmAdapter.addItem(result.items)
+                loadMoreFilm()
+            }
+        }
 
-        val item: MutableList<FilmPreviews> = mutableListOf()
-        item.addAll(viewModel.films.value?.items ?: emptyList())
+        addBanner()
 
-        itemAdapter = FilmAdapter(item)
-
-        recyclerView.adapter = itemAdapter
-
-        addFragmentFilm()
-    }
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
         return binding.root
     }
 
-
     private fun loadMoreFilm() {
-        if (paginate.currentPage < paginate.totalPage) {
 
-            recyclerView.viewTreeObserver.addOnScrollChangedListener {
+        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
 
-                val view = recyclerView.getChildAt(recyclerView.childCount - 1)
+            if (paginate.currentPage < paginate.totalPage) {
 
-                val viewSize = view.bottom
+                val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
 
-                if (view != null) {
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
 
-                    val diff = viewSize - (recyclerView.height + recyclerView.scrollY)
+                if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
 
-                    if (diff <= 20 && !isLoading) {
+                    isLoading = true
 
-                        isLoading = true
-
-                        viewModel.fetchLatestFilms(paginate.currentPage + 1)
+                    viewModel.fetchLatestFilms(paginate.currentPage + 1) { result ->
+                        if (result != null) {
+                            paginate = result.paginate
+                            filmAdapter.addItem(result.items)
+                        }
+                        isLoading = false
                     }
                 }
             }
         }
     }
 
+    private fun addBanner() {
 
-    private fun addFragmentFilm() {
-        viewModel.films.observe(this, Observer { films ->
-            if (films != null) {
+        RealtimeDB().getBannerData { bannerData ->
 
-                paginate = films.paginate
+            val bannerViewPager = binding.bannerViewPager
 
-                loadMoreFilm()
+            bannerViewPager.adapter = BannerAdapter(bannerData)
 
-                itemAdapter.addItem(films.items)
+            val handler = Handler(Looper.getMainLooper())
 
-                isLoading = false
+            val runnable = object : Runnable {
+
+                override fun run() {
+                    val currentItem = bannerViewPager.currentItem
+                    val nextItem = if (currentItem == bannerData.size - 1) 0 else currentItem + 1
+                    bannerViewPager.setCurrentItem(nextItem, true)
+                    handler.postDelayed(this, 3000)
+                }
             }
-        })
+
+            handler.postDelayed(runnable, 3000)
+        }
     }
 }
