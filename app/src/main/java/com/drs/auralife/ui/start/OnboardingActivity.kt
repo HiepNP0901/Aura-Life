@@ -23,7 +23,7 @@ class OnboardingActivity : AppCompatActivity() {
         onboardingViewPager = findViewById(R.id.onboardingViewPager)
         setupOnboardingItems()
 
-        TabLayoutMediator(findViewById(R.id.tabLayout), onboardingViewPager) { tab, position ->
+        TabLayoutMediator(findViewById(R.id.tabLayout), onboardingViewPager) { _, _ ->
         }.attach()
 
         btnNext.setOnClickListener {

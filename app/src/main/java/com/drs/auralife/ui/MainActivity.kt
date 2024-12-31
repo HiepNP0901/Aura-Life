@@ -13,8 +13,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
 import com.drs.auralife.data.AuthService
 import com.drs.auralife.ui.auth.LoginActivity
-import com.drs.auralife.ui.film.FilmFragment
-import com.drs.auralife.ui.home.HomeFragment
+import com.drs.auralife.ui.film.FilmAdapter
+import com.drs.auralife.ui.fragmentPage.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 
@@ -124,7 +124,6 @@ class MainActivity : AppCompatActivity() {
 
         val fragments = listOf(
             HomeFragment(),
-            FilmFragment(),
             //SearchFragment(),
             //ExploreFragment(),
             //LibraryFragment()
