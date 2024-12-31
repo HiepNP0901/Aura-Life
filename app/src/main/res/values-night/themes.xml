@@ -5,5 +5,5 @@
          <item name="android:windowBackground">@color/grey</item>
     </style>
     <color name="color_button">@color/black</color>
-    <color name="color_icon">@color/blue_light</color>
+    <color name="color_icon">@color/red_light</color>
 </resources>

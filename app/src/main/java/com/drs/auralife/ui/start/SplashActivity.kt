@@ -15,20 +15,33 @@ class SplashActivity : AppCompatActivity() {
     private var isFirstTime by Delegates.notNull<Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_splash_screen)
+
         isFirstTime =
-            getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isFirstTime", true)
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getBoolean("isFirstTime", true)
+
         if (isFirstTime) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(Intent(this, OnboardingActivity::class.java))
-                finish()
-            }, 3000)
-        } else{
-            Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            }, 1000)
+            Handler(Looper.getMainLooper())
+                .postDelayed(
+                    {
+                        startActivity(Intent(this, OnboardingActivity::class.java))
+                        finish()
+                    },
+                    3000
+                )
+        } else {
+            Handler(Looper.getMainLooper())
+                .postDelayed(
+                    {
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    },
+                    1000
+                )
         }
     }
 }

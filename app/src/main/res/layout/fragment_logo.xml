@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="30dp"
+    tools:ignore="UselessParent"
     tools:context=".ui.auth.LogoFragment">
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="30dp"
-        tools:ignore="UselessParent">
 
         <ImageView
             android:id="@+id/logo"
@@ -30,7 +26,7 @@
             android:fontFamily="@font/yeon_sung"
             android:text="@string/app_name"
             android:textAlignment="center"
-            android:textColor="@color/blue"
+            android:textColor="@color/red"
             android:textSize="40sp"
             android:textStyle="bold" />
 
@@ -40,7 +36,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/splash_description"
-            android:textColor="@color/blue"
+            android:textAlignment="center"
+            android:textColor="@color/red"
             android:textStyle="bold" />
 
         <TextView
@@ -48,9 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="#TITLE"
-            android:textColor="@color/blue"
+            android:textColor="@color/red"
             android:textSize="20sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>

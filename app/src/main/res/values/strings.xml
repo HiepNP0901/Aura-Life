@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name" translatable="false">Aura Life</string>
-    <string name="splash_description">Feel the Beat, Live the Music</string>
+    <string name="splash_description">Feel the Scene, Live the Story</string>
 
     <!-- Strings related to onboarding -->
     <string name="next">Next</string>
     <string name="start">Start</string>
-    <string name="onboarding_description_1">Experience Endless Tunes Anytime, Anywhere</string>
-    <string name="onboarding_description_2">Discover personalized playlists curated just for you</string>
-    <string name="onboarding_description_3">Join the global community of music lovers</string>
+    <string name="onboarding_description_1">Explore Unlimited Movies Anytime, Anywhere</string>
+    <string name="onboarding_description_2">Discover tailored recommendations just for you</string>
+    <string name="onboarding_description_3">Join the global community of movie enthusiasts</string>
 
     <!-- Strings related to location -->
-    <string name="location_title">Choose Your Location</string>
-    <string name="choose_location">Choose location</string>
-    <string name="choose_location_description">\"To provide you with the best dining experience, we need your permission to access your device\'s location. By enabling location services, we can offer personalized restaurant recommendations, accurate delivery estimates, and ensure a seamless food delivery experience.\"</string>
+    <string name="location_title">Choose Your Region</string>
+    <string name="choose_location">Choose region</string>
+    <string name="choose_location_description">\"To provide the best content recommendations, we need your permission to access your region. By enabling this, we can offer localized content and a personalized viewing experience.\"</string>
     <string name="done">Done</string>
 
     <!-- Strings related to validation -->
@@ -20,7 +20,7 @@
     <string name="invalid_email">Not a valid email</string>
     <string name="must_be_a_number">This field must be a number</string>
     <string name="other_than_0">Field must be a number other than 0</string>
-    <string name="invalid_password">Password must be greater than or equal to 6 characters</string>
+    <string name="invalid_password">Password must be at least 6 characters long</string>
 
     <!-- Strings related to login - register -->
     <string name="login_title">Login To Your Account</string>
@@ -34,8 +34,8 @@
     <string name="or">or</string>
     <string name="sign_up_with">Sign Up With</string>
     <string name="continue_with">Continue With</string>
-    <string name="don_t_have_account">Don’t Have Account?</string>
-    <string name="already_have_an_account">Already Have An Account?</string>
+    <string name="don_t_have_account">Don’t Have an Account?</string>
+    <string name="already_have_an_account">Already Have an Account?</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="not_match_password">Passwords do not match</string>
     <string name="please_verify_account">Please check your email to verify your account</string>

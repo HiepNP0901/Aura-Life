@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:allowBackup="true"
@@ -17,45 +19,57 @@
         android:theme="@style/Theme.AuraLife"
         tools:ignore="UnusedAttribute"
         tools:targetApi="31">
-        <service android:name=".data.AuthService"
-            android:enabled="true"
-            tools:ignore="Instantiatable" />
+
         <service
-            android:name=".data.SoundsService"
+            android:name=".data.FilmService"
             android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".data.AuthService"
+            android:enabled="true"
+            android:exported="false"
             tools:ignore="Instantiatable" />
+
+        <service
+            android:name=".data.FilmAPI"
+            android:enabled="true"
+            android:exported="false"
+            tools:ignore="Instantiatable" />
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                    android:host="com.drs.auralife"
-                    android:pathPrefix="/login"
-                    android:scheme="http" />
+                <data android:scheme="http" />
+                <data android:host="com.drs.auralife" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.LocationActivity" />
+
         <activity
             android:name=".ui.auth.RegisterActivity"
             android:launchMode="singleTask" />
+
         <activity
             android:name=".ui.auth.LoginActivity"
             android:launchMode="singleTask" />
+
         <activity
             android:name=".ui.start.OnboardingActivity"
             android:launchMode="singleTask" />
+
         <activity
             android:name=".ui.start.SplashActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -63,6 +77,7 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
     </application>
 
 </manifest>
