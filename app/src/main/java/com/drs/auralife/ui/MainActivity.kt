@@ -2,18 +2,23 @@ package com.drs.auralife.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
+import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.home.HomeFragment
+import com.drs.auralife.utils.PermissionPhotoHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 
@@ -22,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationDrawer: NavigationView
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var viewPager: ViewPager2
+    private lateinit var permissionPhotoHandler: PermissionPhotoHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +55,13 @@ class MainActivity : AppCompatActivity() {
             navEmail.text = Authentication.getEmail()
 
             val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
-            navPic.setImageResource(R.drawable.bg_logo)
+            RealtimeDB.getAvatar {
+                Glide.with(this)
+                    .load(it)
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .into(navPic)
+            }
         } else {
             navLogin.isVisible = true
             navLogout.isVisible = false
@@ -68,12 +80,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionPhotoHandler.handlePermissionsResult(requestCode, grantResults)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        permissionPhotoHandler.handleActivityResult(requestCode, resultCode, data)
+    }
+
     @SuppressLint("UnsafeIntentLaunch")
     private fun setupDrawerMenu() {
 
         drawerLayout = findViewById(R.id.drawerLayout)
 
         navigationDrawer = findViewById(R.id.navigation_view)
+
+        // Initialize the PermissionPhotoHandler
+        permissionPhotoHandler = PermissionPhotoHandler(this) { uri ->
+            uri?.let {
+                contentResolver.openInputStream(it)?.use { inputStream ->
+                    RealtimeDB.uploadAvatar(this, BitmapFactory.decodeStream(inputStream))
+                }
+            }
+        }
+
+        navigationDrawer
+            .getHeaderView(0)
+            .findViewById<ImageFilterView>(R.id.navProfilePic)
+            .setOnClickListener {
+                permissionPhotoHandler.checkAndRequestPermissions()
+            }
 
         // Set up the navigation drawer
         val actionBarDrawerToggle = ActionBarDrawerToggle(
@@ -90,14 +132,6 @@ class MainActivity : AppCompatActivity() {
 
             when (menuItem.itemId) {
 
-                R.id.navProfile -> {
-                    // TODO: Handle profile item click
-                }
-
-                R.id.navSettings -> {
-                    // TODO: Handle settings item click
-                }
-
                 R.id.navLogin -> {
                     startActivity(
                         Intent(
@@ -113,6 +147,9 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
 
+                R.id.navExit -> {
+                    finish()
+                }
             }
             true
         }
@@ -124,7 +161,6 @@ class MainActivity : AppCompatActivity() {
         val fragments = listOf(
             HomeFragment(),
             //SearchFragment(),
-            //ExploreFragment(),
             //LibraryFragment()
         )
 
@@ -149,8 +185,9 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.navHome -> viewPager.currentItem = 0
                 R.id.navSearch -> viewPager.currentItem = 1
-                R.id.navExplore -> viewPager.currentItem = 2
-                R.id.navLibrary -> viewPager.currentItem = 3
+                R.id.navLibrary -> viewPager.currentItem = 2
+                //R.id.navExplore -> viewPager.currentItem = 2
+                //R.id.navLibrary -> viewPager.currentItem = 3
             }
             true
         }

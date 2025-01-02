@@ -42,4 +42,7 @@
     <string name="settings">Cài đặt</string>
     <string name="open">Mở</string>
     <string name="close">Đóng</string>
+    <string name="upload_avatar_successfully">Ảnh đại diện đã tải lên thành công</string>
+    <string name="upload_avatar_failed">Không thể tải lên ảnh đại diện</string>
+    <string name="exit">Thoát</string>
 </resources>

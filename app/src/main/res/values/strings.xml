@@ -53,5 +53,8 @@
     <string name="example_email" translatable="false">user@example.com</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="upload_avatar_successfully">Upload avatar successfully</string>
+    <string name="upload_avatar_failed">Upload avatar failed</string>
+    <string name="exit">Exit</string>
 
 </resources>
