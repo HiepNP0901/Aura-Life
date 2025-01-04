@@ -4,7 +4,8 @@
         <!-- Customize your light theme here. -->
         <item name="android:windowBackground">@color/white_dark</item>
     </style>
-    <color name="color_button">@color/white</color>
+    <color name="color_button">@color/antique_white</color>
+    <color name="color_button_dark">@color/antique_white_dark</color>
     <color name="color_icon">@color/black</color>
     <style name="Theme.AuraLife" parent="Base.Theme.AuraLife" />
 </resources>

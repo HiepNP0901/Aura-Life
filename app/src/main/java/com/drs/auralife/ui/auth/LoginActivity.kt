@@ -65,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
             Surface.ROTATION_90, Surface.ROTATION_270 -> LinearLayout.HORIZONTAL
             else -> LinearLayout.VERTICAL // Default to vertical
         }
-        binding.mainLayout.orientation = orientation
+        binding.linearLayout.orientation = orientation
     }
 
     // Set the click listeners for the buttons
@@ -87,9 +87,9 @@ class LoginActivity : AppCompatActivity() {
                 AuthViewModel().login(this, username.text.toString(), password.text.toString()) { result ->
                     if (result.isSuccess) {
                         Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, MainActivity::class.java))
                         finish()
-                        } else {
+                    }
+                    else {
                         binding.loginButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()

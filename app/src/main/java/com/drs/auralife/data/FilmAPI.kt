@@ -28,6 +28,6 @@ interface FilmAPI {
     @GET("api/films/search")
     fun searchFilms(@Query("keyword") keyword: String): Call<Films>
 
-    @GET("film/{slug}")
+    @GET("api/film/{slug}")
     fun getFilmDetails(@Path("slug") slug: String): Call<FilmDetails>
 }

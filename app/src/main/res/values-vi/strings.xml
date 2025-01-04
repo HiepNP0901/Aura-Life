@@ -45,4 +45,16 @@
     <string name="upload_avatar_successfully">Ảnh đại diện đã tải lên thành công</string>
     <string name="upload_avatar_failed">Không thể tải lên ảnh đại diện</string>
     <string name="exit">Thoát</string>
+    <string name="status">Trạng thái</string>
+    <string name="episode_number">Số tập</string>
+    <string name="duration">Thời lượng</string>
+    <string name="quality">Chất lượng</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="director">Đạo diễn</string>
+    <string name="casts">Diễn viên</string>
+    <string name="format">Danh sách</string>
+    <string name="category">Thể loại</string>
+    <string name="year_of_release">Năm phát hành</string>
+    <string name="country">Quốc gia</string>
+    <string name="play">Xem phim</string>
 </resources>

@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingSuperCall")
     @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
     override fun onBackPressed() {
-
         // Close the drawer if it's open, otherwise handle back press as usual
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -97,25 +96,24 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("UnsafeIntentLaunch")
     private fun setupDrawerMenu() {
 
-        drawerLayout = findViewById(R.id.drawerLayout)
-
+        drawerLayout = findViewById(R.id.main_layout)
         navigationDrawer = findViewById(R.id.navigation_view)
 
         // Initialize the PermissionPhotoHandler
         permissionPhotoHandler = PermissionPhotoHandler(this) { uri ->
             uri?.let {
-                contentResolver.openInputStream(it)?.use { inputStream ->
-                    RealtimeDB.uploadAvatar(this, BitmapFactory.decodeStream(inputStream))
-                }
+                contentResolver
+                    .openInputStream(it)
+                    ?.use { inputStream ->
+                        RealtimeDB.uploadAvatar(this, BitmapFactory.decodeStream(inputStream))
+                    }
             }
         }
 
         navigationDrawer
             .getHeaderView(0)
             .findViewById<ImageFilterView>(R.id.navProfilePic)
-            .setOnClickListener {
-                permissionPhotoHandler.checkAndRequestPermissions()
-            }
+            .setOnClickListener { permissionPhotoHandler.checkAndRequestPermissions() }
 
         // Set up the navigation drawer
         val actionBarDrawerToggle = ActionBarDrawerToggle(
@@ -124,29 +122,19 @@ class MainActivity : AppCompatActivity() {
 
         // Set up the navigation drawer toggle
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
-
         actionBarDrawerToggle.syncState()
 
         // Handle navigation drawer item clicks
         navigationDrawer.setNavigationItemSelectedListener { menuItem ->
-
             when (menuItem.itemId) {
-
                 R.id.navLogin -> {
-                    startActivity(
-                        Intent(
-                            this,
-                            LoginActivity::class.java
-                        )
-                    )
+                    startActivity(Intent(this, LoginActivity::class.java))
                 }
-
                 R.id.navLogout -> {
                     Authentication.logout()
                     finish()
                     startActivity(intent)
                 }
-
                 R.id.navExit -> {
                     finish()
                 }
@@ -155,6 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
 
     private fun setupViewPager() {
 

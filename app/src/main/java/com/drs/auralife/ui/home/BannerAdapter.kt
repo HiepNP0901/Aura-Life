@@ -1,14 +1,14 @@
 package com.drs.auralife.ui.home
 
-import android.util.Log
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.drs.auralife.R
+import com.drs.auralife.ui.film.details.FilmDetailsActivity
 
 class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
 
@@ -21,10 +21,6 @@ class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerV
                 .placeholder(R.drawable.bg_logo)
                 .error(R.drawable.rounded)
                 .into(bannerImage)
-
-            itemView.setOnClickListener {
-                // Handle item click here
-            }
         }
     }
 
@@ -35,6 +31,12 @@ class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerV
 
     override fun onBindViewHolder(holder: BannerViewHolder, position: Int) {
         holder.bind(banners[position])
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, FilmDetailsActivity::class.java)
+            intent.putExtra(SLUG, banners[position].first)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = banners.size

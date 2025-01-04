@@ -3,7 +3,6 @@ package com.drs.auralife.ui.home
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.RealtimeDB
-import com.drs.auralife.data.model.films.FilmPreviews
 import com.drs.auralife.data.model.films.Paginate
 import com.drs.auralife.databinding.FragmentHomeBinding
 
@@ -27,8 +25,6 @@ class HomeFragment : Fragment() {
 
     private var filmAdapter = FilmAdapter(mutableListOf())
 
-    private lateinit var viewModelFactory: FilmViewModelFactory
-
     private lateinit var viewModel: FilmsViewModel
 
     private lateinit var paginate: Paginate
@@ -37,9 +33,7 @@ class HomeFragment : Fragment() {
 
         super.onCreate(savedInstanceState)
 
-        viewModelFactory = FilmViewModelFactory(requireContext())
-
-        viewModel = ViewModelProvider(this, viewModelFactory)[FilmsViewModel::class.java]
+        viewModel = ViewModelProvider(this, FilmViewModelFactory(requireContext()))[FilmsViewModel::class.java]
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,10 +44,10 @@ class HomeFragment : Fragment() {
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        viewModel.fetchLatestFilms(1) { result ->
-            if (result != null) {
-                paginate = result.paginate
-                filmAdapter.addItem(result.items)
+        viewModel.fetchLatestFilms(1) {
+            it?.let{
+                paginate = it.paginate
+                filmAdapter.addItem(it.items)
                 loadMoreFilm()
             }
         }
@@ -77,10 +71,10 @@ class HomeFragment : Fragment() {
 
                     isLoading = true
 
-                    viewModel.fetchLatestFilms(paginate.currentPage + 1) { result ->
-                        if (result != null) {
-                            paginate = result.paginate
-                            filmAdapter.addItem(result.items)
+                    viewModel.fetchLatestFilms(paginate.currentPage + 1) {
+                        it?.let{
+                            paginate = it.paginate
+                            filmAdapter.addItem(it.items)
                         }
                         isLoading = false
                     }
@@ -91,7 +85,7 @@ class HomeFragment : Fragment() {
 
     private fun addBanner() {
 
-        RealtimeDB().getBannerData { bannerData ->
+        RealtimeDB.getBannerData { bannerData ->
 
             val bannerViewPager = binding.bannerViewPager
 

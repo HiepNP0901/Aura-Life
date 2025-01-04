@@ -56,5 +56,17 @@
     <string name="upload_avatar_successfully">Upload avatar successfully</string>
     <string name="upload_avatar_failed">Upload avatar failed</string>
     <string name="exit">Exit</string>
+    <string name="status">Status</string>
+    <string name="episode_number">Episode number</string>
+    <string name="duration">Duration</string>
+    <string name="quality">Quality</string>
+    <string name="language">Language</string>
+    <string name="director">Director</string>
+    <string name="casts">Casts</string>
+    <string name="format">Format</string>
+    <string name="category">Category</string>
+    <string name="year_of_release">Year of release</string>
+    <string name="country">Country</string>
+    <string name="play">Play</string>
 
 </resources>

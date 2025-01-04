@@ -1,5 +1,6 @@
 package com.drs.auralife.ui.home
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.drs.auralife.R
 import com.drs.auralife.data.model.films.FilmPreviews
+import com.drs.auralife.ui.film.details.FilmDetailsActivity
+
+const val SLUG = "@slug"
 
 class FilmAdapter(private val films: MutableList<FilmPreviews>) : RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
 
@@ -16,14 +20,6 @@ class FilmAdapter(private val films: MutableList<FilmPreviews>) : RecyclerView.A
         val tvImage = itemView.findViewById<ImageView>(R.id.imageFilm)
         val tvTitle = itemView.findViewById<TextView>(R.id.nameFilm)
         val tvEpisode = itemView.findViewById<TextView>(R.id.currentEpisode)
-
-        init {
-            itemView.setOnClickListener {
-                // Handle item click here
-            }
-
-            itemView.isSelected = true
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -41,9 +37,16 @@ class FilmAdapter(private val films: MutableList<FilmPreviews>) : RecyclerView.A
             .into(holder.tvImage)
 
         holder.tvTitle.text = film.name
+
         holder.tvEpisode.text = film.currentEpisode
 
-        holder.tvTitle.isSelected
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, FilmDetailsActivity::class.java)
+            intent.putExtra(SLUG, film.slug)
+            holder.itemView.context.startActivity(intent)
+        }
+
+        holder.itemView.isSelected = true
     }
 
     override fun getItemCount(): Int = films.size

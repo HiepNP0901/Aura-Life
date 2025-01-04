@@ -83,5 +83,42 @@ class RealtimeDB {
                 }
             })
         }
+
+
+        fun getLibraryData(onDataReceived: (List<Pair<String, String>>) -> Unit) {
+            val userId = Authentication.getUserId()
+
+            userId.let {
+                userRef.child(it.toString()).child("library").addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val libraryPair = mutableListOf<Pair<String, String>>()
+                        for (snapshot in dataSnapshot.children) {
+                            val key = snapshot.key
+                            val value = snapshot.getValue(String::class.java)
+                            libraryPair.add(Pair(key ?: "", value ?: ""))
+                        }
+                        onDataReceived(libraryPair)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        onDataReceived(emptyList())
+                    }
+                })
+            }
+        }
+
+
+        fun addLibraryData(key: String, value: String) {
+            val userId = Authentication.getUserId()
+            userId.let {
+                userRef.child(it.toString()).child("library").child(key).setValue(value)
+            }
+        }
+
+        fun removeLibraryData(key: String) {
+            val userId = Authentication.getUserId()
+            userId.let {
+                userRef.child(it.toString()).child("library").child(key).removeValue()
+            }
+        }
     }
 }

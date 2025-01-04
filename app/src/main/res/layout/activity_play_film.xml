@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.film.play.PlayFilmActivity">
+
+    <WebView
+        android:id="@+id/web_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/nameFilm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:shadowColor="@color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="3"
+        android:textColor="@color/antique_white_dark"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_margin="5dp"
+        app:layout_constraintEnd_toEndOf="@+id/web_view"
+        app:layout_constraintStart_toStartOf="@+id/web_view"
+        app:layout_constraintTop_toBottomOf="@+id/web_view" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/episodeRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="center"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/bg_gradient"
+        app:layout_constraintEnd_toEndOf="@+id/nameFilm"
+        app:layout_constraintStart_toStartOf="@+id/nameFilm"
+        app:layout_constraintTop_toBottomOf="@+id/nameFilm" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

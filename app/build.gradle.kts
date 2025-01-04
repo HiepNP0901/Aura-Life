@@ -15,6 +15,8 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        renderscriptTargetApi = 21
+        renderscriptSupportModeEnabled = true
     }
 
     buildFeatures {
@@ -44,7 +46,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     annotationProcessor (libs.compiler)
-    implementation (libs.glide)
+    implementation(libs.glide)
     implementation(libs.material)
     implementation(libs.retrofit)
     implementation(libs.firebase.auth)
@@ -61,4 +63,5 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.glide.transformations)
 }
