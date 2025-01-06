@@ -3,21 +3,23 @@ package com.drs.auralife.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.home.HomeFragment
+import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.utils.PermissionPhotoHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
@@ -31,47 +33,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
 
+        initializeViews()
         setupDrawerMenu()
-
         setupViewPager()
     }
 
     override fun onResume() {
         super.onResume()
-
-        var navLogin = navigationDrawer.menu.findItem(R.id.navLogin)
-        var navLogout = navigationDrawer.menu.findItem(R.id.navLogout)
-
-        if (Authentication.isLoggedIn()) {
-            navLogin.isVisible = false
-            navLogout.isVisible = true
-
-            val navigationHeader = navigationDrawer.getHeaderView(0)
-
-            val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
-            navEmail.text = Authentication.getEmail()
-
-            val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
-            RealtimeDB.getAvatar {
-                Glide.with(this)
-                    .load(it)
-                    .placeholder(R.drawable.ic_profile)
-                    .error(R.drawable.ic_profile)
-                    .into(navPic)
-            }
-        } else {
-            navLogin.isVisible = true
-            navLogout.isVisible = false
-        }
+        updateNavigationHeader()
     }
 
     @SuppressLint("MissingSuperCall")
-    @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
-        // Close the drawer if it's open, otherwise handle back press as usual
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
         } else {
@@ -79,11 +55,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionPhotoHandler.handlePermissionsResult(requestCode, grantResults)
     }
@@ -93,90 +65,101 @@ class MainActivity : AppCompatActivity() {
         permissionPhotoHandler.handleActivityResult(requestCode, resultCode, data)
     }
 
-    @SuppressLint("UnsafeIntentLaunch")
-    private fun setupDrawerMenu() {
-
+    private fun initializeViews() {
         drawerLayout = findViewById(R.id.main_layout)
         navigationDrawer = findViewById(R.id.navigation_view)
-
-        // Initialize the PermissionPhotoHandler
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
+        viewPager = findViewById(R.id.viewPager)
         permissionPhotoHandler = PermissionPhotoHandler(this) { uri ->
-            uri?.let {
-                contentResolver
-                    .openInputStream(it)
-                    ?.use { inputStream ->
-                        RealtimeDB.uploadAvatar(this, BitmapFactory.decodeStream(inputStream))
-                    }
-            }
+            uri?.let { uploadAvatar(it) }
         }
+    }
 
-        navigationDrawer
-            .getHeaderView(0)
-            .findViewById<ImageFilterView>(R.id.navProfilePic)
-            .setOnClickListener { permissionPhotoHandler.checkAndRequestPermissions() }
+    private fun setupDrawerMenu() {
+        setupDrawerToggle()
+        setupDrawerHeader()
+        handleDrawerItemSelection()
+    }
 
-        // Set up the navigation drawer
-        val actionBarDrawerToggle = ActionBarDrawerToggle(
-            this, drawerLayout, R.string.open, R.string.close
-        )
-
-        // Set up the navigation drawer toggle
+    private fun setupDrawerToggle() {
+        val actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
+    }
 
-        // Handle navigation drawer item clicks
+    private fun setupDrawerHeader() {
+        navigationDrawer.getHeaderView(0).findViewById<ImageFilterView>(R.id.navProfilePic).setOnClickListener {
+            if (Authentication.isLoggedIn()) {
+                permissionPhotoHandler.checkAndRequestPermissions()
+            } else {
+                startActivity(Intent(this, LoginActivity::class.java))
+            }
+        }
+    }
+
+    private fun handleDrawerItemSelection() {
         navigationDrawer.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navLogin -> {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                }
-                R.id.navLogout -> {
-                    Authentication.logout()
-                    finish()
-                    startActivity(intent)
-                }
-                R.id.navExit -> {
-                    finish()
-                }
+                R.id.navLogin -> startActivity(Intent(this, LoginActivity::class.java))
+                R.id.navLogout -> handleLogout()
+                R.id.navExit -> finish()
             }
             true
         }
-
     }
 
+    private fun handleLogout() {
+        Authentication.logout()
+        recreate()
+    }
 
-    private fun setupViewPager() {
+    private fun updateNavigationHeader() {
+        val navLogin = navigationDrawer.menu.findItem(R.id.navLogin)
+        val navLogout = navigationDrawer.menu.findItem(R.id.navLogout)
 
-        val fragments = listOf(
-            HomeFragment(),
-            //SearchFragment(),
-            //LibraryFragment()
-        )
+        if (Authentication.isLoggedIn()) {
+            navLogin.isVisible = false
+            navLogout.isVisible = true
+            val navigationHeader = navigationDrawer.getHeaderView(0)
+            val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
+            navEmail.text = Authentication.getEmail()
+            val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
+            RealtimeDB.getAvatar {
+                MyAppGlideModule.loadImage(this, it, navPic)
+            }
+        } else {
+            navLogin.isVisible = true
+            navLogout.isVisible = false
+        }
+    }
 
-        viewPager = findViewById(R.id.viewPager)
-
-        viewPager.isUserInputEnabled = false
-
-        bottomNavigationView = findViewById(R.id.bottomNavigationView)
-
-        viewPager.adapter = ViewPagerAdapter(this, fragments)
-
-        viewPager.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    bottomNavigationView.menu.getItem(position).isChecked = true
+    private fun uploadAvatar(uri: Uri) {
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            RealtimeDB.uploadAvatar(BitmapFactory.decodeStream(inputStream)) {
+                it.onSuccess {
+                    Toast.makeText(this, getString(R.string.upload_avatar_successfully), Toast.LENGTH_SHORT).show()
+                }.onFailure {
+                    Toast.makeText(this, getString(R.string.upload_avatar_failed), Toast.LENGTH_SHORT).show()
                 }
             }
-        )
+        }
+    }
+
+    private fun setupViewPager() {
+        val fragments = listOf(HomeFragment())
+        viewPager.adapter = ViewPagerAdapter(this, fragments)
+        viewPager.isUserInputEnabled = false
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                bottomNavigationView.menu.getItem(position).isChecked = true
+            }
+        })
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navHome -> viewPager.currentItem = 0
                 R.id.navSearch -> viewPager.currentItem = 1
                 R.id.navLibrary -> viewPager.currentItem = 2
-                //R.id.navExplore -> viewPager.currentItem = 2
-                //R.id.navLibrary -> viewPager.currentItem = 3
             }
             true
         }

@@ -6,28 +6,35 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.data.model.movie.Item
+import com.drs.auralife.data.model.film.ServerData
 
-class EpisodeAdapter(private val episodes: List<Item>, private val viewModel: SelectedItemViewModel) : RecyclerView.Adapter<EpisodeAdapter.EpisodeViewHolder>() {
+class EpisodeAdapter(private val episodes: List<ServerData>,
+                     private val numberEpInLine: Int,
+                     private val onItemClick: (Int) -> Unit) : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
 
-    inner class EpisodeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val episodeNumber: TextView = itemView.findViewById(R.id.episodeNumber)
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(R.id.episodeNumber)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_episode, parent, false)
-        return EpisodeViewHolder(itemView)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.item_episode, parent, false)
+
+        view.layoutParams.width = ((parent.width -192)/numberEpInLine).toInt()
+
+        return ViewHolder(view)
     }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.textView.text = episodes[position].name
 
-    override fun onBindViewHolder(holder: EpisodeViewHolder, position: Int) {
-        val episode = episodes[position]
-        holder.episodeNumber.text = episode.name
-
-        holder.itemView.setOnClickListener {
-            viewModel.setSelectedItem(episode)
+        holder.textView.setOnClickListener {
+            onItemClick(position)
+            holder.itemView.isSelected = true
         }
     }
 
     override fun getItemCount(): Int = episodes.size
 }
+

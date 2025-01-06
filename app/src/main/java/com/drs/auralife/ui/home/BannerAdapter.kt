@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.drs.auralife.R
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
+import com.drs.auralife.utils.MyAppGlideModule
 
 class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
 
@@ -16,11 +16,7 @@ class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerV
         val bannerImage: ImageView = itemView.findViewById(R.id.bannerImage)
 
         fun bind(banner: Pair<String, String>) {
-            Glide.with(bannerImage.context)
-                .load(banner.second)
-                .placeholder(R.drawable.bg_logo)
-                .error(R.drawable.rounded)
-                .into(bannerImage)
+            MyAppGlideModule.loadImage(bannerImage.context, banner.second, bannerImage)
         }
     }
 

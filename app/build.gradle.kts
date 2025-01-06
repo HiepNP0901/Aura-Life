@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.drs.auralife"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -46,7 +46,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     annotationProcessor (libs.compiler)
-    implementation(libs.glide)
     implementation(libs.material)
     implementation(libs.retrofit)
     implementation(libs.firebase.auth)
@@ -63,5 +62,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.recyclerview)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose)
     implementation(libs.glide.transformations)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.hls)
+    implementation(libs.androidx.media3.ui)
 }

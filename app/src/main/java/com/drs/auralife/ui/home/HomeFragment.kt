@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.RealtimeDB
-import com.drs.auralife.data.model.films.Paginate
+import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
@@ -22,31 +22,32 @@ class HomeFragment : Fragment() {
     }
 
     private var isLoading = false
-
-    private var filmAdapter = FilmAdapter(mutableListOf())
-
+    private lateinit var filmAdapter: FilmAdapter
     private lateinit var viewModel: FilmsViewModel
-
-    private lateinit var paginate: Paginate
+    private lateinit var paginate: Pagination
+    private var numberFilmInLine = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-
-        viewModel = ViewModelProvider(this, FilmViewModelFactory(requireContext()))[FilmsViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            FilmViewModelFactory(requireContext())
+        )[FilmsViewModel::class.java]
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         val recyclerView = binding.recyclerView
 
-        recyclerView.adapter = filmAdapter
+        numberFilmInLine = (resources.displayMetrics.widthPixels)/360
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), numberFilmInLine)
 
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
+        filmAdapter = FilmAdapter(mutableListOf(), numberFilmInLine)
+        recyclerView.adapter = filmAdapter
 
         viewModel.fetchLatestFilms(1) {
             it?.let{
-                paginate = it.paginate
+                paginate = it.pagination
                 filmAdapter.addItem(it.items)
                 loadMoreFilm()
             }
@@ -61,7 +62,7 @@ class HomeFragment : Fragment() {
 
         binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
 
-            if (paginate.currentPage < paginate.totalPage) {
+            if (paginate.currentPage < paginate.totalPages) {
 
                 val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
 
@@ -73,7 +74,7 @@ class HomeFragment : Fragment() {
 
                     viewModel.fetchLatestFilms(paginate.currentPage + 1) {
                         it?.let{
-                            paginate = it.paginate
+                            paginate = it.pagination
                             filmAdapter.addItem(it.items)
                         }
                         isLoading = false

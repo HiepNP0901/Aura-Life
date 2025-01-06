@@ -1,14 +1,13 @@
+@file:Suppress("unused")
+
 package com.drs.auralife.data.firebase
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.widget.Toast
 import com.drs.auralife.utils.ImageEncoderDecoder
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.drs.auralife.R
 
 class RealtimeDB {
     companion object{
@@ -19,25 +18,17 @@ class RealtimeDB {
         private val userRef = database.getReference("users")
 
 
-        fun uploadAvatar(context: Context, bitmap: Bitmap) {
+        fun uploadAvatar(bitmap: Bitmap, callback: (Result<Boolean>) -> Unit) {
             val base64String = ImageEncoderDecoder.encodeToBase64(bitmap)
             val userId = Authentication.getUserId()
 
             userId.let {
                 userRef.child(it.toString()).child("avatar").setValue(base64String)
                     .addOnSuccessListener {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.upload_avatar_successfully),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        callback(Result.success(true))
                     }
-                    .addOnFailureListener { _ ->
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.upload_avatar_failed),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    .addOnFailureListener { e ->
+                        callback(Result.failure(Exception(e)))
                     }
             }
         }

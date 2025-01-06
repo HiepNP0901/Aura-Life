@@ -11,6 +11,8 @@ import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.utils.Validator
 import android.widget.Toast
 
+const val USERNAME = "@username"
+
 class RegisterActivity : AppCompatActivity() {
     private val binding: ActivityRegisterBinding by lazy {
         ActivityRegisterBinding.inflate(layoutInflater)
@@ -67,7 +69,7 @@ class RegisterActivity : AppCompatActivity() {
                     if (result.isSuccess) {
                         Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
                         val resultIntent = Intent()
-                        resultIntent.putExtra("RESULT", username.text.toString())
+                        resultIntent.putExtra(USERNAME, username.text.toString())
                         setResult(RESULT_OK, resultIntent)
                         finish()
                     } else {

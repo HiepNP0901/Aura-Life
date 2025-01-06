@@ -57,4 +57,9 @@
     <string name="year_of_release">Năm phát hành</string>
     <string name="country">Quốc gia</string>
     <string name="play">Xem phim</string>
+    <string name="play_pause">Tiếp tục/Dừng Lại</string>
+    <string name="rewind">Tua lui</string>
+    <string name="forward">Tua tới</string>
+    <string name="previous_video">Video trước</string>
+    <string name="next_video">Video sau</string>
 </resources>

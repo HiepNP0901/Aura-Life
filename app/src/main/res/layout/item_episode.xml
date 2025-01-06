@@ -3,12 +3,13 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:elevation="4dp">
+    android:elevation="4dp"
+    android:layout_gravity="center">
 
     <TextView
         android:id="@+id/episodeNumber"
-        android:layout_width="50dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:textSize="16sp"
         android:padding="10dp"
         android:gravity="center" />

@@ -1,36 +1,45 @@
 package com.drs.auralife.ui.film.play
 
-import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
-import android.webkit.WebChromeClient
-import android.webkit.WebChromeClient.CustomViewCallback
-import android.webkit.WebView
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.model.FilmDetails
+import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.ui.home.SLUG
 
-const val PLAY_FILM_STATE="@playFilmState"
-const val CURRENT_EPISODE="@currentEpisode"
-
-@Suppress("DEPRECATION")
 class PlayFilmActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewModel: FilmsViewModel
-    private lateinit var webView: WebView
+    private lateinit var exoPlayer: ExoPlayer
+    private lateinit var playerView: PlayerView
+    private lateinit var btnRewind: ImageButton
+    private lateinit var btnForward: ImageButton
+    private lateinit var btnPrevious: ImageButton
+    private lateinit var btnNext: ImageButton
+    private lateinit var fullscreenButton: ImageButton
     private lateinit var nameFilm: TextView
-    private lateinit var film: FilmDetails
-    private lateinit var currentEpisode: String
+    private var currentEpisode = 0
+    private var currentPosition: Long = 0
     private var slug: String? = null
+    private var film: FilmDetails? = null
+    private var isFullscreen = false
+    private var numberEpInLine = 3
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,118 +49,172 @@ class PlayFilmActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this, FilmViewModelFactory(this))[FilmsViewModel::class.java]
 
-        webView = findViewById(R.id.web_view)
+        exoPlayer = ExoPlayer.Builder(this).build()
+        playerView = findViewById(R.id.player_view)
+        playerView.player = exoPlayer
 
-        nameFilm = findViewById<TextView>(R.id.nameFilm)
+        btnRewind = playerView.findViewById(R.id.btn_rewind)
+        btnForward = playerView.findViewById(R.id.btn_forward)
+        btnPrevious = playerView.findViewById(R.id.btn_previous)
+        btnNext = playerView.findViewById(R.id.btn_next)
+        fullscreenButton = playerView.findViewById(R.id.btn_fullscreen)
 
+        nameFilm = findViewById(R.id.nameFilm)
         recyclerView = findViewById(R.id.episodeRecyclerView)
+        numberEpInLine = (resources.displayMetrics.widthPixels-212)/280
+        recyclerView.layoutManager = GridLayoutManager(this, numberEpInLine)
+    }
 
-        val layoutManager = GridLayoutManager(this, 4)
-        layoutManager.orientation = GridLayoutManager.HORIZONTAL
-        recyclerView.layoutManager = layoutManager
 
-        setFilmDetail{
-            it?.let{
+    override fun onStart() {
+        super.onStart()
+        setFilmDetail { filmDetails ->
+            filmDetails?.let {
                 film = it
-                webView.loadUrl(it.movie.episodes[0].items[0].embed)
-                @SuppressLint("SetTextI18n")
-                nameFilm.text = "${film.movie.name} - Tập ${it.movie.episodes[0].items[0].name}"
-                currentEpisode = it.movie.episodes[0].items[0].name
+                playEpisode(currentEpisode)
+                recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData, numberEpInLine) { ep ->
+                    playEpisode(ep)
+                }
             }
         }
 
-        settingsWebView()
+        settingExoPlayer()
     }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
-        val webViewState = Bundle()
-        webView.saveState(webViewState)
-        outState.putBundle(PLAY_FILM_STATE, webViewState)
-        outState.putString(CURRENT_EPISODE, currentEpisode)
+        outState.putInt("currentEpisode", currentEpisode)
+        outState.putBoolean("isFullscreen", isFullscreen)
+        outState.putLong("exoPlayerPosition", exoPlayer.currentPosition)
     }
 
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
 
-        setFilmDetail{
-            film = it!!
-            if (savedInstanceState.getString(CURRENT_EPISODE) != null) {
-                currentEpisode = savedInstanceState.getString(CURRENT_EPISODE).toString()
-                webView.loadUrl(film.movie.episodes[0].items.let { it ->
-                    it.find { it.name == currentEpisode }?.embed ?: it[0].embed
-                })
-                @SuppressLint("SetTextI18n")
-                nameFilm.text = "${film.movie.name} - Tập $currentEpisode"
-            }
-        }
+        isFullscreen = savedInstanceState.getBoolean("isFullscreen", false)
+        toggleFullscreen()
 
-        settingsWebView()
+        currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
+        playEpisode(currentEpisode)
+        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - 2000
+    }
 
-        savedInstanceState.let {
-            it.getBundle(PLAY_FILM_STATE)?.let { state ->
-                webView.restoreState(state)
+
+    private fun setFilmDetail(callback: (FilmDetails?) -> Unit) {
+        slug?.let {
+            viewModel.fetchFilmDetails(it) { filmDetails ->
+                callback(filmDetails)
             }
         }
     }
 
 
-    private fun setFilmDetail(callback: (FilmDetails?) -> Unit){
-        slug?.let {
-            viewModel.fetchFilmDetails(it) {
-                it?.let {film ->
-                    val episodes = film.movie.episodes[0].items.map { it }
-                    val viewModel = ViewModelProvider(this)[SelectedItemViewModel::class.java]
+    private fun playEpisode(episodeIndex: Int) {
+        film?.let { filmDetails ->
+            val episodes = filmDetails.episodes[0].serverData
+            if (episodeIndex in episodes.indices) {
+                exoPlayer.setMediaItem(MediaItem.fromUri(episodes[episodeIndex].linkM3u8))
 
-                    viewModel.selectedItem.observe(this) { currentEpisode ->
-                        webView.loadUrl(currentEpisode.embed)
-                        @SuppressLint("SetTextI18n")
-                        nameFilm.text = "${film.movie.name} - Tập ${currentEpisode.name}"
-                        this.currentEpisode = currentEpisode.name
-                    }
+                exoPlayer.prepare()
+                exoPlayer.seekTo(currentPosition)
+                exoPlayer.play()
 
-                    recyclerView.adapter = EpisodeAdapter(episodes, viewModel)
+                nameFilm.text = episodes[episodeIndex].filename
+                currentEpisode = episodeIndex
+            }
+        }
+    }
 
-                    callback(film)
+
+    private fun settingExoPlayer() {
+        exoPlayer.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) {
+                    playEpisode(currentEpisode + 1)
                 }
             }
+        })
+
+        btnRewind.setOnClickListener {
+            val rewindPosition = exoPlayer.currentPosition - 5000
+            exoPlayer.seekTo(rewindPosition.coerceAtLeast(0))
+        }
+
+        btnForward.setOnClickListener {
+            val forwardPosition = exoPlayer.currentPosition + 15000
+            exoPlayer.seekTo(forwardPosition.coerceAtMost(exoPlayer.duration))
+        }
+
+        btnPrevious.setOnClickListener {
+            playEpisode(currentEpisode - 1)
+        }
+
+        btnNext.setOnClickListener {
+            playEpisode(currentEpisode + 1)
+        }
+
+        fullscreenButton.setOnClickListener {
+            if (isFullscreen) {
+                isFullscreen = false
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                recreate()
+            }
+            else {
+                isFullscreen = true
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                recreate()
+            }
         }
     }
 
 
-    private fun settingsWebView(){
-        @SuppressLint("SetJavaScriptEnabled")
-        webView.settings.javaScriptEnabled = true
 
-        if(requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-            webView.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    private fun toggleFullscreen(){
+        val otherViews = listOf(recyclerView, nameFilm)
+
+        if (!isFullscreen) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val windowInsetsController = window.insetsController
+                windowInsetsController?.show(WindowInsets.Type.systemBars())
+            }
+            else {
+                @Suppress("DEPRECATION")
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            }
+
+            otherViews.forEach { it.visibility = View.VISIBLE }
+            playerView.layoutParams.height = 700
         }
         else {
-            webView.layoutParams.height = 700
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-        }
-
-        webView.webChromeClient = object : WebChromeClient() {
-            override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                super.onShowCustomView(view, callback)
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-                view?.let {
-                    val parent = webView.parent as ViewGroup
-                    parent.removeView(webView)
-                    parent.addView(it)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val windowInsetsController = window.insetsController
+                windowInsetsController?.let {
+                    it.hide(WindowInsets.Type.statusBars())
+                    it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
             }
-
-            @SuppressLint("SourceLockedOrientationActivity")
-            override fun onHideCustomView() {
-                super.onHideCustomView()
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            else {
+                @Suppress("DEPRECATION")
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN)
             }
+
+            otherViews.forEach { it.visibility = View.GONE }
+            playerView.layoutParams.height = resources.displayMetrics.heightPixels
         }
+    }
+
+
+    override fun onStop() {
+        super.onStop()
+        exoPlayer.pause()
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        exoPlayer.release()
     }
 }

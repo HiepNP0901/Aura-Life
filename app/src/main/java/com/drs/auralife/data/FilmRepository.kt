@@ -1,7 +1,8 @@
 package com.drs.auralife.data
 
 import android.content.Context
-import com.drs.auralife.data.model.FilmDetails
+import android.util.Log
+import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.films.Films
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,7 +27,7 @@ class FilmRepository(context: Context) {
             }
 
             override fun onFailure(call: Call<T>, t: Throwable) {
-                t.printStackTrace()
+                Log.d("aaa", "onFailure: $t")
                 onResult(null)
             }
         })
@@ -38,18 +39,6 @@ class FilmRepository(context: Context) {
 
     fun getFilmsByCategory(slug: String, page: Int, onResult: (Films?) -> Unit) {
         makeApiCall(api.getFilmsByCategory(slug, page), onResult)
-    }
-
-    fun getFilmsByGenre(slug: String, page: Int, onResult: (Films?) -> Unit) {
-        makeApiCall(api.getFilmsByGenre(slug, page), onResult)
-    }
-
-    fun getFilmsByCountry(slug: String, page: Int, onResult: (Films?) -> Unit) {
-        makeApiCall(api.getFilmsByCountry(slug, page), onResult)
-    }
-
-    fun getFilmsByYear(slug: String, page: Int, onResult: (Films?) -> Unit) {
-        makeApiCall(api.getFilmsByYear(slug, page), onResult)
     }
 
     fun searchFilms(keyword: String, onResult: (Films?) -> Unit) {

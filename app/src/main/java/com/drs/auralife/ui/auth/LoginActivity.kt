@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityLoginBinding
-import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.utils.Validator
 
 class LoginActivity : AppCompatActivity() {
@@ -49,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
         ) { result ->
             runOnUiThread {
                 if (result.resultCode == RESULT_OK) {
-                    val data = result.data?.getStringExtra("RESULT")
+                    val data = result.data?.getStringExtra(USERNAME)
                     username.setText(data)
                 }
             }

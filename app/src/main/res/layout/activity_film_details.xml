@@ -15,7 +15,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/bannerView"
+                android:id="@+id/thumbView"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:scaleType="centerCrop"
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/imageFilm"
+                    android:id="@+id/posterView"
                     android:layout_width="120dp"
                     android:layout_height="160dp"
                     android:layout_margin="30dp"
@@ -72,6 +72,37 @@
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/trailerButton"
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="50dp"
+                android:textColor="@color/white"
+                android:background="@drawable/button_gradient"
+                android:text="@string/trailer" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/playButton"
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:background="@drawable/button_gradient"
+                android:text="@string/play" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/filmDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -84,25 +115,11 @@
             android:id="@+id/filmDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="30dp"
             android:padding="10dp"
             android:textSize="16sp"
             android:background="@drawable/bg_gradient"/>
-
-        <LinearLayout
-            android:id="@+id/filmEpisodes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:padding="10dp"
-            android:orientation="vertical"/>
-
-        <Button
-            android:id="@+id/playButton"
-            android:layout_width="match_parent"
-            android:layout_margin="150dp"
-            android:textColor="@color/color_button"
-            android:text="@string/play"
-            android:layout_height="wrap_content"/>
     </LinearLayout>
 </ScrollView>

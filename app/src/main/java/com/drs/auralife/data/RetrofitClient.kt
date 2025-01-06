@@ -1,5 +1,6 @@
+package com.drs.auralife.data
+
 import android.content.Context
-import com.drs.auralife.data.BASE_URL
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -25,6 +26,7 @@ object RetrofitClient {
     }
 
     fun create(context: Context): Retrofit {
+
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(createOkHttpClient(context))

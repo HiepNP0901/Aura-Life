@@ -56,6 +56,8 @@
     <string name="upload_avatar_successfully">Upload avatar successfully</string>
     <string name="upload_avatar_failed">Upload avatar failed</string>
     <string name="exit">Exit</string>
+
+    <!-- Strings related to film details -->
     <string name="status">Status</string>
     <string name="episode_number">Episode number</string>
     <string name="duration">Duration</string>
@@ -68,5 +70,12 @@
     <string name="year_of_release">Year of release</string>
     <string name="country">Country</string>
     <string name="play">Play</string>
+    <string name="trailer" translatable="false">Trailer</string>
 
+    <!--  Strings related to play film  -->
+    <string name="play_pause">Play/Pause</string>
+    <string name="rewind">Rewind</string>
+    <string name="forward">Forward</string>
+    <string name="previous_video">Previous Video</string>
+    <string name="next_video">Next Video</string>
 </resources>
