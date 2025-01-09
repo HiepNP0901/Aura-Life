@@ -36,8 +36,8 @@ class MyAppGlideModule : AppGlideModule(){
                     glide.apply(RequestOptions.bitmapTransform(transformation))
                 }
 
-                glide.placeholder(R.drawable.bg_logo)
-                    .error(R.drawable.rounded)
+                glide.placeholder(R.drawable.rounded_shadow)
+                    .error(R.drawable.bg_logo)
                     .into(imageView)
             }
         }

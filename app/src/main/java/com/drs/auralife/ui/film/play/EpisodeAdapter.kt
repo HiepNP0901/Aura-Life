@@ -8,9 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.model.film.ServerData
 
-class EpisodeAdapter(private val episodes: List<ServerData>,
-                     private val numberEpInLine: Int,
-                     private val onItemClick: (Int) -> Unit) : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
+class EpisodeAdapter(private val episodes: List<ServerData>, private val onItemClick: (Int) -> Unit)
+    : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.episodeNumber)
@@ -20,8 +19,6 @@ class EpisodeAdapter(private val episodes: List<ServerData>,
         val view = LayoutInflater
             .from(parent.context)
             .inflate(R.layout.item_episode, parent, false)
-
-        view.layoutParams.width = ((parent.width -192)/numberEpInLine).toInt()
 
         return ViewHolder(view)
     }

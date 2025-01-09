@@ -1,5 +1,7 @@
 package com.drs.auralife.ui.home
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -13,10 +15,14 @@ import com.drs.auralife.ui.film.details.FilmDetailsActivity
 import com.drs.auralife.utils.MyAppGlideModule
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 
 const val SLUG = "@slug"
+const val GRID = 1
+const val LINEAR = 2
 
-class FilmAdapter(private val films: MutableList<Item>, private val numberFilmInLine: Int): RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
+@SuppressLint("NotifyDataSetChanged")
+class FilmAdapter(private val films: MutableList<Item>, private val itemViewType: Int = GRID): RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvImage = itemView.findViewById<ImageView>(R.id.posterView)
@@ -25,24 +31,31 @@ class FilmAdapter(private val films: MutableList<Item>, private val numberFilmIn
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_film, parent, false)
-        view.layoutParams.width = (parent.width-15*numberFilmInLine)/numberFilmInLine
+        val view = when (itemViewType) {
+            LINEAR -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_linear, parent, false)
+            else -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_grid, parent, false)
+        }
         return ItemViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val film = films[position]
+        val context = holder.itemView.context
 
-        MyAppGlideModule.loadImage(holder.tvImage.context, film.thumbUrl, holder.tvImage)
+        MyAppGlideModule.loadImage(context, film.posterUrl, holder.tvImage)
 
-        holder.tvTitle.text = film.name
+        if(Locale.getDefault().language == "vi") {
+            holder.tvTitle.text = film.name
+        } else {
+            holder.tvTitle.text = film.originName
+        }
 
-        holder.tvDetails.text = film.modified.time.let{calculateTimeDifference(it)}
+        holder.tvDetails.text = film.modified.time.let{calculateTimeDifference(it, context)}
 
         holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, FilmDetailsActivity::class.java)
+            val intent = Intent(context, FilmDetailsActivity::class.java)
             intent.putExtra(SLUG, film.slug)
-            holder.itemView.context.startActivity(intent)
+            context.startActivity(intent)
         }
 
         holder.itemView.isSelected = true
@@ -52,10 +65,21 @@ class FilmAdapter(private val films: MutableList<Item>, private val numberFilmIn
 
     fun addItem(newItems: List<Item>) {
         films.addAll(newItems)
-        notifyItemInserted(films.size - 1)
+        notifyItemInserted(films.size)
     }
 
-    private fun calculateTimeDifference(updateTime: String): String {
+    fun replaceItems(newItems: List<Item>) {
+        films.clear()
+        films.addAll(newItems)
+        notifyDataSetChanged()
+    }
+
+    fun clearItems() {
+        films.clear()
+        notifyDataSetChanged()
+    }
+
+    private fun calculateTimeDifference(updateTime: String, context: Context): String {
         val updateInstant = Instant.parse(updateTime) - Duration.ofHours(6)
         val currentInstant = Instant.now()
 
@@ -65,10 +89,10 @@ class FilmAdapter(private val films: MutableList<Item>, private val numberFilmIn
         val minutes = duration.toMinutes()
 
         return when {
-            days > 0 -> "$days ngày trước"
-            hours > 0 -> "${hours % 24} giờ trước"
-            minutes > 0 -> "${minutes % 60} phút trước"
-            else -> "Vừa xong"
+            days > 0 -> days.toString() + context.getString(R.string.days_ago)
+            hours > 0 -> (hours % 24).toString() + context.getString(R.string.hours_ago)
+            minutes > 0 -> (minutes % 60).toString() + context.getString(R.string.minutes_ago)
+            else -> context.getString(R.string.just_finished)
         }
     }
 }

@@ -1,0 +1,59 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_margin="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?android:attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/posterView"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
+        android:layout_margin="5dp"
+        android:clipToOutline="true"
+        android:background="@drawable/rounded"
+        android:src="@drawable/bg_logo"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription,UnusedAttribute" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/nameFilm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:ellipsize="marquee"
+            android:gravity="center"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:text="#name_film"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/posterView"
+            app:layout_constraintStart_toStartOf="@+id/posterView"
+            app:layout_constraintTop_toBottomOf="@+id/posterView"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="@+id/nameFilm"
+            app:layout_constraintStart_toStartOf="@+id/nameFilm"
+            app:layout_constraintTop_toBottomOf="@+id/nameFilm" />
+    </LinearLayout>
+</LinearLayout>

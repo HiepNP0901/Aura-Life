@@ -35,21 +35,15 @@ class FilmDetailsActivity : AppCompatActivity() {
 
         if (slug == null) {
             Toast.makeText(this, "Invalid film data", Toast.LENGTH_SHORT).show()
-            finish()
-            return
         }
         else {
             binding.playButton.setOnClickListener {
                 val intent = Intent(this, PlayFilmActivity::class.java)
                 intent.putExtra(SLUG, slug)
                 startActivity(intent)
-                finish()
             }
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
         slug?.let { loadFilmDetails(it) }
     }
 

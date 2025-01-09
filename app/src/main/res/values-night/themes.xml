@@ -1,10 +1,16 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<resources>
+
     <style name="Base.Theme.AuraLife" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-         <item name="android:windowBackground">@color/blue_dark</item>
+        <item name="android:windowBackground">@color/blue_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <item name="colorPrimaryDark">@color/blue_dark</item>
+        <item name="colorPrimary">@color/blue_dark</item>
     </style>
+
     <color name="color_button">@color/blue_gray_light</color>
+
     <color name="color_button_dark">@color/blue_gray</color>
+
     <color name="color_icon">@color/red_light</color>
 </resources>

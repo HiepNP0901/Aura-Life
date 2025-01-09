@@ -62,4 +62,9 @@
     <string name="forward">Tua tới</string>
     <string name="previous_video">Video trước</string>
     <string name="next_video">Video sau</string>
+    <string name="enter_search_keywords">Nhập từ khóa tìm kiếm</string>
+    <string name="days_ago">" ngày trước"</string>
+    <string name="hours_ago">" giờ trước"</string>
+    <string name="minutes_ago">" phút trước"</string>
+    <string name="just_finished">Vừa xong</string>
 </resources>

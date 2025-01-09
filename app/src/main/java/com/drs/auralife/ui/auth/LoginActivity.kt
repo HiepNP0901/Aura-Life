@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
+import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.databinding.ActivityLoginBinding
 import com.drs.auralife.utils.Validator
 
@@ -86,6 +87,7 @@ class LoginActivity : AppCompatActivity() {
                 AuthViewModel().login(this, username.text.toString(), password.text.toString()) { result ->
                     if (result.isSuccess) {
                         Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
+                        Authentication.isLoggedIn.postValue(true)
                         finish()
                     }
                     else {

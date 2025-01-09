@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.films.Films
+import com.drs.auralife.data.model.search.SearchResults
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -41,8 +42,8 @@ class FilmRepository(context: Context) {
         makeApiCall(api.getFilmsByCategory(slug, page), onResult)
     }
 
-    fun searchFilms(keyword: String, onResult: (Films?) -> Unit) {
-        makeApiCall(api.searchFilms(keyword), onResult)
+    fun searchFilms(keyword: String, limit: Int, onResult: (SearchResults?) -> Unit) {
+        makeApiCall(api.searchFilms(keyword, limit), onResult)
     }
 
     fun getFilmDetails(slug: String, onResult: (FilmDetails?) -> Unit) {

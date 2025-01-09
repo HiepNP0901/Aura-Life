@@ -2,6 +2,7 @@ package com.drs.auralife.data
 
 import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.films.Films
+import com.drs.auralife.data.model.search.SearchResults
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -21,8 +22,9 @@ interface FilmAPI {
 
     @GET("v1/api/tim-kiem")
     fun searchFilms(
-        @Query("keyword") keyword: String
-    ): Call<Films>
+        @Query("keyword") keyword: String,
+        @Query("limit") limit: Int
+    ): Call<SearchResults>
 
     @GET("phim/{slug}")
     fun getFilmDetails(

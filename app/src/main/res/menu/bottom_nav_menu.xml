@@ -5,10 +5,6 @@
         android:icon="@drawable/ic_home"
         android:title="@string/home" />
     <item
-        android:id="@+id/navSearch"
-        android:icon="@drawable/ic_search"
-        android:title="@string/search" />
-    <item
         android:id="@+id/navLibrary"
         android:icon="@drawable/ic_library"
         android:title="@string/library" />

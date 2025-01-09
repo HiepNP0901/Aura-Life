@@ -7,8 +7,8 @@ data class Item(
     val modified: Modified,
     val name: String,
     @SerializedName("origin_name") val originName: String,
-    @SerializedName("poster_url") val posterUrl: String,
+    @SerializedName("poster_url") var posterUrl: String,
     @SerializedName("slug") val slug: String,
-    @SerializedName("thumb_url") val thumbUrl: String,
+    @SerializedName("thumb_url") var thumbUrl: String,
     val year: Int
 )

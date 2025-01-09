@@ -1,6 +1,7 @@
 package com.drs.auralife.data.firebase
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.drs.auralife.R
@@ -11,11 +12,11 @@ class Authentication {
     companion object{
         private val auth = Firebase.auth
 
+        var isLoggedIn= MutableLiveData<Boolean>(isLoggedIn())
 
         fun isLoggedIn(): Boolean {
             return auth.currentUser != null
         }
-
 
         fun getEmail() = auth.currentUser?.email
 

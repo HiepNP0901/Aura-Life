@@ -1,6 +1,5 @@
 package com.drs.auralife.ui.film.play
 
-import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -61,8 +60,8 @@ class PlayFilmActivity : AppCompatActivity() {
 
         nameFilm = findViewById(R.id.nameFilm)
         recyclerView = findViewById(R.id.episodeRecyclerView)
-        numberEpInLine = (resources.displayMetrics.widthPixels-212)/280
-        recyclerView.layoutManager = GridLayoutManager(this, numberEpInLine)
+        numberEpInLine = resources.displayMetrics.widthPixels/resources.displayMetrics.densityDpi
+        recyclerView.layoutManager = GridLayoutManager(this, ++numberEpInLine)
     }
 
 
@@ -72,7 +71,7 @@ class PlayFilmActivity : AppCompatActivity() {
             filmDetails?.let {
                 film = it
                 playEpisode(currentEpisode)
-                recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData, numberEpInLine) { ep ->
+                recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData) { ep ->
                     playEpisode(ep)
                 }
             }
@@ -98,7 +97,7 @@ class PlayFilmActivity : AppCompatActivity() {
 
         currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
         playEpisode(currentEpisode)
-        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - 2000
+        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - 1000
     }
 
 
@@ -158,17 +157,17 @@ class PlayFilmActivity : AppCompatActivity() {
         fullscreenButton.setOnClickListener {
             if (isFullscreen) {
                 isFullscreen = false
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+//                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                fullscreenButton.isSelected
                 recreate()
             }
             else {
                 isFullscreen = true
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+//                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 recreate()
             }
         }
     }
-
 
 
     private fun toggleFullscreen(){
@@ -178,8 +177,7 @@ class PlayFilmActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val windowInsetsController = window.insetsController
                 windowInsetsController?.show(WindowInsets.Type.systemBars())
-            }
-            else {
+            } else {
                 @Suppress("DEPRECATION")
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             }
@@ -188,17 +186,19 @@ class PlayFilmActivity : AppCompatActivity() {
             playerView.layoutParams.height = 700
         }
         else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val windowInsetsController = window.insetsController
                 windowInsetsController?.let {
-                    it.hide(WindowInsets.Type.statusBars())
+                    it.hide(WindowInsets.Type.systemBars())
                     it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
-            }
-            else {
+            } else {
                 @Suppress("DEPRECATION")
-                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        or View.SYSTEM_UI_FLAG_FULLSCREEN)
+                window.decorView.systemUiVisibility = (
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        )
             }
 
             otherViews.forEach { it.visibility = View.GONE }

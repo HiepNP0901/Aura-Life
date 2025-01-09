@@ -1,5 +1,6 @@
 package com.drs.auralife.data.model.film
 
+import com.drs.auralife.data.model.films.Modified
 import com.google.gson.annotations.SerializedName
 
 data class Movie(

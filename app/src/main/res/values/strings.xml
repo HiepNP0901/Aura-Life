@@ -78,4 +78,9 @@
     <string name="forward">Forward</string>
     <string name="previous_video">Previous Video</string>
     <string name="next_video">Next Video</string>
+    <string name="enter_search_keywords">Enter search keywords</string>
+    <string name="days_ago">" days ago"</string>
+    <string name="hours_ago">" hours ago"</string>
+    <string name="minutes_ago">" minutes ago"</string>
+    <string name="just_finished">Just finished</string>
 </resources>
