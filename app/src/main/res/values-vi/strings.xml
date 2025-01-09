@@ -33,7 +33,7 @@
     <string name="login_successful">Đăng nhập thành công</string>
     <string name="login_failed">Địa chỉ thư điện tử hoặc mật khẩu không chính xác</string>
     <string name="next">Tiếp theo</string>
-    <string name="onboarding_description_2">Khám phá danh sách phim được đề xuất riêng cho bạn</string>
+    <string name="onboarding_description_2">Danh sách phim được đề xuất dành riêng cho bạn</string>
     <string name="home">Trang chủ</string>
     <string name="library">Thư viện</string>
     <string name="search">Tìm kiếm</string>

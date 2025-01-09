@@ -80,7 +80,7 @@ class FilmAdapter(private val films: MutableList<Item>, private val itemViewType
     }
 
     private fun calculateTimeDifference(updateTime: String, context: Context): String {
-        val updateInstant = Instant.parse(updateTime) - Duration.ofHours(6)
+        val updateInstant = Instant.parse(updateTime) - Duration.ofHours(7)
         val currentInstant = Instant.now()
 
         val duration = Duration.between(updateInstant, currentInstant)
