@@ -7,6 +7,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
+    private const val BASE_URL = "https://phimapi.com"
+
     private fun createOkHttpClient(context: Context): OkHttpClient {
         val cacheSize = (5 * 1024 * 1024).toLong() // 5MB
         val cache = Cache(context.cacheDir, cacheSize)

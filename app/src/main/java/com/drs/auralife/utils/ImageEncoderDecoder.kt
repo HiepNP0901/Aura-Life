@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream
 class ImageEncoderDecoder {
     companion object{
         // Encode Bitmap to Base64 string
-        fun encodeToBase64(bitmap: Bitmap, compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG, quality: Int = 100, size: Int = 256): String {
+        fun encodeToBase64(bitmap: Bitmap, compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG, quality: Int = 100, size: Int = 128): String {
             val resizedBitmap = Bitmap.createScaledBitmap(bitmap, size, size, false)
             val outputStream = ByteArrayOutputStream()
             resizedBitmap.compress(compressFormat, quality, outputStream)

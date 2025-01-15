@@ -17,9 +17,9 @@ class LibraryRepository {
                 if (it.exists()) {
                     val listSlug = it.child("listSlug").children.map { it.value.toString() }
                     if (!listSlug.contains(slug)) {
-                        val listSlug = listSlug.toMutableList()
-                        listSlug.add(slug)
-                        library.child("listSlug").setValue(listSlug)
+                        val newListSlug = listSlug.toMutableList()
+                        newListSlug.add(slug)
+                        library.child("listSlug").setValue(newListSlug)
                         library.child("posterUrl").setValue(posterUrl)
                         callback(Result.success(true))
                     }

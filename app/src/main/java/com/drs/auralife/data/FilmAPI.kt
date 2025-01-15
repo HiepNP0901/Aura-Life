@@ -8,8 +8,6 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-const val BASE_URL = "https://phimapi.com"
-
 interface FilmAPI {
     @GET("danh-sach/phim-moi-cap-nhat")
     fun getLatestFilms(@Query("page") page: Int): Call<Films>
