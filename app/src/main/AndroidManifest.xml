@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -21,31 +21,29 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AuraLife"
         tools:ignore="UnusedAttribute"
-        tools:targetApi="31">
-
+        tools:targetApi="31" >
+        <activity
+            android:name=".ui.library.LibraryActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.film.play.PlayFilmActivity"
             android:exported="false"
-            android:launchMode="singleTask"/>
-
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.film.details.FilmDetailsActivity"
             android:exported="false"
-            android:launchMode="singleTask"/>
-
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.auth.RegisterActivity"
             android:launchMode="singleTask" />
-
         <activity
             android:name=".ui.auth.LoginActivity"
             android:launchMode="singleTask" />
-
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:launchMode="singleTask">
-            <intent-filter android:autoVerify="true">
+            android:launchMode="singleTask" >
+            <intent-filter android:autoVerify="true" >
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.SEARCH" />
 
@@ -55,17 +53,18 @@
                 <data android:scheme="http" />
                 <data android:host="com.drs.auralife" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
-        </activity>
 
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
         <activity
             android:name=".ui.start.OnboardingActivity"
             android:launchMode="singleTask" />
-
         <activity
             android:name=".ui.start.SplashActivity"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

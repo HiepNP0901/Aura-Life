@@ -6,94 +6,96 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/exo_styled_controls_padding"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="PrivateResource">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/btn_previous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:contentDescription="@string/previous_video"
-            android:layout_margin="@dimen/exo_icon_horizontal_margin"
             android:background="@drawable/rounded_shadow"
+            android:contentDescription="@string/previous_video"
             android:padding="17dp"
             android:rotation="180"
-            android:src="@drawable/ic_next"
-            tools:ignore="ImageContrastCheck" />
+            android:src="@drawable/ic_next" />
 
         <ImageButton
             android:id="@+id/btn_rewind"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:contentDescription="@string/rewind"
-            android:layout_margin="@dimen/exo_icon_horizontal_margin"
             android:background="@drawable/rounded_shadow"
+            android:contentDescription="@string/rewind"
             android:padding="17dp"
             android:rotation="180"
-            android:src="@drawable/ic_forward"
-            tools:ignore="ImageContrastCheck" />
+            android:src="@drawable/ic_forward" />
 
         <ImageButton
-            android:id="@id/exo_play_pause"
+            android:id="@+id/btn_play_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="2"
             android:background="@drawable/rounded_shadow"
             android:contentDescription="@string/play_pause"
-            android:layout_margin="@dimen/exo_icon_horizontal_margin"
-            style="@style/ExoStyledControls.Button.Center.PlayPause"
-            tools:ignore="ImageContrastCheck" />
+            android:padding="14dp"
+            android:src="@drawable/ic_play_pause" />
 
         <ImageButton
             android:id="@+id/btn_forward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:contentDescription="@string/forward"
-            android:layout_margin="@dimen/exo_icon_horizontal_margin"
             android:background="@drawable/rounded_shadow"
+            android:contentDescription="@string/forward"
             android:padding="17dp"
-            android:src="@drawable/ic_forward"
-            tools:ignore="ImageContrastCheck" />
+            android:src="@drawable/ic_forward" />
 
         <ImageButton
             android:id="@+id/btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:contentDescription="@string/next_video"
-            android:layout_margin="@dimen/exo_icon_horizontal_margin"
             android:background="@drawable/rounded_shadow"
+            android:contentDescription="@string/next_video"
             android:padding="17dp"
-            android:src="@drawable/ic_next"
-            tools:ignore="ImageContrastCheck" />
+            android:src="@drawable/ic_next" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@id/exo_bottom_bar"
+    <androidx.media3.ui.DefaultTimeBar
+        android:id="@id/exo_progress"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/exo_styled_bottom_bar_height"
-        android:layout_gravity="bottom"
+        android:layout_height="wrap_content"
+        app:bar_gravity="center"
+        app:played_color="@color/red"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout"
+        app:layout_constraintEnd_toEndOf="@+id/frameLayout"
+        app:layout_constraintStart_toStartOf="@+id/frameLayout" />
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/exo_bottom_bar_background"
-        android:layoutDirection="ltr"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="PrivateResource">
 
         <LinearLayout
-            android:id="@id/exo_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start"
-            android:layoutDirection="ltr"
-            android:padding="@dimen/exo_styled_bottom_bar_time_padding">
+            android:layout_gravity="center_vertical|start">
 
             <TextView
                 android:id="@id/exo_position"
@@ -107,16 +109,9 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@id/exo_basic_controls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:layoutDirection="ltr">
-
-            <ImageButton
-                android:id="@id/exo_subtitle"
-                style="@style/ExoStyledControls.Button.Bottom.CC"
-                tools:ignore="ContentDescription" />
+            android:layout_gravity="center_vertical|end">
 
             <ImageButton
                 android:id="@id/exo_settings"
@@ -124,19 +119,18 @@
                 tools:ignore="ContentDescription" />
 
             <ImageButton
+                android:id="@+id/rotate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:padding="12dp"
+                android:src="@drawable/ic_rotate"
+                tools:ignore="ContentDescription, SpeakableTextPresentCheck" />
+
+            <ImageButton
                 android:id="@+id/btn_fullscreen"
                 style="@style/ExoStyledControls.Button.Bottom.FullScreen"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
     </FrameLayout>
-
-    <androidx.media3.ui.DefaultTimeBar
-        android:id="@id/exo_progress"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        app:bar_gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/exo_bottom_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

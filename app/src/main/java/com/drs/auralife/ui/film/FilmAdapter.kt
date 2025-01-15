@@ -1,28 +1,34 @@
-package com.drs.auralife.ui.home
+package com.drs.auralife.ui.film
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.data.model.films.Item
+import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
 import com.drs.auralife.utils.MyAppGlideModule
-import java.time.Duration
-import java.time.Instant
+import com.drs.auralife.utils.Time
 import java.util.Locale
 
 const val SLUG = "@slug"
 const val GRID = 1
 const val LINEAR = 2
 
-@SuppressLint("NotifyDataSetChanged")
-class FilmAdapter(private val films: MutableList<Item>, private val itemViewType: Int = GRID): RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
+open class FilmAdapter(
+    private val films: MutableList<Movie>, private val itemViewType: Int = GRID
+) : RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
+
+    interface FragmentListener {
+        fun onLongClick(slug: String)
+    }
+
+    private var callback: FragmentListener? = null
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvImage = itemView.findViewById<ImageView>(R.id.posterView)
@@ -50,7 +56,15 @@ class FilmAdapter(private val films: MutableList<Item>, private val itemViewType
             holder.tvTitle.text = film.originName
         }
 
-        holder.tvDetails.text = film.modified.time.let{calculateTimeDifference(it, context)}
+        @Suppress("SENSELESS_COMPARISON")
+        if (itemViewType == GRID) {
+            holder.tvDetails.text =
+                film.modified.time.let { Time.calculateTimeDifference(it, context) }
+        }
+        else if (film.content != null) {
+            holder.tvDetails.text =
+                HtmlCompat.fromHtml(film.content, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
 
         holder.itemView.setOnClickListener {
             val intent = Intent(context, FilmDetailsActivity::class.java)
@@ -58,41 +72,43 @@ class FilmAdapter(private val films: MutableList<Item>, private val itemViewType
             context.startActivity(intent)
         }
 
+        holder.itemView.setOnLongClickListener {
+            callback?.onLongClick(film.slug)
+            true
+        }
+
         holder.itemView.isSelected = true
     }
 
     override fun getItemCount(): Int = films.size
 
-    fun addItem(newItems: List<Item>) {
+    fun addItem(newItems: List<Movie>) {
         films.addAll(newItems)
         notifyItemInserted(films.size)
     }
 
-    fun replaceItems(newItems: List<Item>) {
+    @SuppressLint("NotifyDataSetChanged")
+    fun replaceItems(newItems: List<Movie>) {
         films.clear()
         films.addAll(newItems)
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun clearItems() {
         films.clear()
         notifyDataSetChanged()
     }
 
-    private fun calculateTimeDifference(updateTime: String, context: Context): String {
-        val updateInstant = Instant.parse(updateTime) - Duration.ofHours(7)
-        val currentInstant = Instant.now()
-
-        val duration = Duration.between(updateInstant, currentInstant)
-        val days = duration.toDays()
-        val hours = duration.toHours()
-        val minutes = duration.toMinutes()
-
-        return when {
-            days > 0 -> days.toString() + context.getString(R.string.days_ago)
-            hours > 0 -> (hours % 24).toString() + context.getString(R.string.hours_ago)
-            minutes > 0 -> (minutes % 60).toString() + context.getString(R.string.minutes_ago)
-            else -> context.getString(R.string.just_finished)
+    fun removeItem(slug: String) {
+        val position = films.indexOfFirst { it.slug == slug }
+        if (position != -1) {
+            films.removeAt(position)
+            notifyItemRemoved(position)
         }
+    }
+
+    fun setCallback(context: FragmentListener) {
+        this.callback = context
     }
 }

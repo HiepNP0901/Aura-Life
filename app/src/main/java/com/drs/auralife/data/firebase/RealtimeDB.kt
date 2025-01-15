@@ -1,13 +1,8 @@
-@file:Suppress("unused")
-
 package com.drs.auralife.data.firebase
 
 import android.graphics.Bitmap
 import com.drs.auralife.utils.ImageEncoderDecoder
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
 class RealtimeDB {
     companion object{
@@ -15,8 +10,7 @@ class RealtimeDB {
 
         private val bannerRef = database.getReference("banners")
 
-        private val userRef = database.getReference("users")
-
+        val userRef = database.getReference("users")
 
         fun uploadAvatar(bitmap: Bitmap, callback: (Result<Boolean>) -> Unit) {
             val base64String = ImageEncoderDecoder.encodeToBase64(bitmap)
@@ -51,64 +45,15 @@ class RealtimeDB {
 
         fun getBannerData(onDataReceived: (List<Pair<String, String>>) -> Unit) {
 
-            bannerRef.addValueEventListener(object : ValueEventListener {
+            bannerRef.get().addOnSuccessListener {
+                val bannerList = mutableListOf<Pair<String, String>>()
 
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-
-                    val bannerPair = mutableListOf<Pair<String, String>>()
-
-                    for (snapshot in dataSnapshot.children) {
-
-                        val key = snapshot.key
-
-                        val value = snapshot.getValue(String::class.java)
-
-                        bannerPair.add(Pair(key ?: "", value ?: ""))
-                    }
-
-                    onDataReceived(bannerPair)
+                for (snapshot in it.children) {
+                    val bannerData = snapshot.getValue(String::class.java)
+                    bannerData?.let { bannerList.add(Pair(snapshot.key.toString(), it)) }
                 }
 
-                override fun onCancelled(databaseError: DatabaseError) {
-                    onDataReceived(emptyList())
-                }
-            })
-        }
-
-
-        fun getLibraryData(onDataReceived: (List<Pair<String, String>>) -> Unit) {
-            val userId = Authentication.getUserId()
-
-            userId.let {
-                userRef.child(it.toString()).child("library").addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        val libraryPair = mutableListOf<Pair<String, String>>()
-                        for (snapshot in dataSnapshot.children) {
-                            val key = snapshot.key
-                            val value = snapshot.getValue(String::class.java)
-                            libraryPair.add(Pair(key ?: "", value ?: ""))
-                        }
-                        onDataReceived(libraryPair)
-                    }
-                    override fun onCancelled(databaseError: DatabaseError) {
-                        onDataReceived(emptyList())
-                    }
-                })
-            }
-        }
-
-
-        fun addLibraryData(key: String, value: String) {
-            val userId = Authentication.getUserId()
-            userId.let {
-                userRef.child(it.toString()).child("library").child(key).setValue(value)
-            }
-        }
-
-        fun removeLibraryData(key: String) {
-            val userId = Authentication.getUserId()
-            userId.let {
-                userRef.child(it.toString()).child("library").child(key).removeValue()
+                onDataReceived(bannerList)
             }
         }
     }

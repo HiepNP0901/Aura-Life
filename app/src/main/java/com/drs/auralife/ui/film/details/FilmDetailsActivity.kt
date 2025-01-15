@@ -6,84 +6,90 @@ import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.ViewModelProvider
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
+import com.drs.auralife.data.firebase.Authentication
+import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.ActivityFilmDetailsBinding
+import com.drs.auralife.ui.auth.LoginActivity
+import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.film.play.PlayFilmActivity
-import com.drs.auralife.ui.home.SLUG
+import com.drs.auralife.ui.library.AddToLibrary
 import com.drs.auralife.utils.MyAppGlideModule
 import jp.wasabeef.glide.transformations.BlurTransformation
 
 class FilmDetailsActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityFilmDetailsBinding
+    private val binding by lazy { ActivityFilmDetailsBinding.inflate(layoutInflater) }
     private lateinit var viewModel: FilmsViewModel
     private var slug: String? = null
+    private lateinit var film: FilmDetails
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityFilmDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this, FilmViewModelFactory(this))[FilmsViewModel::class.java]
 
         slug = intent.getStringExtra(SLUG)
 
-        if (slug == null) {
-            Toast.makeText(this, "Invalid film data", Toast.LENGTH_SHORT).show()
-        }
-        else {
-            binding.playButton.setOnClickListener {
-                val intent = Intent(this, PlayFilmActivity::class.java)
-                intent.putExtra(SLUG, slug)
-                startActivity(intent)
+        updateUI()
+    }
+
+
+    private fun updateUI() {
+        slug?.let {
+            viewModel.fetchFilmDetails(it) {
+                it?.let { film ->
+                    MyAppGlideModule.loadImage(this, film.movie.posterUrl, binding.posterView)
+                    MyAppGlideModule.loadImage(this, film.movie.thumbUrl, binding.thumbView, BlurTransformation())
+
+                    binding.nameFilm.text = film.movie.name
+                    binding.nameEngFilm.text = film.movie.originName
+                    binding.filmDescription.text =
+                        HtmlCompat.fromHtml(film.movie.content, HtmlCompat.FROM_HTML_MODE_LEGACY)
+
+                    for ((key, value) in getFilmDetailsMap(film.movie)) {
+                        findViewById<LinearLayout>(R.id.filmDetails).addView(
+                            createFilmDetailItem(key, value)
+                        )
+                    }
+
+                    binding.trailerButton.setOnClickListener {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(film.movie.trailerUrl))
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                    }
+
+                    binding.playButton.setOnClickListener {
+                        val intent = Intent(this, PlayFilmActivity::class.java)
+                        intent.putExtra(SLUG, slug)
+                        startActivity(intent)
+                    }
+
+                    binding.addToLibrary.setOnClickListener {
+                        if(Authentication.isLoggedIn()){
+                            AddToLibrary.showAddLibraryDialog(this, film)
+                        }
+                        else{
+                            val intent = Intent(this, LoginActivity::class.java)
+                            startActivity(intent)
+                        }
+                    }
+
+                    this.film = film
+                }
             }
         }
-
-        slug?.let { loadFilmDetails(it) }
     }
 
-    private fun loadFilmDetails(slug: String) {
-        viewModel.fetchFilmDetails(slug) { film ->
-            film?.let { updateUI(it.movie) }
-        }
-    }
 
-    private fun updateUI(movie: Movie) {
-        MyAppGlideModule.loadImage(this, movie.posterUrl, binding.posterView)
-        MyAppGlideModule.loadImage(this, movie.thumbUrl, binding.thumbView, BlurTransformation())
-
-        binding.nameFilm.text = movie.name
-        binding.nameEngFilm.text = movie.originName
-        binding.filmDescription.text = movie.content
-
-        for ((key, value) in getFilmMap(movie)) {
-            findViewById<LinearLayout>(R.id.filmDetails).addView(
-                createFilmDetailItem(key, value)
-            )
-        }
-
-        binding.trailerButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(movie.trailerUrl))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-    }
-
-    private fun createFilmDetailItem(key: String, value: String?): View {
-        val itemDetail = layoutInflater.inflate(R.layout.item_detail, LinearLayout(this))
-
-        itemDetail.findViewById<TextView>(R.id.nameDetail).text = key
-        itemDetail.findViewById<TextView>(R.id.valueDetail).text = value ?: "N/A"
-
-        return itemDetail
-    }
-
-    private fun getFilmMap(movie: Movie): Map<String, String> {
+    private fun getFilmDetailsMap(movie: Movie): Map<String, String> {
         return mapOf(
             getString(R.string.status) to movie.episodeCurrent,
             getString(R.string.episode_number) to movie.episodeTotal,
@@ -96,5 +102,15 @@ class FilmDetailsActivity : AppCompatActivity() {
             getString(R.string.year_of_release) to movie.year.toString(),
             getString(R.string.country) to movie.country.joinToString(", ") { it.name }
         )
+    }
+
+
+    private fun createFilmDetailItem(key: String, value: String?): View {
+        val itemDetail = layoutInflater.inflate(R.layout.item_detail, LinearLayout(this))
+
+        itemDetail.findViewById<TextView>(R.id.nameDetail).text = key
+        itemDetail.findViewById<TextView>(R.id.valueDetail).text = value ?: "N/A"
+
+        return itemDetail
     }
 }

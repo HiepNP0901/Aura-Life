@@ -1,7 +1,8 @@
 package com.drs.auralife.data
 
 import android.content.Context
-import android.util.Log
+import android.widget.Toast
+import com.drs.auralife.R
 import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.films.Films
 import com.drs.auralife.data.model.search.SearchResults
@@ -9,7 +10,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class FilmRepository(context: Context) {
+class FilmRepository(private val context: Context) {
     private val api: FilmAPI
 
     init {
@@ -28,8 +29,10 @@ class FilmRepository(context: Context) {
             }
 
             override fun onFailure(call: Call<T>, t: Throwable) {
-                Log.d("aaa", "onFailure: $t")
                 onResult(null)
+                Toast.makeText(
+                    context, context.getString(R.string.no_internet), Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }

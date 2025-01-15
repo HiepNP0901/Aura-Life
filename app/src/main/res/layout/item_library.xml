@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackground">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        tools:ignore="UselessParent">
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/rounded"
+            android:importantForAccessibility="no"/>
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="3dp"
+            android:background="@drawable/button_gradient"
+            android:importantForAccessibility="no"/>
+
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/imageLibrary"
+            android:layout_width="100dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="6dp"
+            android:scaleType="centerCrop"
+            android:importantForAccessibility="no"
+            app:round="16dp"/>
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="66dp"
+            android:background="@drawable/rounded_shadow"
+            android:importantForAccessibility="no"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="15dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/nameLibrary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:text="#name_library"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/detailsLibrary"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+</LinearLayout>

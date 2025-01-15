@@ -5,7 +5,6 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     private fun createOkHttpClient(context: Context): OkHttpClient {
@@ -16,12 +15,10 @@ object RetrofitClient {
             .cache(cache)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .header("Cache-Control", "public, max-age=${60}") // Cache 1 minute
+                    .header("Cache-Control", "public, max-age=${600}")
                     .build()
                 chain.proceed(request)
             }
-            .connectTimeout(50, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 

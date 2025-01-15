@@ -38,33 +38,45 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="48dp"
-                    android:layout_marginEnd="30dp">
+                    android:orientation="vertical">
+
+                    <androidx.constraintlayout.utils.widget.ImageFilterButton
+                        android:id="@+id/addToLibrary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="48dp"
+                        android:minHeight="48dp"
+                        android:src="@drawable/ic_add_library"
+                        android:layout_gravity="end"
+                        android:layout_margin="10dp"
+                        android:contentDescription="@string/add_to_library"
+                        android:background="@drawable/rounded_shadow" />
 
                     <TextView
                         android:id="@+id/nameFilm"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="30dp"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/antique_white_dark"
-                        android:shadowColor="@color/black"
+                        android:textColor="@color/light_purple_20"
                         android:shadowDx="2"
                         android:shadowDy="2"
-                        android:shadowRadius="3"/>
+                        android:shadowRadius="3"
+                        android:shadowColor="@color/black"/>
 
                     <TextView
                         android:id="@+id/nameEngFilm"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="30dp"
                         android:textSize="16sp"
                         android:textStyle="italic"
-                        android:textColor="@color/antique_white"
-                        android:shadowColor="@color/black"
+                        android:textColor="@color/light_purple_40"
                         android:shadowDx="2"
                         android:shadowDy="2"
-                        android:shadowRadius="3"/>
+                        android:shadowRadius="3"
+                        android:shadowColor="@color/black"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
@@ -80,22 +92,22 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/trailerButton"
-                style="?android:attr/buttonBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="50dp"
                 android:textColor="@color/white"
+                android:textAllCaps="false"
                 android:background="@drawable/button_gradient"
                 android:text="@string/trailer" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/playButton"
-                style="?android:attr/buttonBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/white"
+                android:textAllCaps="false"
                 android:background="@drawable/button_gradient"
                 android:text="@string/play" />
         </LinearLayout>

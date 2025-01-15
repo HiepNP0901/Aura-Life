@@ -1,13 +1,12 @@
 package com.drs.auralife.ui.film.play
 
-import android.os.Build
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -19,25 +18,32 @@ import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.model.film.FilmDetails
-import com.drs.auralife.ui.home.SLUG
+import com.drs.auralife.ui.film.SLUG
+import com.drs.auralife.utils.SystemUiController
 
 class PlayFilmActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewModel: FilmsViewModel
+
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var playerView: PlayerView
-    private lateinit var btnRewind: ImageButton
-    private lateinit var btnForward: ImageButton
-    private lateinit var btnPrevious: ImageButton
-    private lateinit var btnNext: ImageButton
-    private lateinit var fullscreenButton: ImageButton
     private lateinit var nameFilm: TextView
+
+    private lateinit var btnPrevious: ImageButton
+    private lateinit var btnRewind: ImageButton
+    private lateinit var btnPlay: ImageButton
+    private lateinit var btnForward: ImageButton
+    private lateinit var btnNext: ImageButton
+
+    private lateinit var fullscreenButton: ImageButton
+    private lateinit var rotateButton: ImageButton
+
+    private var numberEpInLine = 3
     private var currentEpisode = 0
     private var currentPosition: Long = 0
+    private var isFullscreen = false
     private var slug: String? = null
     private var film: FilmDetails? = null
-    private var isFullscreen = false
-    private var numberEpInLine = 3
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,27 +58,27 @@ class PlayFilmActivity : AppCompatActivity() {
         playerView = findViewById(R.id.player_view)
         playerView.player = exoPlayer
 
+        btnPlay = playerView.findViewById(R.id.btn_play_pause)
         btnRewind = playerView.findViewById(R.id.btn_rewind)
         btnForward = playerView.findViewById(R.id.btn_forward)
         btnPrevious = playerView.findViewById(R.id.btn_previous)
         btnNext = playerView.findViewById(R.id.btn_next)
         fullscreenButton = playerView.findViewById(R.id.btn_fullscreen)
+        rotateButton = playerView.findViewById(R.id.rotate)
 
         nameFilm = findViewById(R.id.nameFilm)
         recyclerView = findViewById(R.id.episodeRecyclerView)
         numberEpInLine = resources.displayMetrics.widthPixels/resources.displayMetrics.densityDpi
         recyclerView.layoutManager = GridLayoutManager(this, ++numberEpInLine)
-    }
 
-
-    override fun onStart() {
-        super.onStart()
-        setFilmDetail { filmDetails ->
-            filmDetails?.let {
-                film = it
-                playEpisode(currentEpisode)
-                recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData) { ep ->
-                    playEpisode(ep)
+        slug?.let {
+            viewModel.fetchFilmDetails(it) { filmDetails ->
+                filmDetails?.let {
+                    film = it
+                    playEpisode(currentEpisode)
+                    recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData) { ep ->
+                        playEpisode(ep)
+                    }
                 }
             }
         }
@@ -91,22 +97,17 @@ class PlayFilmActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-
         isFullscreen = savedInstanceState.getBoolean("isFullscreen", false)
         toggleFullscreen()
-
         currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
         playEpisode(currentEpisode)
         currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - 1000
     }
 
 
-    private fun setFilmDetail(callback: (FilmDetails?) -> Unit) {
-        slug?.let {
-            viewModel.fetchFilmDetails(it) { filmDetails ->
-                callback(filmDetails)
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        exoPlayer.release()
     }
 
 
@@ -121,7 +122,11 @@ class PlayFilmActivity : AppCompatActivity() {
                 exoPlayer.play()
 
                 nameFilm.text = episodes[episodeIndex].filename
+                if (currentEpisode != episodeIndex) {
+                    currentPosition = 0
+                }
                 currentEpisode = episodeIndex
+                btnPlay.isSelected = true
             }
         }
     }
@@ -135,6 +140,19 @@ class PlayFilmActivity : AppCompatActivity() {
                 }
             }
         })
+
+        btnPlay.isSelected = true
+
+        btnPlay.setOnClickListener {
+            if (exoPlayer.isPlaying) {
+                exoPlayer.pause()
+                btnPlay.isSelected = false
+            }
+            else {
+                exoPlayer.play()
+                btnPlay.isSelected = true
+            }
+        }
 
         btnRewind.setOnClickListener {
             val rewindPosition = exoPlayer.currentPosition - 5000
@@ -157,64 +175,38 @@ class PlayFilmActivity : AppCompatActivity() {
         fullscreenButton.setOnClickListener {
             if (isFullscreen) {
                 isFullscreen = false
-//                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 fullscreenButton.isSelected
                 recreate()
             }
             else {
                 isFullscreen = true
-//                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 recreate()
             }
         }
+
+        rotateButton.setOnClickListener {
+            requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+            else {
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+        }
     }
 
 
-    private fun toggleFullscreen(){
+    private fun toggleFullscreen() {
         val otherViews = listOf(recyclerView, nameFilm)
 
         if (!isFullscreen) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val windowInsetsController = window.insetsController
-                windowInsetsController?.show(WindowInsets.Type.systemBars())
-            } else {
-                @Suppress("DEPRECATION")
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            }
-
+            SystemUiController.showSystemUI(window)
             otherViews.forEach { it.visibility = View.VISIBLE }
-            playerView.layoutParams.height = 700
+            playerView.layoutParams.height = dpToPx(250f, resources.displayMetrics).toInt()
         }
         else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val windowInsetsController = window.insetsController
-                windowInsetsController?.let {
-                    it.hide(WindowInsets.Type.systemBars())
-                    it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                window.decorView.systemUiVisibility = (
-                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        )
-            }
-
+            SystemUiController.autoHideSystemUI(window)
             otherViews.forEach { it.visibility = View.GONE }
             playerView.layoutParams.height = resources.displayMetrics.heightPixels
         }
-    }
-
-
-    override fun onStop() {
-        super.onStop()
-        exoPlayer.pause()
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        exoPlayer.release()
     }
 }

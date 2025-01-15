@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
+import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
 import com.drs.auralife.utils.MyAppGlideModule
 

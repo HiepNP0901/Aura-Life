@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
@@ -16,13 +17,18 @@ import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.ui.MainActivity
+import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.utils.MyAppGlideModule
-import com.drs.auralife.R
 
 class HomeFragment : Fragment() {
     private var isLoading = false
     private var filmAdapter = FilmAdapter(mutableListOf())
     private val binding by lazy { FragmentHomeBinding.inflate(layoutInflater) }
+    private val viewModel by lazy {
+        ViewModelProvider(
+            this, FilmViewModelFactory(requireContext())
+        )[FilmsViewModel::class.java]
+    }
     private lateinit var paginate: Pagination
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -32,13 +38,13 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+
     private fun setupAppBar() {
         Authentication.isLoggedIn.observe(viewLifecycleOwner) {
             if (it) {
-                RealtimeDB.getAvatar {
+                RealtimeDB.getAvatar { bitmapImg ->
                     MyAppGlideModule.loadImage(
-                        requireContext(),
-                        it,
+                        requireContext(), bitmapImg,
                         binding.appBarProfile
                     )
                 }
@@ -93,36 +99,27 @@ class HomeFragment : Fragment() {
             adapter = filmAdapter
         }
 
-        val viewModel = ViewModelProvider(
-            this,
-            FilmViewModelFactory(requireContext())
-        )[FilmsViewModel::class.java]
-
-        val loadMore = {
-            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
-                if (paginate.currentPage < paginate.totalPages) {
-                    val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-
-                    if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
-                        isLoading = true
-                        viewModel.fetchLatestFilms(paginate.currentPage + 1) {
-                            it?.let {
-                                paginate = it.pagination
-                                filmAdapter.addItem(it.items)
-                            }
-                            isLoading = false
-                        }
-                    }
-                }
-            }
-        }
-
         viewModel.fetchLatestFilms(1) {
             it?.let {
                 paginate = it.pagination
                 filmAdapter.addItem(it.items)
-                loadMore.invoke()
+                binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
+                    if (paginate.currentPage < paginate.totalPages) {
+                        val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
+                        val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+
+                        if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
+                            isLoading = true
+                            viewModel.fetchLatestFilms(paginate.currentPage + 1) {
+                                it?.let {
+                                    paginate = it.pagination
+                                    filmAdapter.addItem(it.items)
+                                }
+                                isLoading = false
+                            }
+                        }
+                    }
+                }
             }
         }
     }

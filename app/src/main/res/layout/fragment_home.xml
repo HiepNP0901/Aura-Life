@@ -21,7 +21,7 @@
                 <androidx.appcompat.widget.Toolbar
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="?attr/colorPrimary"
+                    android:background="?attr/colorPrimaryDark"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
                     <ImageView
@@ -31,7 +31,6 @@
                         tools:ignore="ContentDescription" />
 
                     <TextView
-                        android:id="@+id/appName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="cursive"
@@ -44,12 +43,13 @@
                         android:id="@+id/app_bar_profile"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
+                        android:layout_gravity="end"
                         android:layout_margin="7dp"
-                        android:src="@drawable/ic_profile"
                         android:background="@color/transparent"
                         android:contentDescription="@string/profile"
-                        android:layout_gravity="end"
-                        app:round="250dp"/>
+                        android:src="@drawable/ic_profile"
+                        app:round="250dp"
+                        tools:ignore="TouchTargetSizeCheck" />
 
                     <ImageButton
                         android:id="@+id/app_bar_search"

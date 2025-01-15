@@ -26,9 +26,10 @@ import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.ui.auth.LoginActivity
-import com.drs.auralife.ui.home.FilmAdapter
+import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.ui.home.HomeFragment
-import com.drs.auralife.ui.home.LINEAR
+import com.drs.auralife.ui.film.LINEAR
+import com.drs.auralife.ui.library.LibraryFragment
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.utils.PermissionPhotoHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -51,10 +52,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initializeViews()
-        setupDrawerMenu()
+        setupDrawer()
+        setupNavigationHeader()
         setupViewPager()
         setupSearchBar()
-        setupNavigationHeader()
     }
 
 
@@ -100,7 +101,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun setupDrawerMenu() {
+    private fun setupDrawer() {
         setupDrawerToggle()
         setupDrawerHeader()
         handleDrawerItemSelection()
@@ -181,7 +182,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupViewPager() {
         val fragments = listOf(
             HomeFragment(),
-            HomeFragment()
+            LibraryFragment()
         )
 
         viewPager.adapter = ViewPagerAdapter(this, fragments)

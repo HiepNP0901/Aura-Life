@@ -3,17 +3,9 @@
     <string name="splash_description">Feel the Scene, Live the Story</string>
 
     <!-- Strings related to onboarding -->
-    <string name="next">Next</string>
-    <string name="start">Start</string>
     <string name="onboarding_description_1">Explore Unlimited Movies Anytime, Anywhere</string>
     <string name="onboarding_description_2">Discover tailored recommendations just for you</string>
     <string name="onboarding_description_3">Join the global community of movie enthusiasts</string>
-
-    <!-- Strings related to location -->
-    <string name="location_title">Choose Your Region</string>
-    <string name="choose_location">Choose region</string>
-    <string name="choose_location_description">\"To provide the best content recommendations, we need your permission to access your region. By enabling this, we can offer localized content and a personalized viewing experience.\"</string>
-    <string name="done">Done</string>
 
     <!-- Strings related to validation -->
     <string name="required_field">This field is required</string>
@@ -37,11 +29,11 @@
     <string name="don_t_have_account">Don’t Have an Account?</string>
     <string name="already_have_an_account">Already Have an Account?</string>
     <string name="forgot_password">Forgot Password?</string>
-    <string name="not_match_password">Passwords do not match</string>
-    <string name="please_verify_account">Please check your email to verify your account</string>
-    <string name="email_already_exist">The email address is already in use by another account</string>
-    <string name="login_successful">Login Successful</string>
-    <string name="login_failed">Email or password is incorrect</string>
+    <string name="not_match_password">Passwords do not match!</string>
+    <string name="please_verify_account">Please check your email to verify your account.</string>
+    <string name="email_already_exist">The email address is already in use by another account.</string>
+    <string name="login_successful">Login Successful.</string>
+    <string name="login_failed">Email or password is incorrect!</string>
 
     <!-- Strings related to home -->
     <string name="home">Home</string>
@@ -53,8 +45,8 @@
     <string name="example_email" translatable="false">user@example.com</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
-    <string name="upload_avatar_successfully">Upload avatar successfully</string>
-    <string name="upload_avatar_failed">Upload avatar failed</string>
+    <string name="upload_avatar_successfully">Upload avatar successfully.</string>
+    <string name="upload_avatar_failed">Upload avatar failed!</string>
     <string name="exit">Exit</string>
 
     <!-- Strings related to film details -->
@@ -79,8 +71,43 @@
     <string name="previous_video">Previous Video</string>
     <string name="next_video">Next Video</string>
     <string name="enter_search_keywords">Enter search keywords</string>
+
+    <!-- Strings related to film list -->
     <string name="days_ago">" days ago"</string>
     <string name="hours_ago">" hours ago"</string>
     <string name="minutes_ago">" minutes ago"</string>
     <string name="just_finished">Just finished</string>
+
+    <!-- Strings related to library -->
+    <string name="add_to_library">Add to library</string>
+    <string name="new_library">+ New library</string>
+    <string name="select_library">Select Library</string>
+    <string name="create_new_library">Create new Library</string>
+    <string name="enter_new_library_name">Enter new library name</string>
+    <string name="library_name_cannot_be_empty">Library name cannot be empty!</string>
+    <string name="added_to_library_successfully">Added to library successfully.</string>
+    <string name="failed_to_add_to_library">Failed to add to library!</string>
+    <string name="library_already_exists">Film already exist in this library!</string>
+    <string name="quantity">Quantity</string>
+    <string name="rename_library">Rename Library</string>
+    <string name="rename_successfully">Rename successfully.</string>
+    <string name="rename_failed">Rename failed!</string>
+    <string name="sure_delete_library">Are you sure you want to delete this library?</string>
+
+    <!-- Strings related to app -->
+    <string name="no_internet">Please check your network connection!</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="next">Next</string>
+    <string name="start">Start</string>
+    <string name="delete_library">Deleted library </string>
+    <string name="successfully">" successfully."</string>
+    <string name="delete_library_failed">Delete library failed!</string>
+    <string name="error">An error occurred!</string>
+    <string name="sure_delete_film_from_library">Are you sure you want to delete this movie from your library?</string>
+    <string name="function_must_login">Please log in to use this function.</string>
+    <string name="empty">Empty</string>
 </resources>
