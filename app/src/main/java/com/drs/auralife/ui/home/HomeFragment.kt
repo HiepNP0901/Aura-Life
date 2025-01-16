@@ -99,15 +99,14 @@ class HomeFragment : Fragment() {
             adapter = filmAdapter
         }
 
+        val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
         viewModel.fetchLatestFilms(1) {
             it?.let {
                 paginate = it.pagination
                 filmAdapter.addItem(it.items)
                 binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
                     if (paginate.currentPage < paginate.totalPages) {
-                        val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
                         val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-
                         if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
                             isLoading = true
                             viewModel.fetchLatestFilms(paginate.currentPage + 1) {
@@ -119,8 +118,19 @@ class HomeFragment : Fragment() {
                             }
                         }
                     }
+
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                    if (firstVisibleItemPosition > 0) {
+                        binding.scrollToTopButton.visibility = View.VISIBLE
+                    } else {
+                        binding.scrollToTopButton.visibility = View.GONE
+                    }
                 }
             }
+        }
+
+        binding.scrollToTopButton.setOnClickListener {
+            binding.recyclerView.smoothScrollToPosition(0)
         }
     }
 }

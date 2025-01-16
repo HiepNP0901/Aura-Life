@@ -9,7 +9,7 @@ import com.drs.auralife.data.firebase.library.Library
 import com.drs.auralife.data.firebase.library.LibraryRepository
 import com.drs.auralife.databinding.ActivityLibraryBinding
 import com.drs.auralife.ui.film.FilmAdapter
-import com.drs.auralife.ui.film.LINEAR
+import com.drs.auralife.ui.film.HORIZONTAL
 
 const val LIBRARY_NAME = "@libraryName"
 
@@ -20,7 +20,7 @@ class LibraryActivity : AppCompatActivity(), FilmAdapter.FragmentListener {
             this, FilmViewModelFactory(this)
         )[FilmsViewModel::class.java]
     }
-    private val adapter by lazy { FilmAdapter(mutableListOf(), LINEAR) }
+    private val adapter by lazy { FilmAdapter(mutableListOf(), HORIZONTAL) }
     private lateinit var library: Library
 
     override fun onCreate(savedInstanceState: Bundle?) {

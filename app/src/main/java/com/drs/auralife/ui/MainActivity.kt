@@ -30,7 +30,7 @@ import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.ui.home.HomeFragment
-import com.drs.auralife.ui.film.LINEAR
+import com.drs.auralife.ui.film.HORIZONTAL
 import com.drs.auralife.ui.library.LibraryFragment
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.utils.PermissionPhotoHandler
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var permissionPhotoHandler: PermissionPhotoHandler
     var searchIsVisible = false
-    private val filmAdapter = FilmAdapter(mutableListOf(), LINEAR)
+    private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -90,4 +90,5 @@
     <string name="sure_delete_film_from_library">Bạn có chắc chắn muốn xóa phim này khỏi thư viện?</string>
     <string name="function_must_login">Vui lòng đăng nhập để sử dụng chức năng này.</string>
     <string name="empty">Trống</string>
+    <string name="scroll_to_top">Cuộn lên đầu</string>
 </resources>

@@ -10,27 +10,34 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/thumbView"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
+                android:layout_height="0dp"
                 android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="@+id/filmDetailsContainer"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
 
             <LinearLayout
                 android:id="@+id/filmDetailsContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.utils.widget.ImageFilterView
                     android:id="@+id/posterView"
                     android:layout_width="120dp"
                     android:layout_height="160dp"
-                    android:layout_margin="30dp"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="30dp"
                     android:scaleType="centerCrop"
                     app:round="16dp"
                     tools:ignore="ContentDescription" />
@@ -38,48 +45,49 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="70dp"
                     android:orientation="vertical">
 
                     <androidx.constraintlayout.utils.widget.ImageFilterButton
                         android:id="@+id/addToLibrary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="48dp"
-                        android:minHeight="48dp"
-                        android:src="@drawable/ic_add_library"
                         android:layout_gravity="end"
                         android:layout_margin="10dp"
+                        android:background="@drawable/rounded_shadow"
                         android:contentDescription="@string/add_to_library"
-                        android:background="@drawable/rounded_shadow" />
+                        android:minWidth="48dp"
+                        android:minHeight="48dp"
+                        android:src="@drawable/ic_add_library" />
 
                     <TextView
                         android:id="@+id/nameFilm"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="30dp"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/light_purple_20"
+                        android:layout_marginEnd="10dp"
+                        android:shadowColor="@color/black"
                         android:shadowDx="2"
                         android:shadowDy="2"
                         android:shadowRadius="3"
-                        android:shadowColor="@color/black"/>
+                        android:textColor="@color/light_purple_20"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/nameEngFilm"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="30dp"
-                        android:textSize="16sp"
-                        android:textStyle="italic"
-                        android:textColor="@color/light_purple_40"
+                        android:layout_marginEnd="10dp"
+                        android:shadowColor="@color/black"
                         android:shadowDx="2"
                         android:shadowDy="2"
                         android:shadowRadius="3"
-                        android:shadowColor="@color/black"/>
+                        android:textColor="@color/light_purple_40"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
                 </LinearLayout>
             </LinearLayout>
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             style="?android:attr/buttonBarStyle"

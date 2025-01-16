@@ -76,4 +76,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/scrollToTopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/shadow_color"
+        android:contentDescription="@string/scroll_to_top"
+        android:src="@drawable/ic_arrow_up"
+        android:visibility="gone" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

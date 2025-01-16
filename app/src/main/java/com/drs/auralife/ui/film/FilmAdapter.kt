@@ -17,11 +17,11 @@ import com.drs.auralife.utils.Time
 import java.util.Locale
 
 const val SLUG = "@slug"
-const val GRID = 1
-const val LINEAR = 2
+const val VERTICAL = 1
+const val HORIZONTAL = 2
 
 open class FilmAdapter(
-    private val films: MutableList<Movie>, private val itemViewType: Int = GRID
+    private val films: MutableList<Movie>, private val itemViewType: Int = VERTICAL
 ) : RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
 
     interface FragmentListener {
@@ -38,8 +38,8 @@ open class FilmAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view = when (itemViewType) {
-            LINEAR -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_linear, parent, false)
-            else -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_grid, parent, false)
+            HORIZONTAL -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_horizontal, parent, false)
+            else -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_vertical, parent, false)
         }
         return ItemViewHolder(view)
     }
@@ -57,13 +57,20 @@ open class FilmAdapter(
         }
 
         @Suppress("SENSELESS_COMPARISON")
-        if (itemViewType == GRID) {
+        if (itemViewType == VERTICAL) {
             holder.tvDetails.text =
                 film.modified.time.let { Time.calculateTimeDifference(it, context) }
         }
         else if (film.content != null) {
             holder.tvDetails.text =
                 HtmlCompat.fromHtml(film.content, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
+        else {
+            holder.tvTitle.isSingleLine = false
+            holder.tvTitle.maxLines = 4
+            holder.tvDetails.text =
+                film.modified.time.let { Time.calculateTimeDifference(it, context) }
+            holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
 
         holder.itemView.setOnClickListener {
