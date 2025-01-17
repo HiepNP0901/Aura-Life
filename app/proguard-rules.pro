@@ -3,7 +3,6 @@
 
 # Keep the classes of Model
 -keep class com.drs.auralife.data.model.** { *; }
--keep class com.drs.auralife.data.firebase.library.Library
 
 # Keep the classes of Retrofit
 -keep class retrofit2.** { *; }

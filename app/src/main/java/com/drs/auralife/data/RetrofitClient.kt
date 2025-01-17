@@ -17,7 +17,8 @@ object RetrofitClient {
             .cache(cache)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .header("Cache-Control", "public, max-age=${600}")
+                    .header("Cache-Control", "public, max-age=${86400}")
+                    .header("Accept", "application/json")
                     .build()
                 chain.proceed(request)
             }

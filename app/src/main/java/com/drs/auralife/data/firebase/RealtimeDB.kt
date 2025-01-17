@@ -10,6 +10,8 @@ class RealtimeDB {
 
         private val bannerRef = database.getReference("banners")
 
+        private val categoryRef = database.getReference("categories")
+
         val userRef = database.getReference("users")
 
         fun uploadAvatar(bitmap: Bitmap, callback: (Result<Boolean>) -> Unit) {
@@ -44,7 +46,6 @@ class RealtimeDB {
 
 
         fun getBannerData(onDataReceived: (List<Pair<String, String>>) -> Unit) {
-
             bannerRef.get().addOnSuccessListener {
                 val bannerList = mutableListOf<Pair<String, String>>()
 
@@ -54,6 +55,23 @@ class RealtimeDB {
                 }
 
                 onDataReceived(bannerList)
+            }
+        }
+
+        fun getCategoryData(onDataReceived: (List<Category>) -> Unit) {
+            categoryRef.get().addOnSuccessListener {
+                val categoryList = mutableListOf<Category>()
+                for (snapshot in it.children) {
+                    val categoryData = Category(
+                        snapshot.key.toString(),
+                        snapshot.child("en").value.toString(),
+                        snapshot.child("vi").value.toString()
+                    )
+                    categoryData.let { categoryList.add(it) }
+                }
+                onDataReceived(categoryList)
+            }.addOnFailureListener {
+                onDataReceived(emptyList())
             }
         }
     }

@@ -2,6 +2,7 @@ package com.drs.auralife.ui.film
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,7 +85,10 @@ open class FilmAdapter(
             true
         }
 
-        holder.itemView.isSelected = true
+        @Suppress("DEPRECATION")
+        Handler().postDelayed({
+            holder.itemView.isSelected = true
+        }, 3000)
     }
 
     override fun getItemCount(): Int = films.size

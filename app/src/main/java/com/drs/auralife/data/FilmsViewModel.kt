@@ -20,9 +20,9 @@ class FilmsViewModel(private val repository: FilmRepository) : ViewModel() {
         }
     }
 
-    fun fetchFilmsByCategory(slug: String, page: Int, callback: (Films?) -> Unit) {
+    fun fetchFilmsByCategory(slug: String, page: Int, callback: (SearchResults?) -> Unit) {
         repository.getFilmsByCategory(slug, page) { films ->
-            _films.postValue(films)
+            _searchResults.postValue(films)
             callback(films)
         }
     }

@@ -12,11 +12,11 @@ interface FilmAPI {
     @GET("danh-sach/phim-moi-cap-nhat")
     fun getLatestFilms(@Query("page") page: Int): Call<Films>
 
-    @GET("v1/api/danh-sach/{slug}")
+    @GET("v1/api/the-loai/{slug}")
     fun getFilmsByCategory(
         @Path("slug") slug: String,
         @Query("page") page: Int
-    ): Call<Films>
+    ): Call<SearchResults>
 
     @GET("v1/api/tim-kiem")
     fun searchFilms(

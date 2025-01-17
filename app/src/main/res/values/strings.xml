@@ -111,4 +111,5 @@
     <string name="function_must_login">Please log in to use this function.</string>
     <string name="empty">Empty</string>
     <string name="scroll_to_top">Scroll to top</string>
+    <string name="notifications">Notifications</string>
 </resources>

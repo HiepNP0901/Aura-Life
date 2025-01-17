@@ -34,10 +34,10 @@ class LibraryAdapter(private val library: MutableList<Library>): RecyclerView.Ad
 
         holder.tvTitle.text = item.name
 
-        holder.tvDetails.text = context.getString(R.string.quantity) +": " + item.listSlug.size.toString()
+        holder.tvDetails.text = context.getString(R.string.quantity) +": " + item.listFilm.size.toString()
 
         holder.itemView.setOnClickListener{
-            val intent = Intent(context, LibraryActivity::class.java)
+            val intent = Intent(context, LibraryDetailsActivity::class.java)
             intent.putExtra(LIBRARY_NAME, item.name)
             context.startActivity(intent)
         }

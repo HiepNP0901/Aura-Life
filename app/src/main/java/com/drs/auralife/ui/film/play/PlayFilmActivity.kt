@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
+import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.utils.SystemUiController

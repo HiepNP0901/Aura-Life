@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="?attr/colorPrimaryDark"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bg_logo"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="cursive"
+        android:text="@string/app_name"
+        android:textColor="@color/red"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <androidx.constraintlayout.utils.widget.ImageFilterButton
+        android:id="@+id/app_bar_profile"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="end"
+        android:layout_margin="7dp"
+        android:background="@color/transparent"
+        android:contentDescription="@string/profile"
+        android:src="@drawable/ic_profile"
+        app:round="250dp"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <ImageButton
+        android:id="@+id/app_bar_search"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="15dp"
+        android:src="@drawable/ic_search"
+        android:background="@color/transparent"
+        android:contentDescription="@string/search"
+        android:layout_gravity="end"/>
+
+    <ImageButton
+        android:id="@+id/app_bar_notifications"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="end"
+        android:padding="15dp"
+        android:background="@color/transparent"
+        android:contentDescription="@string/notifications"
+        android:src="@drawable/ic_notifications"
+        android:visibility="gone"/>
+</androidx.appcompat.widget.Toolbar>

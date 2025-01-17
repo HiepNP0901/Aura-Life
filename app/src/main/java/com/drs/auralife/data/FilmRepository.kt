@@ -41,7 +41,7 @@ class FilmRepository(private val context: Context) {
         makeApiCall(api.getLatestFilms(page), onResult)
     }
 
-    fun getFilmsByCategory(slug: String, page: Int, onResult: (Films?) -> Unit) {
+    fun getFilmsByCategory(slug: String, page: Int, onResult: (SearchResults?) -> Unit) {
         makeApiCall(api.getFilmsByCategory(slug, page), onResult)
     }
 

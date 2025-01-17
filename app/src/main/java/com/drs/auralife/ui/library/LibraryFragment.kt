@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.library.LibraryRepository
 import com.drs.auralife.databinding.FragmentLibraryBinding
+import com.drs.auralife.ui.MainActivity
 
 class LibraryFragment : Fragment() {
     val binding by lazy { FragmentLibraryBinding.inflate(layoutInflater) }
@@ -17,6 +19,9 @@ class LibraryFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+        (requireActivity() as MainActivity).setupAppBar(binding.appBar)
+        binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
+        binding.appBar.findViewById<ImageButton>(R.id.app_bar_notifications).visibility = View.VISIBLE
         return binding.root
     }
 

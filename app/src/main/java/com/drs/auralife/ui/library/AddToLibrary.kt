@@ -13,12 +13,12 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.util.TypedValueCompat.dpToPx
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.library.LibraryRepository
-import com.drs.auralife.data.model.film.FilmDetails
+import com.drs.auralife.data.model.film.Movie
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class AddToLibrary {
     companion object {
-        fun showAddLibraryDialog(context: Context, film: FilmDetails) {
+        fun showAddLibraryDialog(context: Context, film: Movie) {
             LibraryRepository().getLibrary { libraries ->
                 val bottomSheetDialog = BottomSheetDialog(context)
 
@@ -61,7 +61,7 @@ class AddToLibrary {
         }
 
 
-        fun showCreateLibraryDialog(context: Context, film: FilmDetails) {
+        fun showCreateLibraryDialog(context: Context, film: Movie) {
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_text, null)
 
             val title = dialogView.findViewById<TextView>(R.id.title)
@@ -97,8 +97,8 @@ class AddToLibrary {
         }
 
 
-        fun addToLibrary(context: Context, film: FilmDetails, libraryName: String) {
-            LibraryRepository().addLibraryData(libraryName, film.movie.posterUrl, film.movie.slug) {
+        fun addToLibrary(context: Context, film: Movie, libraryName: String) {
+            LibraryRepository().addLibraryData(libraryName, film.posterUrl, film.slug, film.episodeCurrent) {
                 it.onSuccess {
                     Toast.makeText(
                         context, context.getString(

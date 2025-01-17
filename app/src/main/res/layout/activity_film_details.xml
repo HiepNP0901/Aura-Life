@@ -45,7 +45,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="70dp"
+                    android:layout_marginBottom="120dp"
                     android:orientation="vertical">
 
                     <androidx.constraintlayout.utils.widget.ImageFilterButton
@@ -138,6 +138,7 @@
             android:layout_marginBottom="30dp"
             android:padding="10dp"
             android:textSize="16sp"
+            android:justificationMode="inter_word"
             android:background="@drawable/bg_gradient"/>
     </LinearLayout>
 </ScrollView>

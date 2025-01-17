@@ -1,5 +1,6 @@
 package com.drs.auralife.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -8,6 +9,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,6 +19,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.utils.widget.ImageFilterButton
 import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -28,9 +32,10 @@ import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.ui.auth.LoginActivity
+import com.drs.auralife.ui.explore.ExploreFragment
 import com.drs.auralife.ui.film.FilmAdapter
-import com.drs.auralife.ui.home.HomeFragment
 import com.drs.auralife.ui.film.HORIZONTAL
+import com.drs.auralife.ui.home.HomeFragment
 import com.drs.auralife.ui.library.LibraryFragment
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.utils.PermissionPhotoHandler
@@ -38,15 +43,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
-    lateinit var searchBar: EditText
-    lateinit var searchLayout: LinearLayout
-    lateinit var searchResults: RecyclerView
-    lateinit var viewPager: ViewPager2
-    lateinit var drawerLayout: DrawerLayout
-    lateinit var navigationView: NavigationView
-    lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var searchBar: EditText
+    private lateinit var searchLayout: LinearLayout
+    private lateinit var searchResults: RecyclerView
+    private lateinit var viewPager: ViewPager2
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var permissionPhotoHandler: PermissionPhotoHandler
-    var searchIsVisible = false
+    private var searchIsVisible = false
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,10 +188,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager() {
         val fragments = listOf(
-            HomeFragment(),
+            HomeFragment(), ExploreFragment(),
             LibraryFragment()
         )
 
+        viewPager.isUserInputEnabled = false
         viewPager.adapter = ViewPagerAdapter(this, fragments)
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
@@ -199,7 +205,8 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navHome -> viewPager.currentItem = 0
-                R.id.navLibrary -> viewPager.currentItem = 1
+                R.id.navExplore -> viewPager.currentItem = 1
+                R.id.navLibrary -> viewPager.currentItem = 2
             }
             true
         }
@@ -228,5 +235,42 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    @SuppressLint("InflateParams")
+    fun setupAppBar(view: FrameLayout) {
+        view.addView(layoutInflater.inflate(R.layout.app_bar, null), 0)
+        val appBarProfile = view.findViewById<ImageFilterButton>(R.id.app_bar_profile)
+        val appBarSearch = view.findViewById<ImageButton>(R.id.app_bar_search)
+        val appBarNotifications = view.findViewById<ImageButton>(R.id.app_bar_notifications)
+
+        Authentication.isLoggedIn.observe(this) {
+            if (it) {
+                RealtimeDB.getAvatar { bitmapImg ->
+                    MyAppGlideModule.loadImage(
+                        this, bitmapImg, appBarProfile
+                    )
+                }
+            }
+            else {
+                appBarProfile.setImageResource(R.drawable.ic_profile)
+            }
+        }
+
+        appBarProfile.setOnClickListener {
+            drawerLayout.openDrawer(navigationView)
+        }
+
+        appBarSearch.setOnClickListener {
+            searchLayout.visibility = View.VISIBLE
+            bottomNavigationView.visibility = View.GONE
+            viewPager.visibility = View.GONE
+            searchBar.requestFocus()
+            searchIsVisible = true
+        }
+
+        appBarNotifications.setOnClickListener {
+            Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
+        }
     }
 }

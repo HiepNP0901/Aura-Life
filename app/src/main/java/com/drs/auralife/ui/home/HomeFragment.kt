@@ -9,16 +9,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.RealtimeDB
 import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.ui.film.FilmAdapter
-import com.drs.auralife.utils.MyAppGlideModule
 
 class HomeFragment : Fragment() {
     private var isLoading = false
@@ -32,42 +29,25 @@ class HomeFragment : Fragment() {
     private lateinit var paginate: Pagination
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        setupAppBar()
+        (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         setupBanner()
         setupRecyclerView()
         return binding.root
     }
 
 
-    private fun setupAppBar() {
-        Authentication.isLoggedIn.observe(viewLifecycleOwner) {
-            if (it) {
-                RealtimeDB.getAvatar { bitmapImg ->
-                    MyAppGlideModule.loadImage(
-                        requireContext(), bitmapImg,
-                        binding.appBarProfile
-                    )
-                }
-            } else {
-                binding.appBarProfile.setImageResource(R.drawable.ic_profile)
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        @Suppress("DEPRECATION")
+        Handler().postDelayed({
+            view?.isSelected = true
+        }, 3000)
+    }
 
-        val activity = activity as MainActivity
 
-        binding.appBarSearch.setOnClickListener {
-            activity.apply {
-                searchLayout.visibility = View.VISIBLE
-                bottomNavigationView.visibility = View.GONE
-                viewPager.visibility = View.GONE
-                searchBar.requestFocus()
-                searchIsVisible = true
-            }
-        }
-
-        binding.appBarProfile.setOnClickListener {
-            activity.drawerLayout.openDrawer(activity.navigationView)
-        }
+    override fun onPause() {
+        super.onPause()
+        view?.isSelected = false
     }
 
 

@@ -1,27 +1,26 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_weight="1"
+    android:maxWidth="120dp"
     android:layout_margin="5dp"
+    android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true"
-    android:background="?android:attr/selectableItemBackground">
+    android:focusable="true">
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/posterView"
         android:layout_width="match_parent"
         android:layout_height="140dp"
         android:layout_margin="5dp"
-        android:src="@drawable/bg_logo"
-        android:scaleType="centerCrop"
         android:importantForAccessibility="no"
-        app:round="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:round="16dp" />
 
     <TextView
         android:id="@+id/nameFilm"
@@ -30,8 +29,6 @@
         android:layout_marginHorizontal="5dp"
         android:ellipsize="marquee"
         android:gravity="center"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:singleLine="true"
         android:text="#name_film"
         android:textSize="16sp"

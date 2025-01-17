@@ -74,7 +74,7 @@ class FilmDetailsActivity : AppCompatActivity() {
 
                     binding.addToLibrary.setOnClickListener {
                         if(Authentication.isLoggedIn()){
-                            AddToLibrary.showAddLibraryDialog(this, film)
+                            AddToLibrary.showAddLibraryDialog(this, film.movie)
                         }
                         else{
                             val intent = Intent(this, LoginActivity::class.java)
