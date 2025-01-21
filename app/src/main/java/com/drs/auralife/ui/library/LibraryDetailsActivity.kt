@@ -6,8 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
+import com.drs.auralife.data.firebase.library.EditLibrary
 import com.drs.auralife.data.firebase.library.Library
 import com.drs.auralife.data.firebase.library.LibraryRepository
+import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
 import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.ui.film.HORIZONTAL
@@ -21,29 +23,37 @@ class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener
             this, FilmViewModelFactory(this)
         )[FilmsViewModel::class.java]
     }
-    private val adapter by lazy { FilmAdapter(mutableListOf(), HORIZONTAL) }
+    private val filmAdapter by lazy { FilmAdapter(mutableListOf(), HORIZONTAL, false) }
     private lateinit var library: Library
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = filmAdapter
 
         intent.getStringExtra(LIBRARY_NAME)?.let {
-            LibraryRepository().getLibraryData(it) { library ->
+            LibraryRepository.getLibraryData(it) { library ->
                 this.library = library
+                val tempList = mutableListOf<Movie>()
                 for (slug in library.listFilm.map { it.slug }) {
                     viewModel.fetchFilmDetails(slug) {
                         it?.let {
-                            adapter.addItem(listOf(it.movie))
+                            tempList.add(it.movie)
+
+                            if (tempList.size == library.listFilm.size) {
+                                val sortedList = library.listFilm.mapNotNull { h ->
+                                    tempList.find { it.slug == h.slug }
+                                }
+                                filmAdapter.replaceItems(sortedList)
+                            }
                         }
                     }
                 }
             }
         }
 
-        adapter.setCallback(this)
+        filmAdapter.setCallback(this)
     }
 
 
@@ -65,11 +75,11 @@ class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener
     override fun onLongClick(slug: String) {
         library.let {library ->
             EditLibrary.showDeleteFilmFromLibrary(this, library.name, slug) {
-                adapter.removeItem(slug)
+                filmAdapter.removeItem(slug)
                 val newSlug = library.listFilm.map { it.slug }.filter { it != slug }.last()
                 viewModel.fetchFilmDetails(newSlug) {
                     it?.let {
-                        LibraryRepository().updatePosterUrl(library.name, it.movie.posterUrl)
+                        LibraryRepository.updatePosterUrl(library.name, it.movie.posterUrl)
                     }
                 }
             }

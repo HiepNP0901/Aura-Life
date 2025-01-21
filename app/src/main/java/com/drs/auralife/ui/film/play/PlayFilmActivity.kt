@@ -72,13 +72,21 @@ class PlayFilmActivity : AppCompatActivity() {
         numberEpInLine = resources.displayMetrics.widthPixels/resources.displayMetrics.densityDpi
         recyclerView.layoutManager = GridLayoutManager(this, ++numberEpInLine)
 
-        slug?.let {
-            viewModel.fetchFilmDetails(it) { filmDetails ->
-                filmDetails?.let {
-                    film = it
-                    playEpisode(currentEpisode)
-                    recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData) { ep ->
-                        playEpisode(ep)
+        slug?.let { slug ->
+            RealtimeDB.getHistoryData(this){ listHistory ->
+                listHistory.find { it.slug == slug }.let {
+                    it?.let {
+                        currentEpisode = it.episode
+                        currentPosition = it.position
+                    }
+                }
+                viewModel.fetchFilmDetails(slug) { filmDetails ->
+                    filmDetails?.let {
+                        film = it
+                        playEpisode(currentEpisode)
+                        recyclerView.adapter = EpisodeAdapter(it.episodes[0].serverData) { ep ->
+                            playEpisode(ep)
+                        }
                     }
                 }
             }
@@ -103,6 +111,16 @@ class PlayFilmActivity : AppCompatActivity() {
         currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
         playEpisode(currentEpisode)
         currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - 1000
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        RealtimeDB.addHistoryData(
+            slug.toString(),
+            currentEpisode,
+            exoPlayer.currentPosition
+        )
     }
 
 

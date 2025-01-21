@@ -15,14 +15,19 @@ import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.utils.Time
+import java.time.Duration
+import java.time.Instant
 import java.util.Locale
 
 const val SLUG = "@slug"
 const val VERTICAL = 1
 const val HORIZONTAL = 2
 
+@SuppressLint("NotifyDataSetChanged")
 open class FilmAdapter(
-    private val films: MutableList<Movie>, private val itemViewType: Int = VERTICAL
+    private val films: MutableList<Movie>,
+    private val itemViewType: Int = VERTICAL,
+    private val centerTitle: Boolean = true
 ) : RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
 
     interface FragmentListener {
@@ -49,7 +54,14 @@ open class FilmAdapter(
         val film = films[position]
         val context = holder.itemView.context
 
-        MyAppGlideModule.loadImage(context, film.posterUrl, holder.tvImage)
+        if (centerTitle) {
+            holder.tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        }
+        else {
+            holder.tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+        }
 
         if(Locale.getDefault().language == "vi") {
             holder.tvTitle.text = film.name
@@ -57,10 +69,15 @@ open class FilmAdapter(
             holder.tvTitle.text = film.originName
         }
 
-        @Suppress("SENSELESS_COMPARISON")
+        MyAppGlideModule.loadImage(context, film.posterUrl, holder.tvImage)
+
+        @Suppress("SENSELESS_COMPARISON", "UNNECESSARY_SAFE_CALL")
         if (itemViewType == VERTICAL) {
-            holder.tvDetails.text =
-                film.modified.time.let { Time.calculateTimeDifference(it, context) }
+            holder.tvDetails.text = film.modified.time.let {
+                Time.calculateTimeDifference(
+                    Instant.parse(it) - Duration.ofHours(7), context
+                )
+            }
         }
         else if (film.content != null) {
             holder.tvDetails.text =
@@ -69,8 +86,11 @@ open class FilmAdapter(
         else {
             holder.tvTitle.isSingleLine = false
             holder.tvTitle.maxLines = 4
-            holder.tvDetails.text =
-                film.modified.time.let { Time.calculateTimeDifference(it, context) }
+            holder.tvDetails.text = film.modified.time.let {
+                Time.calculateTimeDifference(
+                    Instant.parse(it) - Duration.ofHours(7), context
+                )
+            }
             holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
 
@@ -94,18 +114,24 @@ open class FilmAdapter(
     override fun getItemCount(): Int = films.size
 
     fun addItem(newItems: List<Movie>) {
-        films.addAll(newItems)
+        newItems.forEach { movie ->
+            if (films.map { it.slug }.contains(movie.slug)) {
+                val position = films.indexOfFirst { it.slug == movie.slug }
+                films[position] = movie
+            }
+            else {
+                films.add(movie)
+            }
+        }
         notifyItemInserted(films.size)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     fun replaceItems(newItems: List<Movie>) {
         films.clear()
         films.addAll(newItems)
         notifyDataSetChanged()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     fun clearItems() {
         films.clear()
         notifyDataSetChanged()

@@ -6,9 +6,7 @@ import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.films.Films
 import com.drs.auralife.data.model.search.SearchResults
 
-@Suppress("unused")
 class FilmsViewModel(private val repository: FilmRepository) : ViewModel() {
-
     private val _films = MutableLiveData<Films?>()
     private val _filmDetails = MutableLiveData<FilmDetails?>()
     private val _searchResults = MutableLiveData<SearchResults?>()

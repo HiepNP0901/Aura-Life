@@ -4,7 +4,7 @@ import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.RealtimeDB
 import com.google.firebase.database.DataSnapshot
 
-class LibraryRepository {
+object LibraryRepository {
     private val userRef = RealtimeDB.userRef
 
     fun addLibraryData(
@@ -17,22 +17,23 @@ class LibraryRepository {
         val userId = Authentication.getUserId()
 
         userId.let { id ->
-            val listLibrary = userRef.child(id.toString()).child("library")
-            listLibrary.child(name).get().addOnSuccessListener {
+            val library = userRef.child(id.toString()).child("library").child(name)
+            library.get().addOnSuccessListener {
                 if (it.exists()) {
                     val libraryData = snapshotToLibrary(it)
                     if (libraryData.listFilm.any { film -> film.slug == slug }) {
                         callback(Result.success(false))
                     }
                     else {
-                        listLibrary.child(name).child("listFilm").push()
+                        library.child("listFilm").push()
                             .setValue(FilmLibrary(slug, episode))
                         callback(Result.success(true))
                     }
+                    library.child("posterUrl").setValue(posterUrl)
                 }
                 else {
-                    listLibrary.child(name).child("posterUrl").setValue(posterUrl)
-                    listLibrary.child(name).child("listFilm").push()
+                    library.child("posterUrl").setValue(posterUrl)
+                    library.child("listFilm").push()
                         .setValue(FilmLibrary(slug, episode))
                 }
             }.addOnFailureListener { e ->
@@ -79,7 +80,7 @@ class LibraryRepository {
             library.get().addOnSuccessListener {
                 val libraryData = snapshotToLibrary(it)
                 callback(libraryData)
-            }.addOnFailureListener { e ->
+            }.addOnFailureListener { _ ->
                 callback(Library("", "", mutableListOf()))
             }
         }
@@ -97,7 +98,6 @@ class LibraryRepository {
                     if (film.child("slug").value.toString() == slug) {
                         film.ref.removeValue().addOnSuccessListener {
                             callback(Result.success(true))
-                            return@addOnSuccessListener
                         }.addOnFailureListener { e ->
                             callback(Result.failure(Exception(e)))
                         }
@@ -147,8 +147,25 @@ class LibraryRepository {
         val userId = Authentication.getUserId()
 
         userId.let {
+            userRef.child(it.toString()).child("library").child(name).child("posterUrl")
+                .setValue(posterUrl)
+        }
+    }
+
+    fun updateEpisode(name: String, slug: String, episode: String) {
+        val userId = Authentication.getUserId()
+
+        userId.let {
             val library = userRef.child(it.toString()).child("library").child(name)
-            library.child("posterUrl").setValue(posterUrl)
+            library.get().addOnSuccessListener {
+                val listLibrary = snapshotToLibrary(it)
+                listLibrary.listFilm.forEach { film ->
+                    if (film.slug == slug) {
+                        film.episode = episode
+                    }
+                }
+                library.setValue(listLibrary)
+            }
         }
     }
 

@@ -7,12 +7,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -26,6 +28,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
@@ -35,12 +40,18 @@ import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.explore.ExploreFragment
 import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.ui.film.HORIZONTAL
+import com.drs.auralife.ui.film.SLUG
+import com.drs.auralife.ui.film.details.FilmDetailsActivity
+import com.drs.auralife.ui.history.HistoryFragment
 import com.drs.auralife.ui.home.HomeFragment
 import com.drs.auralife.ui.library.LibraryFragment
 import com.drs.auralife.utils.MyAppGlideModule
+import com.drs.auralife.utils.Notification
 import com.drs.auralife.utils.PermissionPhotoHandler
+import com.drs.auralife.utils.UpdateLibraryWorker
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var searchBar: EditText
@@ -63,6 +74,14 @@ class MainActivity : AppCompatActivity() {
         setupBackPressed()
         setupViewPager()
         setupSearchBar()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "UpdateEpisodeWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
+                15, TimeUnit.MINUTES
+            ).build()
+        )
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -143,6 +162,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navLogout -> {
                     Authentication.logout()
                     Authentication.isLoggedIn.postValue(false)
+                    Notification.removeAllNotification(this)
                 }
                 R.id.navExit -> finish()
             }
@@ -188,8 +208,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager() {
         val fragments = listOf(
-            HomeFragment(), ExploreFragment(),
-            LibraryFragment()
+            HomeFragment(), ExploreFragment(), LibraryFragment(), HistoryFragment()
         )
 
         viewPager.isUserInputEnabled = false
@@ -207,6 +226,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navHome -> viewPager.currentItem = 0
                 R.id.navExplore -> viewPager.currentItem = 1
                 R.id.navLibrary -> viewPager.currentItem = 2
+                R.id.navHistory -> viewPager.currentItem = 3
             }
             true
         }
@@ -224,13 +244,18 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
-                viewModel.searchFilms(s.toString(), 5) {
-                    it?.data?.let {
-                        for (item in it.items) {
-                            item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
-                            item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
+                if (s.toString().isEmpty()) {
+                    filmAdapter.clearItems()
+                }
+                else {
+                    viewModel.searchFilms(s.toString(), 5) {
+                        it?.data?.let {
+                            for (item in it.items) {
+                                item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
+                                item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
+                            }
+                            filmAdapter.replaceItems(it.items)
                         }
-                        filmAdapter.replaceItems(it.items)
                     }
                 }
             }
@@ -270,7 +295,41 @@ class MainActivity : AppCompatActivity() {
         }
 
         appBarNotifications.setOnClickListener {
-            Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
+            showNotificationList(it)
         }
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showNotificationList(anchor: View) {
+        val popupView = LayoutInflater.from(this).inflate(R.layout.popup_notification_list, null)
+        val rvNotifications = popupView.findViewById<RecyclerView>(R.id.rvNotifications)
+        val text = popupView.findViewById<TextView>(R.id.text)
+
+        val notifications = Notification.getNotifications(this)
+
+        if (notifications.isEmpty()) {
+            text.visibility = View.VISIBLE
+        }
+        else {
+            text.visibility = View.GONE
+        }
+
+        rvNotifications.layoutManager = LinearLayoutManager(this)
+
+        val adapter = NotificationAdapter(notifications, {
+            val intent = Intent(this, FilmDetailsActivity::class.java)
+            intent.putExtra(SLUG, it.first)
+            startActivity(intent)
+        }, { Notification.removeNotification(this, it) })
+
+        rvNotifications.adapter = adapter
+
+        val popupWindow = PopupWindow(
+            popupView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        popupWindow.showAsDropDown(anchor)
     }
 }

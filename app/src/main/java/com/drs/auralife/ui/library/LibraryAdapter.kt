@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.data.firebase.library.Library
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.R
+import com.drs.auralife.data.firebase.library.EditLibrary
 
-class LibraryAdapter(private val library: MutableList<Library>): RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
+class LibraryAdapter(private val library: MutableList<Library>, private val fragment: LibraryFragment): RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvImage = itemView.findViewById<ImageView>(R.id.imageLibrary)
@@ -44,7 +45,7 @@ class LibraryAdapter(private val library: MutableList<Library>): RecyclerView.Ad
 
         holder.itemView.setOnLongClickListener{
             EditLibrary.showEditLibraryDialog(context, item.name){
-                refreshLibrary(library)
+                fragment.refreshLibrary()
             }
             true
         }
@@ -56,6 +57,7 @@ class LibraryAdapter(private val library: MutableList<Library>): RecyclerView.Ad
     fun refreshLibrary(newLibrary: MutableList<Library>) {
         library.clear()
         library.addAll(newLibrary)
+        library.sortBy { it.name }
         notifyDataSetChanged()
     }
 }

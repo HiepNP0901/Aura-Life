@@ -1,11 +1,11 @@
 <resources>
 
     <style name="Base.Theme.AuraLife" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">?attr/colorPrimary</item>
+        <item name="android:windowBackground">@color/color_background</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="colorPrimary">@color/dark_purple_80</item>
+        <item name="colorPrimary">@color/color_background</item>
     </style>
-
+    <color name="color_background">@color/dark_purple_80</color>
     <color name="color_button">@color/dark_purple_60</color>
     <color name="color_item_dark">@color/dark_purple_40</color>
     <color name="color_item">@color/dark_purple_20</color>

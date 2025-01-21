@@ -20,7 +20,7 @@ data class Movie(
     val notify: String,
     val status: String,
     val quality: String,
-    val content: String,
+    var content: String,
     val created: Created,
     val actor: List<String>,
     val country: List<Country>,

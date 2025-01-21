@@ -111,5 +111,11 @@
     <string name="function_must_login">Please log in to use this function.</string>
     <string name="empty">Empty</string>
     <string name="scroll_to_top">Scroll to top</string>
+
+    <!-- Strings related to notification -->
     <string name="notifications">Notifications</string>
+    <string name="new_episodes">New Episodes</string>
+
+    <!-- Strings related to history -->
+    <string name="history">History</string>
 </resources>

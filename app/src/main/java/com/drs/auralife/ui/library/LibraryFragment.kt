@@ -14,7 +14,7 @@ import com.drs.auralife.ui.MainActivity
 
 class LibraryFragment : Fragment() {
     val binding by lazy { FragmentLibraryBinding.inflate(layoutInflater) }
-    val libraryAdapter = LibraryAdapter(mutableListOf())
+    val libraryAdapter = LibraryAdapter(mutableListOf(), this)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -32,7 +32,7 @@ class LibraryFragment : Fragment() {
 
     fun refreshLibrary() {
         binding.recyclerView.adapter = libraryAdapter
-        LibraryRepository().getLibrary {
+        LibraryRepository.getLibrary {
             libraryAdapter.refreshLibrary(it)
 
             if (!Authentication.isLoggedIn()) {

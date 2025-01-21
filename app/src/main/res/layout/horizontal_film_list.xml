@@ -11,12 +11,14 @@
         android:id="@+id/buttonHorizontalFilmList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:gravity="center_vertical"
+        android:backgroundTint="@color/color_background"
+        android:outlineSpotShadowColor="@color/transparent"
+        android:outlineAmbientShadowColor="@color/transparent"
+        android:gravity="bottom"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textAllCaps="false"
-        tools:ignore="SpeakableTextPresentCheck,VisualLintButtonSize" />
+        tools:ignore="SpeakableTextPresentCheck,UnusedAttribute,VisualLintButtonSize" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
