@@ -3,7 +3,9 @@ package com.drs.auralife.utils
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -39,17 +41,17 @@ class UpdateLibraryWorker(
                     totalRequests++
                     repository.getFilmDetails(filmItem.slug) { it ->
                         it?.let { film ->
-                            if (filmItem.episode != film.movie.episodeTotal) {
+                            if (filmItem.episode != film.movie.episodeCurrent) {
                                 val message = if (Locale.getDefault().language == "vi") {
-                                    "${film.movie.name} đã có tập ${film.movie.episodeTotal}"
+                                    "${film.movie.name} đã có tập mới"
                                 } else {
-                                    "${film.movie.originName} has episode ${film.movie.episodeTotal}"
+                                    "${film.movie.originName} has a new episode"
                                 }
 
                                 if (!updates.contains(message)) {
                                     updates.add(message)
                                     LibraryRepository.updateEpisode(
-                                        libraryItem.name, filmItem.slug, film.movie.episodeTotal
+                                        libraryItem.name, filmItem.slug, film.movie.episodeCurrent
                                     )
                                     Notification.addNotification(context, filmItem.slug, message)
                                 }
@@ -84,12 +86,27 @@ class UpdateLibraryWorker(
         val summary = messages.joinToString(separator = "\n")
 
         notificationManager.notify(
-            1,
-            NotificationCompat.Builder(applicationContext, channelId).setContentTitle(title)
+            1, NotificationCompat.Builder(applicationContext, channelId).setContentTitle(title)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(summary))
                 .setSmallIcon(R.drawable.ic_logo)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_HIGH).setContentIntent(getPendingIntent())
+                .setAutoCancel(true)
                 .build()
+        )
+    }
+
+    private fun getPendingIntent(): PendingIntent {
+        val packageName = applicationContext.packageName
+        val launchIntent =
+            applicationContext.packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+
+        return PendingIntent.getActivity(
+            applicationContext,
+            0,
+            launchIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 }

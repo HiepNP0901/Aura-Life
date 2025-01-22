@@ -86,7 +86,7 @@ object AddToLibrary {
             libraryName,
             film.posterUrl,
             film.slug,
-            film.episodeTotal
+            film.episodeCurrent
         ) {
             it.onSuccess {
                 Toast.makeText(

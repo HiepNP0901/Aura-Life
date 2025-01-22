@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
@@ -74,14 +75,6 @@ class MainActivity : AppCompatActivity() {
         setupBackPressed()
         setupViewPager()
         setupSearchBar()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "UpdateEpisodeWork",
-            ExistingPeriodicWorkPolicy.KEEP,
-            PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
-                6, TimeUnit.HOURS
-            ).build()
-        )
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -150,6 +143,19 @@ class MainActivity : AppCompatActivity() {
                 navLogout.isVisible = false
                 navEmail.text = getString(R.string.example_email)
                 navPic.setImageResource(R.drawable.ic_profile)
+            }
+
+            if(Authentication.isLoggedIn()){
+                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    "UpdateEpisodeWork",
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
+                        6, TimeUnit.HOURS
+                    ).build()
+                )
+
+                WorkManager.getInstance(this)
+                    .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
             }
         }
     }
