@@ -17,9 +17,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.firebase.RealtimeDB
+import com.drs.auralife.data.firebase.Authentication
+import com.drs.auralife.data.firebase.history.HistoryRepository
 import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.ui.film.SLUG
+import com.drs.auralife.utils.HistoryUtils
 import com.drs.auralife.utils.SystemUiController
 
 class PlayFilmActivity : AppCompatActivity() {
@@ -73,7 +75,7 @@ class PlayFilmActivity : AppCompatActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, ++numberEpInLine)
 
         slug?.let { slug ->
-            RealtimeDB.getHistoryData(this){ listHistory ->
+            HistoryRepository.getHistoryData { listHistory ->
                 listHistory.find { it.slug == slug }.let {
                     it?.let {
                         currentEpisode = it.episode
@@ -116,11 +118,16 @@ class PlayFilmActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        RealtimeDB.addHistoryData(
-            slug.toString(),
-            currentEpisode,
-            exoPlayer.currentPosition
-        )
+        if (Authentication.isLoggedIn()) {
+            HistoryRepository.addHistoryData(
+                slug.toString(), currentEpisode, exoPlayer.currentPosition
+            )
+        }
+        else {
+            HistoryUtils.addHistory(
+                this, slug.toString(), currentEpisode, exoPlayer.currentPosition
+            )
+        }
     }
 
 

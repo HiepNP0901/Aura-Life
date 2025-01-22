@@ -1,11 +1,8 @@
 package com.drs.auralife.data.firebase
 
-import android.content.Context
 import android.graphics.Bitmap
 import com.drs.auralife.utils.ImageEncoderDecoder
-import com.drs.auralife.utils.Time
 import com.google.firebase.database.FirebaseDatabase
-import java.time.Instant
 
 object RealtimeDB {
     private val database = FirebaseDatabase.getInstance()
@@ -62,48 +59,6 @@ object RealtimeDB {
             onDataReceived(categoryList)
         }.addOnFailureListener {
             onDataReceived(emptyList())
-        }
-    }
-
-    fun getHistoryData(context: Context, onDataReceived: (List<History>) -> Unit) {
-        val userId = Authentication.getUserId()
-
-        userId.let {
-            userRef.child(it.toString()).child("history").get().addOnSuccessListener {
-                val historyList = mutableListOf<History>()
-                for (snapshot in it.children) {
-                    var date =
-                        Instant.ofEpochMilli(snapshot.child("date").value.toString().toLong())
-                    val historyData = History(
-                        snapshot.child("slug").value.toString(),
-                        snapshot.child("episode").value.toString().toInt(),
-                        snapshot.child("position").value.toString().toLong(),
-                        Time.calculateTimeDifference(date, context)
-                    )
-                    historyData.let { historyList.add(it) }
-                }
-                onDataReceived(historyList)
-            }.addOnFailureListener {
-                onDataReceived(emptyList())
-            }
-        }
-    }
-
-    fun addHistoryData(slug: String, episode: Int, position: Long) {
-        val userId = Authentication.getUserId()
-
-        userId.let {
-            val history = userRef.child(it.toString()).child("history")
-            history.get().addOnSuccessListener {
-                for (snapshot in it.children) {
-                    if (snapshot.child("slug").value.toString() == slug) {
-                        snapshot.ref.removeValue()
-                    }
-                }
-                val historyData =
-                    History(slug, episode, position, System.currentTimeMillis().toString())
-                history.push().setValue(historyData)
-            }
         }
     }
 }

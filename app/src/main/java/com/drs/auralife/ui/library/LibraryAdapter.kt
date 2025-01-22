@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.data.firebase.library.Library
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.R
-import com.drs.auralife.data.firebase.library.EditLibrary
 
 class LibraryAdapter(private val library: MutableList<Library>, private val fragment: LibraryFragment): RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
 

@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             "UpdateEpisodeWork",
             ExistingPeriodicWorkPolicy.KEEP,
             PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
-                15, TimeUnit.MINUTES
+                6, TimeUnit.HOURS
             ).build()
         )
     }

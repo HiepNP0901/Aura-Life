@@ -11,14 +11,18 @@ import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.RealtimeDB
+import com.drs.auralife.data.firebase.history.History
+import com.drs.auralife.data.firebase.history.HistoryRepository
 import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.ui.film.HORIZONTAL
+import com.drs.auralife.utils.HistoryUtils
+import com.drs.auralife.utils.Time
+import java.time.Instant
 
-class HistoryFragment : Fragment() {
+class HistoryFragment : Fragment(), FilmAdapter.FragmentListener {
     private val binding by lazy { FragmentLibraryBinding.inflate(layoutInflater) }
     private val viewModel by lazy {
         ViewModelProvider(
@@ -32,44 +36,60 @@ class HistoryFragment : Fragment() {
     ): View? {
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
+        filmAdapter.setCallback(this)
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        refreshLibrary()
+        refreshHistory()
     }
 
-    fun refreshLibrary() {
-        RealtimeDB.getHistoryData(requireContext()) { listHistory ->
+    fun refreshHistory() {
+        if (Authentication.isLoggedIn()) {
+            HistoryRepository.getHistoryData { listHistory ->
+                refreshRecyclerView(listHistory)
+            }
+        }
+        else {
+            val listHistory = HistoryUtils.getHistories(requireContext())
+            refreshRecyclerView(listHistory)
+        }
+    }
+
+    private fun refreshRecyclerView(listHistory: List<History>) {
+        if (listHistory.isEmpty()) {
+            binding.text.visibility = View.VISIBLE
+        }
+        else {
+            binding.text.visibility = View.GONE
             binding.recyclerView.adapter = filmAdapter
             val tempList = mutableListOf<Movie>()
             listHistory.forEach{ history ->
                 viewModel.fetchFilmDetails(history.slug){
                     it?.movie?.let {movie ->
-                        movie.content = history.date.toString() + "<br>" + movie.content
+                        movie.content = Time.calculateTimeDifference(
+                            Instant.ofEpochMilli(
+                                history.date.toLong()
+                            ), requireContext()
+                        ) + "<br>" + movie.content
+
                         tempList.add(movie)
                     }
                     if (tempList.size == listHistory.size) {
                         val sortedList = listHistory.mapNotNull { h ->
                             tempList.find { it.slug == h.slug }
-                        }
+                        }.reversed()
                         filmAdapter.replaceItems(sortedList)
                     }
                 }
             }
+        }
+    }
 
-            if (!Authentication.isLoggedIn()) {
-                binding.text.visibility = View.VISIBLE
-                binding.text.text = getString(R.string.function_must_login)
-            }
-            else if(listHistory.isEmpty()){
-                binding.text.visibility = View.VISIBLE
-                binding.text.text = getString(R.string.empty)
-            }
-            else {
-                binding.text.visibility = View.GONE
-            }
+    override fun onLongClick(slug: String) {
+        DeleteHistory.showDeleteFilmFromHistory(requireContext(), slug) {
+            filmAdapter.removeItem(slug)
         }
     }
 }

@@ -23,7 +23,6 @@ const val SLUG = "@slug"
 const val VERTICAL = 1
 const val HORIZONTAL = 2
 
-@SuppressLint("NotifyDataSetChanged")
 open class FilmAdapter(
     private val films: MutableList<Movie>,
     private val itemViewType: Int = VERTICAL,
@@ -71,7 +70,7 @@ open class FilmAdapter(
 
         MyAppGlideModule.loadImage(context, film.posterUrl, holder.tvImage)
 
-        @Suppress("SENSELESS_COMPARISON", "UNNECESSARY_SAFE_CALL")
+        @Suppress("SENSELESS_COMPARISON")
         if (itemViewType == VERTICAL) {
             holder.tvDetails.text = film.modified.time.let {
                 Time.calculateTimeDifference(
@@ -126,12 +125,14 @@ open class FilmAdapter(
         notifyItemInserted(films.size)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun replaceItems(newItems: List<Movie>) {
         films.clear()
         films.addAll(newItems)
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun clearItems() {
         films.clear()
         notifyDataSetChanged()

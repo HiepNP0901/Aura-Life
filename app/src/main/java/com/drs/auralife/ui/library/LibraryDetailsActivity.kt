@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.firebase.library.EditLibrary
 import com.drs.auralife.data.firebase.library.Library
 import com.drs.auralife.data.firebase.library.LibraryRepository
 import com.drs.auralife.data.model.film.Movie

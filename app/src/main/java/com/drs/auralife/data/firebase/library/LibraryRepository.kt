@@ -20,8 +20,7 @@ object LibraryRepository {
             val library = userRef.child(id.toString()).child("library").child(name)
             library.get().addOnSuccessListener {
                 if (it.exists()) {
-                    val libraryData = snapshotToLibrary(it)
-                    if (libraryData.listFilm.any { film -> film.slug == slug }) {
+                    if (snapshotToLibrary(it).listFilm.any { film -> film.slug == slug }) {
                         callback(Result.success(false))
                     }
                     else {
@@ -132,9 +131,7 @@ object LibraryRepository {
             val listLibrary = userRef.child(it.toString()).child("library")
 
             listLibrary.child(oldName).get().addOnSuccessListener {
-                val libraryData = snapshotToLibrary(it)
-                libraryData.name = newName
-                listLibrary.child(newName).setValue(libraryData)
+                listLibrary.child(newName).setValue(it.value)
                 listLibrary.child(oldName).removeValue()
                 callback(Result.success(true))
             }.addOnFailureListener { e ->
@@ -158,13 +155,12 @@ object LibraryRepository {
         userId.let {
             val library = userRef.child(it.toString()).child("library").child(name)
             library.get().addOnSuccessListener {
-                val listLibrary = snapshotToLibrary(it)
-                listLibrary.listFilm.forEach { film ->
-                    if (film.slug == slug) {
-                        film.episode = episode
+                val listFilm = it.child("listFilm").children
+                for (film in listFilm) {
+                    if (film.child("slug").value.toString() == slug) {
+                        film.ref.child("episode").setValue(episode)
                     }
                 }
-                library.setValue(listLibrary)
             }
         }
     }

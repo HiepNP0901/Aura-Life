@@ -87,7 +87,7 @@
     <string name="successfully">" thành công."</string>
     <string name="delete_library_failed">Xóa thư viện thất bại!</string>
     <string name="error">Đã có lỗi sảy ra!</string>
-    <string name="sure_delete_film_from_library">Bạn có chắc chắn muốn xóa phim này khỏi thư viện?</string>
+    <string name="sure_delete_film">Bạn có chắc chắn muốn xóa phim này?</string>
     <string name="function_must_login">Vui lòng đăng nhập để sử dụng chức năng này.</string>
     <string name="empty">Trống</string>
     <string name="scroll_to_top">Cuộn lên đầu</string>

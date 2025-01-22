@@ -1,4 +1,4 @@
-package com.drs.auralife.data.firebase.library
+package com.drs.auralife.ui.library
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import com.drs.auralife.R
+import com.drs.auralife.data.firebase.library.LibraryRepository
 
 object EditLibrary {
     fun showEditLibraryDialog(context: Context, nameLibrary: String, callback: () -> Unit) {
@@ -110,7 +111,7 @@ object EditLibrary {
         val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
         dialogView.findViewById<TextView>(R.id.title).text =
-            context.getString(R.string.sure_delete_film_from_library)
+            context.getString(R.string.sure_delete_film)
         dialogView.findViewById<AppCompatButton>(R.id.btnCancel).setOnClickListener {
             dialog.dismiss()
         }

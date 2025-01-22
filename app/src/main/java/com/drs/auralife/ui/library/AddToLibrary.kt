@@ -1,4 +1,4 @@
-package com.drs.auralife.data.firebase.library
+package com.drs.auralife.ui.library
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.util.TypedValueCompat.dpToPx
 import com.drs.auralife.R
+import com.drs.auralife.data.firebase.library.LibraryRepository
 import com.drs.auralife.data.model.film.Movie
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
