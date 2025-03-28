@@ -32,6 +32,7 @@
         android:background="@color/transparent"
         android:contentDescription="@string/profile"
         android:src="@drawable/ic_profile"
+        android:scaleType="fitCenter"
         app:round="250dp"
         tools:ignore="TouchTargetSizeCheck" />
 

@@ -10,7 +10,7 @@ object ImageEncoderDecoder {
         bitmap: Bitmap,
         compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
         quality: Int = 100,
-        size: Int = 128
+        size: Int = 80
     ): String {
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, size, size, false)
         val outputStream = ByteArrayOutputStream()

@@ -1,4 +1,4 @@
-package com.drs.auralife.data.firebase.history
+package com.drs.auralife.data.firebase.realtime.database.user.history
 
 data class History(
     val slug: String,

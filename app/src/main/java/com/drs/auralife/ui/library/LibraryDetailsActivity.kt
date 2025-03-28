@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.firebase.library.Library
-import com.drs.auralife.data.firebase.library.LibraryRepository
+import com.drs.auralife.data.firebase.realtime.database.user.library.Library
+import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
 import com.drs.auralife.ui.film.FilmAdapter
@@ -41,8 +41,8 @@ class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener
                             tempList.add(it.movie)
 
                             if (tempList.size == library.listFilm.size) {
-                                val sortedList = library.listFilm.mapNotNull { h ->
-                                    tempList.find { it.slug == h.slug }
+                                val sortedList = library.listFilm.mapNotNull { filmLibrary ->
+                                    tempList.find { it.slug == filmLibrary.slug }
                                 }
                                 filmAdapter.replaceItems(sortedList)
                             }

@@ -8,7 +8,7 @@ import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.library.LibraryRepository
+import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.ui.MainActivity
 

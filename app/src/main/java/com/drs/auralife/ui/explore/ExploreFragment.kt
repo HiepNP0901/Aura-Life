@@ -1,6 +1,7 @@
 package com.drs.auralife.ui.explore
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -13,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.firebase.RealtimeDB
+import com.drs.auralife.data.firebase.realtime.database.category.CategoryRepository
 import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.ui.film.FilmAdapter
@@ -34,13 +35,13 @@ class ExploreFragment : Fragment() {
     ): View? {
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
 
-        RealtimeDB.getCategoryData {
+        CategoryRepository.getCategoryData {
             it.forEach { category ->
                 val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
 
                 item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList)
                     .setOnClickListener {
-                        val intent = android.content.Intent(
+                        val intent = Intent(
                             requireContext(), ExploreDetailsActivity::class.java
                         )
                         intent.putExtra(CATEGORY_SLUG, category.slug)

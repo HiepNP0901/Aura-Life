@@ -94,4 +94,8 @@
     <string name="notifications">Thông báo</string>
     <string name="new_episodes">Đã có tập mới</string>
     <string name="history">Lịch sử</string>
+    <string name="freemium">Nâng cấp lên Premium</string>
+    <string name="watched_more_than_5_minutes">Bạn đã xem quá 5 phút! Hãy nâng cấp lên Premium để xem không giới hạn.</string>
+    <string name="upgrade_now">Nâng cấp ngay</string>
+    <string name="choose">Chọn</string>
 </resources>

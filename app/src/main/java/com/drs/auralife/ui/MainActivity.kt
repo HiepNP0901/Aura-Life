@@ -23,6 +23,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.utils.widget.ImageFilterButton
 import androidx.constraintlayout.utils.widget.ImageFilterView
+import androidx.core.content.edit
+import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,7 +38,8 @@ import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.RealtimeDB
+import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository
+import com.drs.auralife.data.firebase.realtime.database.user.premium.PremiumRepository
 import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.explore.ExploreFragment
 import com.drs.auralife.ui.film.FilmAdapter
@@ -66,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     private var searchIsVisible = false
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -77,10 +81,12 @@ class MainActivity : AppCompatActivity() {
         setupSearchBar()
     }
 
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionPhotoHandler.handlePermissionsResult(requestCode, grantResults)
     }
+
 
     private fun initializeViews() {
         viewPager = findViewById(R.id.view_pager)
@@ -130,19 +136,39 @@ class MainActivity : AppCompatActivity() {
         val navigationHeader = navigationView.getHeaderView(0)
         val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
         val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
+        val navFreemium = navigationHeader.findViewById<TextView>(R.id.navFreemium)
+        val sharedPreferences = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
 
         Authentication.isLoggedIn.observe(this) {
             if (it) {
                 navLogin.isVisible = false
                 navLogout.isVisible = true
                 navEmail.text = Authentication.getEmail()
-                RealtimeDB.getAvatar { MyAppGlideModule.loadImage(this, it, navPic) }
+                AvatarRepository.getAvatar { MyAppGlideModule.loadImage(this, it, navPic) }
+                navFreemium.visibility = View.VISIBLE
+
+                PremiumRepository.getPremiumStatus {
+                    sharedPreferences.edit { putString("ExpireDate", it.expireDate) }
+
+                    if (it.status == true) {
+                        navFreemium.text = getString(R.string.premium)
+                    }
+                    else {
+                        navFreemium.text = getString(R.string.freemium)
+                        navFreemium.setOnClickListener {
+                            //aaaaa
+                            startActivity(Intent(this, LoginActivity::class.java))
+                        }
+                    }
+                }
             }
             else {
                 navLogin.isVisible = true
                 navLogout.isVisible = false
+                navFreemium.visibility = View.GONE
                 navEmail.text = getString(R.string.example_email)
                 navPic.setImageResource(R.drawable.ic_profile)
+                sharedPreferences.edit { putString("ExpireDate", "") }
             }
 
             if(Authentication.isLoggedIn()){
@@ -179,7 +205,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun uploadAvatar(uri: Uri) {
         contentResolver.openInputStream(uri)?.use { inputStream ->
-            RealtimeDB.uploadAvatar(BitmapFactory.decodeStream(inputStream)) {
+            AvatarRepository.uploadAvatar(BitmapFactory.decodeStream(inputStream)) {
                 it.onSuccess {
                     Toast.makeText(this, getString(R.string.upload_avatar_successfully), Toast.LENGTH_SHORT).show()
                     Authentication.isLoggedIn.postValue(true)
@@ -222,7 +248,7 @@ class MainActivity : AppCompatActivity() {
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
-                    bottomNavigationView.menu.getItem(position).isChecked = true
+                    bottomNavigationView.menu[position].isChecked = true
                 }
             }
         )
@@ -277,7 +303,7 @@ class MainActivity : AppCompatActivity() {
 
         Authentication.isLoggedIn.observe(this) {
             if (it) {
-                RealtimeDB.getAvatar { bitmapImg ->
+                AvatarRepository.getAvatar { bitmapImg ->
                     MyAppGlideModule.loadImage(
                         this, bitmapImg, appBarProfile
                     )

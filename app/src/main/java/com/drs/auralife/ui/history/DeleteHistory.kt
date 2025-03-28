@@ -8,7 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.history.HistoryRepository
+import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository
 import com.drs.auralife.utils.HistoryUtils
 
 object DeleteHistory {

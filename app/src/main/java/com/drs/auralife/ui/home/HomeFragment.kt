@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
-import com.drs.auralife.data.firebase.RealtimeDB
+import com.drs.auralife.data.firebase.realtime.database.BannerRepository
 import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.ui.MainActivity
@@ -31,13 +31,13 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         setupBanner()
-        setupRecyclerView()
         return binding.root
     }
 
 
     override fun onResume() {
         super.onResume()
+        setupRecyclerView()
         @Suppress("DEPRECATION")
         Handler().postDelayed({
             view?.isSelected = true
@@ -52,7 +52,7 @@ class HomeFragment : Fragment() {
 
 
     private fun setupBanner() {
-        RealtimeDB.getBannerData { bannerData ->
+        BannerRepository.getBannerData { bannerData ->
             val bannerViewPager = binding.bannerViewPager
             bannerViewPager.adapter = BannerAdapter(bannerData)
             val handler = Handler(Looper.getMainLooper())

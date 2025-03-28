@@ -1,4 +1,4 @@
-package com.drs.auralife.data.firebase
+package com.drs.auralife.data.firebase.realtime.database.category
 
 data class Category(
     val slug: String,

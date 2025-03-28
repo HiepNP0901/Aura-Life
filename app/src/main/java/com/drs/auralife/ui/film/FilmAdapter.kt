@@ -36,9 +36,9 @@ open class FilmAdapter(
     private var callback: FragmentListener? = null
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvImage = itemView.findViewById<ImageView>(R.id.posterView)
-        val tvTitle = itemView.findViewById<TextView>(R.id.nameFilm)
-        val tvDetails = itemView.findViewById<TextView>(R.id.details)
+        val tvImage = itemView.findViewById<ImageView>(R.id.posterView)!!
+        val tvTitle = itemView.findViewById<TextView>(R.id.nameFilm)!!
+        val tvDetails = itemView.findViewById<TextView>(R.id.details)!!
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {

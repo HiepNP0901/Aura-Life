@@ -9,6 +9,7 @@ import com.drs.auralife.R
 import com.drs.auralife.data.model.OnboardingItem
 import com.drs.auralife.ui.MainActivity
 import com.google.android.material.tabs.TabLayoutMediator
+import androidx.core.content.edit
 
 class OnboardingActivity : AppCompatActivity() {
     private lateinit var onboardingAdapter: OnboardingAdapter
@@ -36,8 +37,7 @@ class OnboardingActivity : AppCompatActivity() {
                 if (position == onboardingAdapter.itemCount - 1) {
                     btnNext.text = getString(R.string.start)
                     btnNext.setOnClickListener {
-                        val sharedPreferences = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                        sharedPreferences.edit().putBoolean("isFirstTime", false).apply()
+                        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit { putBoolean("isFirstTime", false) }
                         startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
                         finish()
                     }

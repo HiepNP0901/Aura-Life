@@ -118,4 +118,9 @@
 
     <!-- Strings related to history -->
     <string name="history">History</string>
+    <string name="freemium">Upgrade to Premium</string>
+    <string name="premium" translatable="false">Premium</string>
+    <string name="watched_more_than_5_minutes">You watched more than 5 minutes! Upgrade to Premium to see unlimited.</string>
+    <string name="upgrade_now">Upgrade now</string>
+    <string name="choose">Choose</string>
 </resources>

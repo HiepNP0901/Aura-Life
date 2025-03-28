@@ -11,8 +11,8 @@ import com.drs.auralife.R
 import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.history.History
-import com.drs.auralife.data.firebase.history.HistoryRepository
+import com.drs.auralife.data.firebase.realtime.database.user.history.History
+import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository
 import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.ui.MainActivity
@@ -52,14 +52,18 @@ class HistoryFragment : Fragment(), FilmAdapter.FragmentListener {
             }
         }
         else {
-            val listHistory = HistoryUtils.getHistories(requireContext())
-            refreshRecyclerView(listHistory)
+            context?.applicationContext?.let{
+                val listHistory = HistoryUtils.getHistories(it)
+                refreshRecyclerView(listHistory)
+            }
         }
     }
 
     private fun refreshRecyclerView(listHistory: List<History>) {
         if (listHistory.isEmpty()) {
             binding.text.visibility = View.VISIBLE
+            filmAdapter.clearItems()
+            binding.recyclerView.adapter = filmAdapter
         }
         else {
             binding.text.visibility = View.GONE
@@ -68,11 +72,13 @@ class HistoryFragment : Fragment(), FilmAdapter.FragmentListener {
             listHistory.forEach{ history ->
                 viewModel.fetchFilmDetails(history.slug){
                     it?.movie?.let {movie ->
-                        movie.content = Time.calculateTimeDifference(
-                            Instant.ofEpochMilli(
-                                history.date.toLong()
-                            ), requireContext()
-                        ) + "<br>" + movie.content
+                        context?.applicationContext?.let {
+                            movie.content = Time.calculateTimeDifference(
+                                Instant.ofEpochMilli(
+                                    history.date.toLong()
+                                ), it
+                            ) + "<br>" + movie.content
+                        }
 
                         tempList.add(movie)
                     }

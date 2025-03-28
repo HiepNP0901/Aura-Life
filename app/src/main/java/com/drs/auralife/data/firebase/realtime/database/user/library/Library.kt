@@ -1,4 +1,4 @@
-package com.drs.auralife.data.firebase.library
+package com.drs.auralife.data.firebase.realtime.database.user.library
 
 data class Library(
     var name: String,

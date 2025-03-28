@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import com.drs.auralife.R
-import com.drs.auralife.data.firebase.library.LibraryRepository
+import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 
 object EditLibrary {
     fun showEditLibraryDialog(context: Context, nameLibrary: String, callback: () -> Unit) {

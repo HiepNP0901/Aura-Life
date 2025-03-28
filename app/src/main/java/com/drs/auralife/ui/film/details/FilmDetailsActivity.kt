@@ -1,12 +1,12 @@
 package com.drs.auralife.ui.film.details
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.ViewModelProvider
 import com.drs.auralife.R
@@ -61,7 +61,7 @@ class FilmDetailsActivity : AppCompatActivity() {
                     }
 
                     binding.trailerButton.setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(film.movie.trailerUrl))
+                        val intent = Intent(Intent.ACTION_VIEW, film.movie.trailerUrl.toUri())
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
                     }

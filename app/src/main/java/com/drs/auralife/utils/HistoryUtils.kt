@@ -1,7 +1,7 @@
 package com.drs.auralife.utils
 
 import android.content.Context
-import com.drs.auralife.data.firebase.history.History
+import com.drs.auralife.data.firebase.realtime.database.user.history.History
 import org.json.JSONArray
 import org.json.JSONObject
 

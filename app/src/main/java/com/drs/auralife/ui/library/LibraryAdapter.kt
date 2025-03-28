@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.data.firebase.library.Library
+import com.drs.auralife.data.firebase.realtime.database.user.library.Library
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.R
 

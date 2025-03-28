@@ -1,9 +1,11 @@
-package com.drs.auralife.data.firebase.history
+package com.drs.auralife.data.firebase.realtime.database.user.history
 
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.RealtimeDB.userRef
+import com.google.firebase.database.FirebaseDatabase
 
 object HistoryRepository {
+    val userRef = FirebaseDatabase.getInstance().getReference("users")
+
     fun getHistoryData(onDataReceived: (List<History>) -> Unit) {
         val userId = Authentication.getUserId()
 

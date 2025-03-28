@@ -1,11 +1,11 @@
-package com.drs.auralife.data.firebase.library
+package com.drs.auralife.data.firebase.realtime.database.user.library
 
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.RealtimeDB
 import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.FirebaseDatabase
 
 object LibraryRepository {
-    private val userRef = RealtimeDB.userRef
+    val userRef = FirebaseDatabase.getInstance().getReference("users")
 
     fun addLibraryData(
         name: String,
@@ -26,14 +26,15 @@ object LibraryRepository {
                     else {
                         library.child("listFilm").push()
                             .setValue(FilmLibrary(slug, episode))
+                        library.child("posterUrl").setValue(posterUrl)
                         callback(Result.success(true))
                     }
-                    library.child("posterUrl").setValue(posterUrl)
                 }
                 else {
                     library.child("posterUrl").setValue(posterUrl)
                     library.child("listFilm").push()
                         .setValue(FilmLibrary(slug, episode))
+                    callback(Result.success(true))
                 }
             }.addOnFailureListener { e ->
                 callback(Result.failure(Exception(e)))

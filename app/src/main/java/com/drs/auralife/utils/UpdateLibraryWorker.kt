@@ -11,7 +11,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmRepository
-import com.drs.auralife.data.firebase.library.LibraryRepository
+import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import java.util.Locale
 
 const val channelId = "episode_update_channel"
