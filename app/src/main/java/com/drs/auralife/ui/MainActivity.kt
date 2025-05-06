@@ -26,7 +26,6 @@ import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.core.content.edit
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -35,7 +34,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
-import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository
@@ -49,6 +47,7 @@ import com.drs.auralife.ui.film.details.FilmDetailsActivity
 import com.drs.auralife.ui.history.HistoryFragment
 import com.drs.auralife.ui.home.HomeFragment
 import com.drs.auralife.ui.library.LibraryFragment
+import com.drs.auralife.ui.payment.PaymentActivity
 import com.drs.auralife.utils.MyAppGlideModule
 import com.drs.auralife.utils.Notification
 import com.drs.auralife.utils.PermissionPhotoHandler
@@ -69,7 +68,6 @@ class MainActivity : AppCompatActivity() {
     private var searchIsVisible = false
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -81,12 +79,14 @@ class MainActivity : AppCompatActivity() {
         setupSearchBar()
     }
 
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionPhotoHandler.handlePermissionsResult(requestCode, grantResults)
     }
-
 
     private fun initializeViews() {
         viewPager = findViewById(R.id.view_pager)
@@ -98,13 +98,11 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
     }
 
-
     private fun setupDrawer() {
         setupDrawerToggle()
         setupDrawerHeader()
         handleDrawerItemSelection()
     }
-
 
     private fun setupDrawerToggle() {
         val actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
@@ -112,24 +110,26 @@ class MainActivity : AppCompatActivity() {
         actionBarDrawerToggle.syncState()
     }
 
-
     private fun setupDrawerHeader() {
-        val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { uploadAvatar(it) }
+        val activityResultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    result.data?.data?.let { uploadAvatar(it) }
+                }
             }
-        }
 
         permissionPhotoHandler = PermissionPhotoHandler(this, activityResultLauncher)
 
-        navigationView.getHeaderView(0).findViewById<ImageFilterView>(R.id.navProfilePic)
+        navigationView
+            .getHeaderView(0)
+            .findViewById<ImageFilterView>(R.id.navProfilePic)
             .setOnClickListener {
-            if (Authentication.isLoggedIn()) {
-                permissionPhotoHandler.checkAndRequestPermissions()
-            } else {
-                startActivity(Intent(this, LoginActivity::class.java))
+                if (Authentication.isLoggedIn()) {
+                    permissionPhotoHandler.checkAndRequestPermissions()
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
             }
-        }
 
         val navLogin = navigationView.menu.findItem(R.id.navLogin)
         val navLogout = navigationView.menu.findItem(R.id.navLogout)
@@ -152,17 +152,14 @@ class MainActivity : AppCompatActivity() {
 
                     if (it.status == true) {
                         navFreemium.text = getString(R.string.premium)
-                    }
-                    else {
+                    } else {
                         navFreemium.text = getString(R.string.freemium)
-                        navFreemium.setOnClickListener {
-                            //aaaaa
-                            startActivity(Intent(this, LoginActivity::class.java))
-                        }
+                    }
+                    navFreemium.setOnClickListener {
+                        startActivity(Intent(this, PaymentActivity::class.java))
                     }
                 }
-            }
-            else {
+            } else {
                 navLogin.isVisible = true
                 navLogout.isVisible = false
                 navFreemium.visibility = View.GONE
@@ -171,21 +168,22 @@ class MainActivity : AppCompatActivity() {
                 sharedPreferences.edit { putString("ExpireDate", "") }
             }
 
-            if(Authentication.isLoggedIn()){
+            if (Authentication.isLoggedIn()) {
                 WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                     "UpdateEpisodeWork",
                     ExistingPeriodicWorkPolicy.KEEP,
                     PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
-                        6, TimeUnit.HOURS
-                    ).build()
+                        6,
+                        TimeUnit.HOURS,
+                    ).build(),
                 )
 
-                WorkManager.getInstance(this)
+                WorkManager
+                    .getInstance(this)
                     .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
             }
         }
     }
-
 
     private fun handleDrawerItemSelection() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -202,20 +200,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun uploadAvatar(uri: Uri) {
         contentResolver.openInputStream(uri)?.use { inputStream ->
             AvatarRepository.uploadAvatar(BitmapFactory.decodeStream(inputStream)) {
-                it.onSuccess {
-                    Toast.makeText(this, getString(R.string.upload_avatar_successfully), Toast.LENGTH_SHORT).show()
-                    Authentication.isLoggedIn.postValue(true)
-                }.onFailure {
-                    Toast.makeText(this, getString(R.string.upload_avatar_failed), Toast.LENGTH_SHORT).show()
-                }
+                it
+                    .onSuccess {
+                        Toast
+                            .makeText(
+                                this,
+                                getString(R.string.upload_avatar_successfully),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        Authentication.isLoggedIn.postValue(true)
+                    }.onFailure {
+                        Toast
+                            .makeText(
+                                this,
+                                getString(R.string.upload_avatar_failed),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                    }
             }
         }
     }
-
 
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -227,8 +234,7 @@ class MainActivity : AppCompatActivity() {
                     searchIsVisible = false
                     filmAdapter.clearItems()
                     searchBar.text.clear()
-                }
-                else {
+                } else {
                     finish()
                 }
             }
@@ -237,10 +243,12 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
-
     private fun setupViewPager() {
         val fragments = listOf(
-            HomeFragment(), ExploreFragment(), LibraryFragment(), HistoryFragment()
+            HomeFragment(),
+            ExploreFragment(),
+            LibraryFragment(),
+            HistoryFragment(),
         )
 
         viewPager.isUserInputEnabled = false
@@ -250,7 +258,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onPageSelected(position: Int) {
                     bottomNavigationView.menu[position].isChecked = true
                 }
-            }
+            },
         )
 
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -265,33 +273,46 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSearchBar() {
-        val viewModel = ViewModelProvider(this, FilmViewModelFactory(this))[FilmsViewModel::class.java]
+        val viewModel = FilmsViewModel(this)
 
         searchResults.layoutManager = LinearLayoutManager(this)
         searchResults.adapter = filmAdapter
 
-        searchBar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                if (s.toString().isEmpty()) {
-                    filmAdapter.clearItems()
+        searchBar.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    p0: CharSequence?,
+                    p1: Int,
+                    p2: Int,
+                    p3: Int,
+                ) {
                 }
-                else {
-                    viewModel.searchFilms(s.toString(), 5) {
-                        it?.data?.let {
-                            for (item in it.items) {
-                                item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
-                                item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
+
+                override fun onTextChanged(
+                    p0: CharSequence?,
+                    p1: Int,
+                    p2: Int,
+                    p3: Int,
+                ) {
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    if (s.toString().isEmpty()) {
+                        filmAdapter.clearItems()
+                    } else {
+                        viewModel.searchFilms(s.toString(), 5) {
+                            it?.data?.let {
+                                for (item in it.items) {
+                                    item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
+                                    item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
+                                }
+                                filmAdapter.replaceItems(it.items)
                             }
-                            filmAdapter.replaceItems(it.items)
                         }
                     }
                 }
-            }
-        })
+            },
+        )
     }
 
     @SuppressLint("InflateParams")
@@ -305,11 +326,12 @@ class MainActivity : AppCompatActivity() {
             if (it) {
                 AvatarRepository.getAvatar { bitmapImg ->
                     MyAppGlideModule.loadImage(
-                        this, bitmapImg, appBarProfile
+                        this,
+                        bitmapImg,
+                        appBarProfile,
                     )
                 }
-            }
-            else {
+            } else {
                 appBarProfile.setImageResource(R.drawable.ic_profile)
             }
         }
@@ -341,8 +363,7 @@ class MainActivity : AppCompatActivity() {
 
         if (notifications.isEmpty()) {
             text.visibility = View.VISIBLE
-        }
-        else {
+        } else {
             text.visibility = View.GONE
         }
 
@@ -360,7 +381,7 @@ class MainActivity : AppCompatActivity() {
             popupView,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT,
-            true
+            true,
         )
         popupWindow.showAsDropDown(anchor)
     }

@@ -5,176 +5,231 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 
 object LibraryRepository {
-    val userRef = FirebaseDatabase.getInstance().getReference("users")
+    private val userRef = FirebaseDatabase.getInstance().getReference("users")
+    private val libraryRef = userRef.child(Authentication.getUserId().toString()).child("library")
+    private var librarySnapshot: DataSnapshot? = null
+    private val libraryData get() = librarySnapshot!!
+
+    init {
+        libraryRef.get().addOnSuccessListener {
+            librarySnapshot = it
+        }
+    }
+
+    fun recheckLibrary() {
+        libraryRef.get().addOnSuccessListener {
+            librarySnapshot = it
+        }
+    }
 
     fun addLibraryData(
-        name: String,
+        nameLibrary: String,
         posterUrl: String,
         slug: String,
         episode: String,
-        callback: (Result<Boolean>) -> Unit
+        callback: (Result<Boolean>) -> Unit,
     ) {
-        val userId = Authentication.getUserId()
-
-        userId.let { id ->
-            val library = userRef.child(id.toString()).child("library").child(name)
-            library.get().addOnSuccessListener {
-                if (it.exists()) {
-                    if (snapshotToLibrary(it).listFilm.any { film -> film.slug == slug }) {
-                        callback(Result.success(false))
+        if (libraryData
+                .child(nameLibrary)
+                .child("listFilm")
+                .child(slug)
+                .value != null
+        ) {
+            callback(Result.success(false))
+        } else {
+            libraryData.child(nameLibrary).apply {
+                child("posterUrl")
+                    .ref
+                    .setValue(posterUrl)
+                    .addOnSuccessListener {
+                        child("listFilm")
+                            .child(slug)
+                            .ref
+                            .setValue(episode)
+                            .addOnSuccessListener {
+                                recheckLibrary()
+                                callback(Result.success(true))
+                            }.addOnFailureListener { e ->
+                                callback(Result.failure(Exception(e)))
+                            }
+                    }.addOnFailureListener { e ->
+                        callback(Result.failure(Exception(e)))
                     }
-                    else {
-                        library.child("listFilm").push()
-                            .setValue(FilmLibrary(slug, episode))
-                        library.child("posterUrl").setValue(posterUrl)
-                        callback(Result.success(true))
-                    }
-                }
-                else {
-                    library.child("posterUrl").setValue(posterUrl)
-                    library.child("listFilm").push()
-                        .setValue(FilmLibrary(slug, episode))
-                    callback(Result.success(true))
-                }
-            }.addOnFailureListener { e ->
-                callback(Result.failure(Exception(e)))
             }
         }
     }
 
+    fun createLibrary(
+        nameLibrary: String,
+        posterUrl: String,
+        slug: String,
+        episode: String,
+        callback: (Result<Boolean>) -> Unit,
+    ) {
+        if (libraryData.child(nameLibrary).value != null) {
+            callback(Result.success(false))
+        } else {
+            libraryData.child(nameLibrary).apply {
+                child("posterUrl")
+                    .ref
+                    .setValue(posterUrl)
+                    .addOnSuccessListener {
+                        child("listFilm")
+                            .child(slug)
+                            .ref
+                            .setValue(episode)
+                            .addOnSuccessListener {
+                                recheckLibrary()
+                                callback(Result.success(true))
+                            }.addOnFailureListener { e ->
+                                callback(Result.failure(Exception(e)))
+                            }
+                    }.addOnFailureListener { e ->
+                        callback(Result.failure(Exception(e)))
+                    }
+            }
+        }
+    }
 
     fun getLibrary(onDataReceived: (MutableList<Library>) -> Unit) {
-        val userId = Authentication.getUserId()
-
-        userId.let { id ->
-            val listLibrary = userRef.child(id.toString()).child("library")
-            listLibrary.get().addOnSuccessListener {
-                val libraryList = mutableListOf<Library>()
-                for (snapshot in it.children) {
-                    val libraryData = Library(
+        fun run(children: MutableIterable<DataSnapshot>) {
+            val libraryList = mutableListOf<Library>()
+            for (snapshot in children) {
+                libraryList.add(
+                    Library(
                         snapshot.key.toString(),
                         snapshot.child("posterUrl").value.toString(),
-                        snapshot.child("listFilm").children.map {
-                            FilmLibrary(
-                                it.child("slug").value.toString(),
-                                it.child("episode").value.toString()
-                            )
-                        }.toMutableList()
-                    )
-                    libraryData.let { libraryList.add(it) }
+                        snapshot
+                            .child("listFilm")
+                            .children
+                            .map {
+                                FilmLibrary(it.key.toString(), it.value.toString())
+                            }.toMutableList(),
+                    ),
+                )
+            }
+            onDataReceived(libraryList)
+        }
+
+        if (librarySnapshot == null) {
+            libraryRef
+                .get()
+                .addOnSuccessListener {
+                    librarySnapshot = it
+                    run(libraryData.children)
+                }.addOnFailureListener { _ ->
+                    onDataReceived(MutableList(0) { Library("", "", mutableListOf()) })
                 }
-                onDataReceived(libraryList)
-            }.addOnFailureListener {
-                onDataReceived(mutableListOf())
-            }
+        } else {
+            run(libraryData.children)
         }
     }
 
-
-
-    fun getLibraryData(name: String, callback: (Library) -> Unit) {
-        val userId = Authentication.getUserId()
-
-        userId.let { id ->
-            val library = userRef.child(id.toString()).child("library").child(name)
-            library.get().addOnSuccessListener {
-                val libraryData = snapshotToLibrary(it)
-                callback(libraryData)
-            }.addOnFailureListener { _ ->
-                callback(Library("", "", mutableListOf()))
-            }
-        }
+    fun getLibraryData(
+        name: String,
+        callback: (Library) -> Unit,
+    ) {
+        callback(snapshotToLibrary(libraryData.child(name)))
     }
 
-
-    fun removeFilmFromLibrary(name: String, slug: String, callback: (Result<Boolean>) -> Unit) {
-        val userId = Authentication.getUserId()
-
-        userId.let { id ->
-            val library = userRef.child(id.toString()).child("library").child(name)
-            library.get().addOnSuccessListener {
-                val listFilm = it.child("listFilm").children
-                for (film in listFilm) {
-                    if (film.child("slug").value.toString() == slug) {
-                        film.ref.removeValue().addOnSuccessListener {
-                            callback(Result.success(true))
-                        }.addOnFailureListener { e ->
-                            callback(Result.failure(Exception(e)))
-                        }
-                    }
-                    else {
-                        callback(Result.success(false))
-                    }
-                }
-            }.addOnFailureListener { e ->
-                callback(Result.failure(Exception(e)))
-            }
-        }
-    }
-
-    fun deleteLibrary(name: String, callback: (Result<Boolean>) -> Unit) {
-        val userId = Authentication.getUserId()
-
-        userId.let { id ->
-            val library = userRef.child(id.toString()).child("library").child(name)
-            library.removeValue().addOnSuccessListener {
+    fun removeFilmFromLibrary(
+        name: String,
+        slug: String,
+        callback: (Result<Boolean>) -> Unit,
+    ) {
+        libraryData
+            .child(name)
+            .child("listFilm")
+            .child(slug)
+            .ref
+            .removeValue()
+            .addOnSuccessListener {
+                recheckLibrary()
                 callback(Result.success(true))
             }.addOnFailureListener { e ->
                 callback(Result.failure(Exception(e)))
             }
-        }
     }
 
-    fun renameLibrary(oldName: String, newName: String, callback: (Result<Boolean>) -> Unit) {
-        val userId = Authentication.getUserId()
-
-        userId.let {
-            val listLibrary = userRef.child(it.toString()).child("library")
-
-            listLibrary.child(oldName).get().addOnSuccessListener {
-                listLibrary.child(newName).setValue(it.value)
-                listLibrary.child(oldName).removeValue()
+    fun deleteLibrary(
+        name: String,
+        callback: (Result<Boolean>) -> Unit,
+    ) {
+        libraryData
+            .child(name)
+            .ref
+            .removeValue()
+            .addOnSuccessListener {
+                recheckLibrary()
                 callback(Result.success(true))
             }.addOnFailureListener { e ->
                 callback(Result.failure(Exception(e)))
             }
-        }
     }
 
-    fun updatePosterUrl(name: String, posterUrl: String){
-        val userId = Authentication.getUserId()
-
-        userId.let {
-            userRef.child(it.toString()).child("library").child(name).child("posterUrl")
-                .setValue(posterUrl)
-        }
-    }
-
-    fun updateEpisode(name: String, slug: String, episode: String) {
-        val userId = Authentication.getUserId()
-
-        userId.let {
-            val library = userRef.child(it.toString()).child("library").child(name)
-            library.get().addOnSuccessListener {
-                val listFilm = it.child("listFilm").children
-                for (film in listFilm) {
-                    if (film.child("slug").value.toString() == slug) {
-                        film.ref.child("episode").setValue(episode)
+    fun renameLibrary(
+        oldName: String,
+        newName: String,
+        callback: (Result<Boolean>) -> Unit,
+    ) {
+        libraryData.apply {
+            if (child(newName).value != null) {
+                callback(Result.failure(Exception("Tên thư viện đã tồn tại!")))
+            } else {
+                child(newName)
+                    .ref
+                    .setValue(child(oldName).value)
+                    .addOnSuccessListener {
+                        child(oldName)
+                            .ref
+                            .removeValue()
+                            .addOnSuccessListener {
+                                recheckLibrary()
+                                callback(Result.success(true))
+                            }.addOnFailureListener { e ->
+                                callback(Result.failure(Exception(e)))
+                            }
+                    }.addOnFailureListener { e ->
+                        callback(Result.failure(Exception(e)))
                     }
-                }
             }
         }
     }
 
-    fun snapshotToLibrary(snapshot: DataSnapshot): Library {
-        return Library(
+    fun updatePosterUrl(
+        name: String,
+        posterUrl: String,
+    ) {
+        libraryData.child(name).child("posterUrl").ref.setValue(posterUrl).addOnSuccessListener {
+            recheckLibrary()
+        }
+    }
+
+    fun updateEpisode(
+        name: String,
+        slug: String,
+        episode: String,
+    ) {
+        libraryData
+            .child(name)
+            .child("listFilm")
+            .child(slug)
+            .ref
+            .setValue(episode)
+            .addOnSuccessListener {
+                recheckLibrary()
+            }
+    }
+
+    fun snapshotToLibrary(snapshot: DataSnapshot): Library =
+        Library(
             snapshot.key.toString(),
             snapshot.child("posterUrl").value.toString(),
-            snapshot.child("listFilm").children.map {
-                FilmLibrary(
-                    it.child("slug").value.toString(), it.child("episode").value.toString()
-                )
-            }.toMutableList()
+            snapshot
+                .child("listFilm")
+                .children
+                .map {
+                    FilmLibrary(it.key.toString(), it.value.toString())
+                }.toMutableList(),
         )
-    }
 }

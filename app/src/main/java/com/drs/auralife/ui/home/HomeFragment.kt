@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.BannerRepository
 import com.drs.auralife.data.model.films.Pagination
@@ -21,19 +19,17 @@ class HomeFragment : Fragment() {
     private var isLoading = false
     private var filmAdapter = FilmAdapter(mutableListOf())
     private val binding by lazy { FragmentHomeBinding.inflate(layoutInflater) }
-    private val viewModel by lazy {
-        ViewModelProvider(
-            this, FilmViewModelFactory(requireContext())
-        )[FilmsViewModel::class.java]
-    }
     private lateinit var paginate: Pagination
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         setupBanner()
         return binding.root
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -44,12 +40,10 @@ class HomeFragment : Fragment() {
         }, 3000)
     }
 
-
     override fun onPause() {
         super.onPause()
         view?.isSelected = false
     }
-
 
     private fun setupBanner() {
         BannerRepository.getBannerData { bannerData ->
@@ -70,7 +64,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-
     private fun setupRecyclerView() {
         binding.recyclerView.apply {
             val displayMetrics = resources.displayMetrics
@@ -80,6 +73,7 @@ class HomeFragment : Fragment() {
         }
 
         val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
+        val viewModel = FilmsViewModel(requireContext())
         viewModel.fetchLatestFilms(1) {
             it?.let {
                 paginate = it.pagination

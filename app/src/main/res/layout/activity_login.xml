@@ -36,15 +36,17 @@
                     android:layout_height="wrap_content" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
                     android:gravity="center"
                     android:orientation="vertical">
 
                     <EditText
                         android:id="@+id/username"
-                        android:layout_width="262dp"
-                        android:layout_height="48dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="15dp"
                         android:layout_marginTop="40dp"
                         android:autofillHints="emailAddress"
                         android:background="@drawable/rounded"
@@ -61,9 +63,10 @@
 
                     <EditText
                         android:id="@+id/password"
-                        android:layout_width="262dp"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="15dp"
+                        android:layout_marginVertical="16dp"
                         android:autofillHints="password"
                         android:background="@drawable/rounded"
                         android:drawableStart="@drawable/ic_password_1"
@@ -77,69 +80,6 @@
                         android:selectAllOnFocus="true"
                         android:textSize="14sp"
                         android:nextFocusDown="@id/loginButton"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="28dp"
-                        android:text="@string/or"
-                        android:textAlignment="center"
-                        android:textColor="@color/red"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        tools:ignore="TextContrastCheck" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/continue_with"
-                        android:textAlignment="center"
-                        android:textColor="@color/red"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/facebookButton"
-                            android:layout_width="152dp"
-                            android:layout_height="57dp"
-                            android:layout_marginLeft="16dp"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginRight="16dp"
-                            android:layout_marginBottom="20dp"
-                            android:background="@drawable/rounded"
-                            android:drawableStart="@drawable/ic_facebook"
-                            android:paddingStart="15dp"
-                            android:paddingEnd="15dp"
-                            android:shadowColor="@color/light_purple_20"
-                            android:text="Facebook"
-                            android:textAllCaps="false"
-                            android:textSize="14sp"
-                            tools:ignore="HardcodedText" />
-
-                        <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/googleButton"
-                            android:layout_width="152dp"
-                            android:layout_height="57dp"
-                            android:layout_marginLeft="16dp"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginRight="16dp"
-                            android:layout_marginBottom="20dp"
-                            android:background="@drawable/rounded"
-                            android:drawableStart="@drawable/ic_google"
-                            android:paddingStart="15dp"
-                            android:paddingEnd="15dp"
-                            android:shadowColor="@color/light_purple_20"
-                            android:text="Google"
-                            android:textAllCaps="false"
-                            android:textSize="14sp"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/loginButton"

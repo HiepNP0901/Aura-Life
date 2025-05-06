@@ -1,41 +1,63 @@
 package com.drs.auralife.data
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.data.model.films.Films
 import com.drs.auralife.data.model.search.SearchResults
+import kotlinx.coroutines.launch
 
-class FilmsViewModel(private val repository: FilmRepository) : ViewModel() {
-    private val _films = MutableLiveData<Films?>()
-    private val _filmDetails = MutableLiveData<FilmDetails?>()
-    private val _searchResults = MutableLiveData<SearchResults?>()
+class FilmsViewModel(
+    context: Context,
+) : ViewModel() {
+    private val api: FilmAPI
 
-    fun fetchLatestFilms(page: Int, callback: (Films?) -> Unit) {
-        repository.getLatestFilms(page) { films ->
-            _films.postValue(films)
-            callback(films)
+    init {
+        val retrofit = RetrofitClient.create(context)
+        api = retrofit.create(FilmAPI::class.java)
+    }
+
+    fun fetchLatestFilms(
+        page: Int,
+        callback: (Films?) -> Unit,
+    ) {
+        viewModelScope.launch {
+            Log.d("TAG", this.coroutineContext.toString())
+            callback(api.getLatestFilms(page))
         }
     }
 
-    fun fetchFilmsByCategory(slug: String, page: Int, callback: (SearchResults?) -> Unit) {
-        repository.getFilmsByCategory(slug, page) { films ->
-            _searchResults.postValue(films)
-            callback(films)
+    fun fetchFilmsByCategory(
+        slug: String,
+        page: Int,
+        callback: (SearchResults?) -> Unit,
+    ) {
+        viewModelScope.launch {
+            Log.d("TAG", this.coroutineContext.toString())
+            callback(api.getFilmsByCategory(slug, page))
         }
     }
 
-    fun searchFilms(keyword: String, limit: Int, callback: (SearchResults?) -> Unit) {
-        repository.searchFilms(keyword, limit) { results ->
-            _searchResults.postValue(results)
-            callback(results)
+    fun searchFilms(
+        keyword: String,
+        limit: Int,
+        callback: (SearchResults?) -> Unit,
+    ) {
+        viewModelScope.launch {
+            Log.d("TAG", this.coroutineContext.toString())
+            callback(api.searchFilms(keyword, limit))
         }
     }
 
-    fun fetchFilmDetails(slug: String, callback: (FilmDetails?) -> Unit) {
-        repository.getFilmDetails(slug) { filmDetails ->
-            _filmDetails.postValue(filmDetails)
-            callback(filmDetails)
+    fun fetchFilmDetails(
+        slug: String,
+        callback: (FilmDetails?) -> Unit,
+    ) {
+        viewModelScope.launch {
+            Log.d("TAG", this.coroutineContext.toString())
+            callback(api.getFilmDetails(slug))
         }
     }
 }

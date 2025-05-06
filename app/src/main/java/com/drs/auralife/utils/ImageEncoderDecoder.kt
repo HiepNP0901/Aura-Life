@@ -2,6 +2,7 @@ package com.drs.auralife.utils
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
 object ImageEncoderDecoder {
@@ -12,7 +13,7 @@ object ImageEncoderDecoder {
         quality: Int = 100,
         size: Int = 80
     ): String {
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, size, size, false)
+        val resizedBitmap = bitmap.scale(size, size, false)
         val outputStream = ByteArrayOutputStream()
         resizedBitmap.compress(compressFormat, quality, outputStream)
         val byteArray = outputStream.toByteArray()

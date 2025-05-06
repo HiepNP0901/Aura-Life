@@ -1,10 +1,9 @@
 package com.drs.auralife.ui.library
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.user.library.Library
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
@@ -15,14 +14,12 @@ import com.drs.auralife.ui.film.HORIZONTAL
 
 const val LIBRARY_NAME = "@libraryName"
 
-class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener {
+class LibraryDetailsActivity :
+    AppCompatActivity(),
+    FilmAdapter.FragmentListener {
     private val binding by lazy { ActivityLibraryDetailsBinding.inflate(layoutInflater) }
-    private val viewModel by lazy {
-        ViewModelProvider(
-            this, FilmViewModelFactory(this)
-        )[FilmsViewModel::class.java]
-    }
-    private val filmAdapter by lazy { FilmAdapter(mutableListOf(), HORIZONTAL, false) }
+    private val viewModel by lazy { FilmsViewModel(this) }
+    private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL, false)
     private lateinit var library: Library
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +29,8 @@ class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener
         binding.recyclerView.adapter = filmAdapter
 
         intent.getStringExtra(LIBRARY_NAME)?.let {
+            @SuppressLint("SetTextI18n")
+            binding.tvNameApp.text = "${binding.tvNameApp.text} - $it"
             LibraryRepository.getLibraryData(it) { library ->
                 this.library = library
                 val tempList = mutableListOf<Movie>()
@@ -55,7 +54,6 @@ class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener
         filmAdapter.setCallback(this)
     }
 
-
     override fun onRestart() {
         super.onRestart()
         @Suppress("DEPRECATION")
@@ -64,21 +62,19 @@ class LibraryDetailsActivity : AppCompatActivity(), FilmAdapter.FragmentListener
         }, 3000)
     }
 
-
     override fun onPause() {
         super.onPause()
         binding.root.isSelected = false
     }
 
-
     override fun onLongClick(slug: String) {
-        library.let {library ->
+        library.let { library ->
             EditLibrary.showDeleteFilmFromLibrary(this, library.name, slug) {
                 filmAdapter.removeItem(slug)
-                val newSlug = library.listFilm.map { it.slug }.filter { it != slug }.last()
+                val newSlug = library.listFilm.map { it.slug }.last { it != slug }
                 viewModel.fetchFilmDetails(newSlug) {
                     it?.let {
-                        LibraryRepository.updatePosterUrl(library.name, it.movie.posterUrl)
+                        LibraryRepository.updatePosterUrl(library.name, it.movie.posterUrl.toString())
                     }
                 }
             }

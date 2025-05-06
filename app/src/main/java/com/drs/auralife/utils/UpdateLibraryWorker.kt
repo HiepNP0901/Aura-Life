@@ -10,16 +10,17 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.data.FilmRepository
+import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import java.util.Locale
 
-const val channelId = "episode_update_channel"
+const val CHANNEL_ID = "episode_update_channel"
 
 class UpdateLibraryWorker(
-    private val context: Context, workerParams: WorkerParameters
+    private val context: Context,
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
-    private val repository = FilmRepository(context)
+    private val filmViewModel = FilmsViewModel(context)
 
     override suspend fun doWork(): Result {
         checkForNewEpisode { updates ->
@@ -39,19 +40,22 @@ class UpdateLibraryWorker(
             library.forEach { libraryItem ->
                 libraryItem.listFilm.forEach { filmItem ->
                     totalRequests++
-                    repository.getFilmDetails(filmItem.slug) { it ->
+                    filmViewModel.fetchFilmDetails(filmItem.slug) { it ->
                         it?.let { film ->
                             if (filmItem.episode != film.movie.episodeCurrent) {
-                                val message = if (Locale.getDefault().language == "vi") {
-                                    "${film.movie.name} đã có tập mới"
-                                } else {
-                                    "${film.movie.originName} has a new episode"
-                                }
+                                val message =
+                                    if (Locale.getDefault().language == "vi") {
+                                        "${film.movie.name} đã có tập mới"
+                                    } else {
+                                        "${film.movie.originName} has a new episode"
+                                    }
 
                                 if (!updates.contains(message)) {
                                     updates.add(message)
                                     LibraryRepository.updateEpisode(
-                                        libraryItem.name, filmItem.slug, film.movie.episodeCurrent
+                                        libraryItem.name,
+                                        filmItem.slug,
+                                        film.movie.episodeCurrent.toString(),
                                     )
                                     Notification.addNotification(context, filmItem.slug, message)
                                 }
@@ -69,29 +73,37 @@ class UpdateLibraryWorker(
         }
     }
 
-
-
     @SuppressLint("ObsoleteSdkInt")
-    private fun sendNotification(title: String, messages: List<String>) {
+    private fun sendNotification(
+        title: String,
+        messages: List<String>,
+    ) {
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId, "Episode Updates", NotificationManager.IMPORTANCE_HIGH
-            )
+            val channel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "Episode Updates",
+                    NotificationManager.IMPORTANCE_HIGH,
+                )
             notificationManager.createNotificationChannel(channel)
         }
 
         val summary = messages.joinToString(separator = "\n")
 
         notificationManager.notify(
-            1, NotificationCompat.Builder(applicationContext, channelId).setContentTitle(title)
+            1,
+            NotificationCompat
+                .Builder(applicationContext, CHANNEL_ID)
+                .setContentTitle(title)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(summary))
                 .setSmallIcon(R.drawable.ic_logo)
-                .setPriority(NotificationCompat.PRIORITY_HIGH).setContentIntent(getPendingIntent())
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(getPendingIntent())
                 .setAutoCancel(true)
-                .build()
+                .build(),
         )
     }
 
@@ -106,7 +118,7 @@ class UpdateLibraryWorker(
             applicationContext,
             0,
             launchIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
 }

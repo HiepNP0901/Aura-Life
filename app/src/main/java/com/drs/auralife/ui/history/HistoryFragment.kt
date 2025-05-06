@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.drs.auralife.R
-import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.history.History
@@ -22,17 +20,16 @@ import com.drs.auralife.utils.HistoryUtils
 import com.drs.auralife.utils.Time
 import java.time.Instant
 
-class HistoryFragment : Fragment(), FilmAdapter.FragmentListener {
+class HistoryFragment :
+    Fragment(),
+    FilmAdapter.FragmentListener {
     private val binding by lazy { FragmentLibraryBinding.inflate(layoutInflater) }
-    private val viewModel by lazy {
-        ViewModelProvider(
-            this, FilmViewModelFactory(requireContext())
-        )[FilmsViewModel::class.java]
-    }
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View? {
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
@@ -50,10 +47,9 @@ class HistoryFragment : Fragment(), FilmAdapter.FragmentListener {
             HistoryRepository.getHistoryData { listHistory ->
                 refreshRecyclerView(listHistory)
             }
-        }
-        else {
-            context?.applicationContext?.let{
-                val listHistory = HistoryUtils.getHistories(it)
+        } else {
+            context?.applicationContext?.let {
+                val listHistory = HistoryUtils.getLocalHistories(it)
                 refreshRecyclerView(listHistory)
             }
         }
@@ -64,28 +60,29 @@ class HistoryFragment : Fragment(), FilmAdapter.FragmentListener {
             binding.text.visibility = View.VISIBLE
             filmAdapter.clearItems()
             binding.recyclerView.adapter = filmAdapter
-        }
-        else {
+        } else {
             binding.text.visibility = View.GONE
             binding.recyclerView.adapter = filmAdapter
             val tempList = mutableListOf<Movie>()
-            listHistory.forEach{ history ->
-                viewModel.fetchFilmDetails(history.slug){
-                    it?.movie?.let {movie ->
+            listHistory.forEach { history ->
+                FilmsViewModel(requireContext()).fetchFilmDetails(history.slug) {
+                    it?.movie?.let { movie ->
                         context?.applicationContext?.let {
                             movie.content = Time.calculateTimeDifference(
                                 Instant.ofEpochMilli(
-                                    history.date.toLong()
-                                ), it
+                                    history.date.toLong(),
+                                ),
+                                it,
                             ) + "<br>" + movie.content
                         }
 
                         tempList.add(movie)
                     }
                     if (tempList.size == listHistory.size) {
-                        val sortedList = listHistory.mapNotNull { h ->
-                            tempList.find { it.slug == h.slug }
-                        }.reversed()
+                        val sortedList = listHistory
+                            .mapNotNull { h ->
+                                tempList.find { it.slug == h.slug }
+                            }.reversed()
                         filmAdapter.replaceItems(sortedList)
                     }
                 }

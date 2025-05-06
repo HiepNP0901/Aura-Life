@@ -16,10 +16,9 @@
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            app:controller_layout_id="@layout/exoplayer_controller"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:show_timeout="5000"
+            app:use_controller="true"
+            app:controller_layout_id="@layout/exoplayer_controller"/>
 
         <TextView
             android:id="@+id/nameFilm"

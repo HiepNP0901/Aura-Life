@@ -93,6 +93,7 @@
     <string name="rename_successfully">Rename successfully.</string>
     <string name="rename_failed">Rename failed!</string>
     <string name="sure_delete_library">Are you sure you want to delete this library?</string>
+    <string name="library_is_exits">Library is exits!</string>
 
     <!-- Strings related to app -->
     <string name="no_internet">Please check your network connection!</string>

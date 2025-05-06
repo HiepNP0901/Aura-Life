@@ -53,7 +53,7 @@ object EditLibrary {
                         callback()
                     }.onFailure {
                         Toast.makeText(
-                            context, context.getString(R.string.rename_failed), Toast.LENGTH_SHORT
+                            context, it.message.toString(), Toast.LENGTH_SHORT
                         ).show()
                     }
                 }

@@ -1,6 +1,7 @@
 package com.drs.auralife.utils
 
 import android.content.Context
+import androidx.core.content.edit
 import com.drs.auralife.data.firebase.realtime.database.user.history.History
 import org.json.JSONArray
 import org.json.JSONObject
@@ -9,7 +10,7 @@ object HistoryUtils {
     private const val PREF_NAME = "history"
     private const val KEY_HISTORY_LIST = "history_list"
 
-    fun getHistories(context: Context): MutableList<History> {
+    fun getLocalHistories(context: Context): MutableList<History> {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val jsonString = sharedPreferences.getString(KEY_HISTORY_LIST, "[]")
         val jsonArray = JSONArray(jsonString)
@@ -26,7 +27,7 @@ object HistoryUtils {
         return histories
     }
 
-    fun saveHistories(context: Context, histories: MutableList<History>) {
+    fun saveLocalHistories(context: Context, histories: MutableList<History>) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val jsonArray = JSONArray()
         histories.forEach { history ->
@@ -37,20 +38,20 @@ object HistoryUtils {
             jsonObject.put("date", history.date)
             jsonArray.put(jsonObject)
         }
-        sharedPreferences.edit().putString(KEY_HISTORY_LIST, jsonArray.toString()).apply()
+        sharedPreferences.edit { putString(KEY_HISTORY_LIST, jsonArray.toString()) }
     }
 
-    fun addHistory(context: Context, slug: String, episode: Int, position: Long) {
+    fun addLocalHistory(context: Context, slug: String, episode: Int, position: Long) {
         val history = History(slug, episode, position, System.currentTimeMillis().toString())
-        val histories = getHistories(context)
+        val histories = getLocalHistories(context)
         histories.removeIf { it.slug == slug }
         histories.add(history)
-        saveHistories(context, histories)
+        saveLocalHistories(context, histories)
     }
 
-    fun removeHistory(context: Context, slug: String) {
-        val histories = getHistories(context)
+    fun removeLocalHistory(context: Context, slug: String) {
+        val histories = getLocalHistories(context)
         histories.removeIf { it.slug == slug }
-        saveHistories(context, histories)
+        saveLocalHistories(context, histories)
     }
 }

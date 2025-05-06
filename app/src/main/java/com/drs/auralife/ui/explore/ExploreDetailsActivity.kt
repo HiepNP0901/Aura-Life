@@ -1,25 +1,25 @@
 package com.drs.auralife.ui.explore
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.data.FilmViewModelFactory
 import com.drs.auralife.data.FilmsViewModel
+import com.drs.auralife.data.firebase.realtime.database.category.Category
 import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.ActivityExploreDetailsBinding
 import com.drs.auralife.ui.film.FilmAdapter
+import java.util.Locale
 
-const val CATEGORY_SLUG = "@categorySlug"
+private const val CATEGORY_SLUG = "SLUG_CATEGORY"
+private const val CATEGORY_NAME = "NAME_CATEGORY"
 
 class ExploreDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityExploreDetailsBinding.inflate(layoutInflater) }
-    private val viewModel by lazy {
-        ViewModelProvider(
-            this, FilmViewModelFactory(this)
-        )[FilmsViewModel::class.java]
-    }
+    private val viewModel by lazy { FilmsViewModel(this) }
     private val filmAdapter by lazy { FilmAdapter(mutableListOf()) }
     private var isLoading = false
     private lateinit var pagination: Pagination
@@ -33,6 +33,11 @@ class ExploreDetailsActivity : AppCompatActivity() {
             var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
             layoutManager = GridLayoutManager(this@ExploreDetailsActivity, ++numberFilmInLine)
             adapter = filmAdapter
+        }
+
+        intent.getStringExtra(CATEGORY_NAME)?.let {
+            @SuppressLint("SetTextI18n")
+            binding.tvNameApp.text = "${binding.tvNameApp.text} - $it"
         }
 
         intent.getStringExtra(CATEGORY_SLUG)?.let { slug ->
@@ -70,7 +75,6 @@ class ExploreDetailsActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onRestart() {
         super.onRestart()
         @Suppress("DEPRECATION")
@@ -79,9 +83,27 @@ class ExploreDetailsActivity : AppCompatActivity() {
         }, 3000)
     }
 
-
     override fun onPause() {
         super.onPause()
         binding.root.isSelected = false
+    }
+
+    companion object {
+        fun newInstance(
+            context: Context,
+            category: Category,
+        ): Intent {
+            val intent = Intent(
+                context,
+                ExploreDetailsActivity::class.java,
+            )
+            intent.putExtra(CATEGORY_SLUG, category.slug)
+            if (Locale.getDefault().language == "vi") {
+                intent.putExtra(CATEGORY_NAME, category.vi)
+            } else {
+                intent.putExtra(CATEGORY_NAME, category.en)
+            }
+            return intent
+        }
     }
 }

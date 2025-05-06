@@ -23,6 +23,13 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/grey_shadow"
+                app:layout_constraintBottom_toBottomOf="@+id/thumbView"
+                app:layout_constraintTop_toTopOf="@+id/thumbView" />
+
             <LinearLayout
                 android:id="@+id/filmDetailsContainer"
                 android:layout_width="match_parent"

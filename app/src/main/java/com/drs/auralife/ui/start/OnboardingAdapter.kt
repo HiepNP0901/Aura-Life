@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.data.model.OnboardingItem
 import com.drs.auralife.R
+import com.drs.auralife.data.model.OnboardingItem
 
 class OnboardingAdapter(private val onboardingItems: List<OnboardingItem>
 ) : RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {

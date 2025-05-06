@@ -98,4 +98,5 @@
     <string name="watched_more_than_5_minutes">Bạn đã xem quá 5 phút! Hãy nâng cấp lên Premium để xem không giới hạn.</string>
     <string name="upgrade_now">Nâng cấp ngay</string>
     <string name="choose">Chọn</string>
+    <string name="library_is_exits">Thư viện đã tồn tại!</string>
 </resources>

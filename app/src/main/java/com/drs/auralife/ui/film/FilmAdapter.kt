@@ -26,88 +26,102 @@ const val HORIZONTAL = 2
 open class FilmAdapter(
     private val films: MutableList<Movie>,
     private val itemViewType: Int = VERTICAL,
-    private val centerTitle: Boolean = true
+    private val centerTitle: Boolean = true,
 ) : RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
-
     interface FragmentListener {
         fun onLongClick(slug: String)
     }
 
     private var callback: FragmentListener? = null
 
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvImage = itemView.findViewById<ImageView>(R.id.posterView)!!
-        val tvTitle = itemView.findViewById<TextView>(R.id.nameFilm)!!
-        val tvDetails = itemView.findViewById<TextView>(R.id.details)!!
+    class ItemViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
+        val tvImage: ImageView = itemView.findViewById<ImageView>(R.id.posterView)
+        val tvTitle: TextView = itemView.findViewById<TextView>(R.id.nameFilm)
+        val tvDetails: TextView = itemView.findViewById<TextView>(R.id.details)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ItemViewHolder {
         val view = when (itemViewType) {
-            HORIZONTAL -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_horizontal, parent, false)
-            else -> LayoutInflater.from(parent.context).inflate(R.layout.item_film_vertical, parent, false)
+            HORIZONTAL ->
+                LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.item_film_horizontal, parent, false)
+
+            else ->
+                LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.item_film_vertical, parent, false)
         }
         return ItemViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val film = films[position]
-        val context = holder.itemView.context
+    override fun onBindViewHolder(
+        holder: ItemViewHolder,
+        position: Int,
+    ) {
+        holder.apply {
+            val film = films[position]
+            val context = itemView.context
 
-        if (centerTitle) {
-            holder.tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
-            holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        }
-        else {
-            holder.tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-        }
-
-        if(Locale.getDefault().language == "vi") {
-            holder.tvTitle.text = film.name
-        } else {
-            holder.tvTitle.text = film.originName
-        }
-
-        MyAppGlideModule.loadImage(context, film.posterUrl, holder.tvImage)
-
-        @Suppress("SENSELESS_COMPARISON")
-        if (itemViewType == VERTICAL) {
-            holder.tvDetails.text = film.modified.time.let {
-                Time.calculateTimeDifference(
-                    Instant.parse(it) - Duration.ofHours(7), context
-                )
+            if (centerTitle) {
+                tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
+                tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            } else {
+                tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+                tvDetails.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             }
-        }
-        else if (film.content != null) {
-            holder.tvDetails.text =
-                HtmlCompat.fromHtml(film.content, HtmlCompat.FROM_HTML_MODE_LEGACY)
-        }
-        else {
-            holder.tvTitle.isSingleLine = false
-            holder.tvTitle.maxLines = 4
-            holder.tvDetails.text = film.modified.time.let {
-                Time.calculateTimeDifference(
-                    Instant.parse(it) - Duration.ofHours(7), context
-                )
+
+            if (Locale.getDefault().language == "vi") {
+                tvTitle.text = film.name
+            } else {
+                tvTitle.text = film.originName
             }
-            holder.tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
-        }
 
-        holder.itemView.setOnClickListener {
-            val intent = Intent(context, FilmDetailsActivity::class.java)
-            intent.putExtra(SLUG, film.slug)
-            context.startActivity(intent)
-        }
+            MyAppGlideModule.loadImage(context, film.posterUrl, tvImage)
 
-        holder.itemView.setOnLongClickListener {
-            callback?.onLongClick(film.slug)
-            true
-        }
+            @Suppress("SENSELESS_COMPARISON")
+            if (itemViewType == VERTICAL) {
+                tvDetails.text = film.modified?.time.let {
+                    Time.calculateTimeDifference(
+                        Instant.parse(it) - Duration.ofHours(7),
+                        context,
+                    )
+                }
+            } else if (film.content != null) {
+                tvDetails.text =
+                    HtmlCompat.fromHtml(film.content!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            } else {
+                tvTitle.maxLines = 4
+                tvDetails.text = film.modified?.time.let {
+                    Time.calculateTimeDifference(
+                        Instant.parse(it) - Duration.ofHours(7),
+                        context,
+                    )
+                }
+                tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            }
 
-        @Suppress("DEPRECATION")
-        Handler().postDelayed({
-            holder.itemView.isSelected = true
-        }, 3000)
+            itemView.setOnClickListener {
+                val intent = Intent(context, FilmDetailsActivity::class.java)
+                intent.putExtra(SLUG, film.slug)
+                context.startActivity(intent)
+            }
+
+            itemView.setOnLongClickListener {
+                callback?.onLongClick(film.slug)
+                true
+            }
+
+            @Suppress("DEPRECATION")
+            Handler().postDelayed({
+                itemView.isSelected = true
+            }, 3000)
+        }
     }
 
     override fun getItemCount(): Int = films.size
@@ -117,8 +131,7 @@ open class FilmAdapter(
             if (films.map { it.slug }.contains(movie.slug)) {
                 val position = films.indexOfFirst { it.slug == movie.slug }
                 films[position] = movie
-            }
-            else {
+            } else {
                 films.add(movie)
             }
         }

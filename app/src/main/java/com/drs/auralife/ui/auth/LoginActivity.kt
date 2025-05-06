@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
+import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.databinding.ActivityLoginBinding
 import com.drs.auralife.utils.Validator
 
@@ -33,7 +34,8 @@ class LoginActivity : AppCompatActivity() {
 
         // Initialize the fragment
         fragment = LogoFragment.setTitle(getString(R.string.login_title))
-        supportFragmentManager.beginTransaction()
+        supportFragmentManager
+            .beginTransaction()
             .add(binding.containerFragment.id, fragment)
             .commit()
 
@@ -45,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Initialize the result launcher
         resultLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
+            ActivityResultContracts.StartActivityForResult(),
         ) { result ->
             runOnUiThread {
                 if (result.resultCode == RESULT_OK) {
@@ -59,7 +61,8 @@ class LoginActivity : AppCompatActivity() {
     // Register the receiver and filter
     override fun onStart() {
         super.onStart()
-        @Suppress("DEPRECATION") val display = windowManager.defaultDisplay
+        @Suppress("DEPRECATION")
+        val display = windowManager.defaultDisplay
         val orientation = when (display.rotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> LinearLayout.VERTICAL
             Surface.ROTATION_90, Surface.ROTATION_270 -> LinearLayout.HORIZONTAL
@@ -88,9 +91,9 @@ class LoginActivity : AppCompatActivity() {
                     if (result.isSuccess) {
                         Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
                         Authentication.isLoggedIn.postValue(true)
+                        LibraryRepository.recheckLibrary()
                         finish()
-                    }
-                    else {
+                    } else {
                         binding.loginButton.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()

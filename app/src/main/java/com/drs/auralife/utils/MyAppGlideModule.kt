@@ -31,15 +31,21 @@ object MyAppGlideModule : AppGlideModule() {
         context: Context,
         image: Any?,
         imageView: ImageView,
-        transformation: Transformation<Bitmap>? = null
+        transformation: Transformation<Bitmap>? = null,
     ) {
         if (isValidContextForGlide(context)) {
-            val glide = Glide.with(context).load(image).encodeQuality(1)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).skipMemoryCache(false)
+            val glide =
+                Glide
+                    .with(context)
+                    .load(image)
+                    .encodeQuality(100)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+
             transformation?.let {
                 glide.apply(RequestOptions.bitmapTransform(transformation))
             }
-            glide.placeholder(R.drawable.rounded_shadow).error(R.drawable.bg_logo).into(imageView)
+            glide.placeholder(R.drawable.bg_logo).error(R.drawable.ic_logo).into(imageView)
         }
     }
 }

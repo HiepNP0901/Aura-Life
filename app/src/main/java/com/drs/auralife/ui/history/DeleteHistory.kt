@@ -30,7 +30,7 @@ object DeleteHistory {
                 HistoryRepository.deleteHistory(slug)
             }
             else {
-                HistoryUtils.removeHistory(context, slug)
+                HistoryUtils.removeLocalHistory(context, slug)
             }
             dialog.dismiss()
             callback()
