@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -25,9 +26,17 @@ class PaymentActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.apply {
             PremiumRepository.getPremiumStatus {
-                tvPremium.text = if (it.status) "Premium" else "Free"
-                tvDate.text = "Ngày đăng ký: " + it.date
-                tvExpireDate.text = "Ngày hết hạn: " + it.expireDate
+                if (it.status) {
+                    tvPremium.text = "Premium"
+                    tvDate.text = "Ngày đăng ký: " + it.date
+                    tvExpireDate.text = "Ngày hết hạn: " + it.expireDate
+                    tvDate.visibility = View.VISIBLE
+                    tvExpireDate.visibility = View.VISIBLE
+                } else {
+                    tvPremium.text = "Free"
+                    tvDate.visibility = View.GONE
+                    tvExpireDate.visibility = View.GONE
+                }
             }
         }
         setupOnboardingItems()
@@ -49,7 +58,7 @@ class PaymentActivity : AppCompatActivity() {
                         PremiumRepository.uploadPremium(selectedItem.month) {
                             if (it.isFailure) {
                                 Toast
-                                    .makeText(this, "❌ Đã có lỗi xảy ra", Toast.LENGTH_SHORT)
+                                    .makeText(this, "❌ Chức năng thanh toán hiện chưa khả dụng, vui lòng liên hệ Admin để nâng cấp tài khoản.", Toast.LENGTH_LONG)
                                     .show()
                                 return@uploadPremium
                             }
@@ -62,9 +71,13 @@ class PaymentActivity : AppCompatActivity() {
 
                             binding.apply {
                                 PremiumRepository.getPremiumStatus {
-                                    tvPremium.text = if (it.status) "Premium" else "Free"
-                                    tvDate.text = "Ngày đăng ký: " + it.date
-                                    tvExpireDate.text = "Ngày hết hạn: " + it.expireDate
+                                    if (it.status) {
+                                        tvPremium.text = "Premium"
+                                        tvDate.text = "Ngày đăng ký: " + it.date
+                                        tvExpireDate.text = "Ngày hết hạn: " + it.expireDate
+                                        tvDate.visibility = View.VISIBLE
+                                        tvExpireDate.visibility = View.VISIBLE
+                                    }
                                 }
                             }
                         }

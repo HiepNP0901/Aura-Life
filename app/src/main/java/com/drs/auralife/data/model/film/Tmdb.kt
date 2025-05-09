@@ -7,5 +7,5 @@ data class Tmdb(
     val season: Int,
     val type: String,
     @SerializedName("vote_average") val voteAverage: Double,
-    @SerializedName("vote_count") val voteCount: Int
+    @SerializedName("vote_count") val voteCount: Int,
 )

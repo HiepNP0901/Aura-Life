@@ -2,91 +2,95 @@
 
 package com.drs.auralife.utils
 
-abstract class EditTextValidator<T>(val errorText: String) {
+abstract class EditTextValidator<T>(
+    val errorText: String,
+) {
     abstract fun isValid(value: T): Boolean
 
-    open operator fun invoke(value: T): String? {
-        return if (isValid(value)) null else errorText
-    }
+    open operator fun invoke(value: T): String? = if (isValid(value)) null else errorText
 }
 
-abstract class TextEditTextValidator(errorText: String) : EditTextValidator<String>(errorText) {
+abstract class TextEditTextValidator(
+    errorText: String,
+) : EditTextValidator<String>(errorText) {
     open val ignoreEmptyValues: Boolean = true
 
-    override operator fun invoke(value: String): String? {
-        return if (ignoreEmptyValues && value.isEmpty()) null else super.invoke(value)
-    }
+    override operator fun invoke(value: String): String? = if (ignoreEmptyValues && value.isEmpty()) null else super.invoke(value)
 
-    fun hasMatch(pattern: String, input: String, caseSensitive: Boolean = true): Boolean {
+    fun hasMatch(
+        pattern: String,
+        input: String,
+        caseSensitive: Boolean = true,
+    ): Boolean {
         val regex = if (caseSensitive) Regex(pattern) else Regex(pattern, RegexOption.IGNORE_CASE)
         return regex.containsMatchIn(input)
     }
 }
 
-class RequiredValidator(errorText: String) : TextEditTextValidator(errorText) {
+class RequiredValidator(
+    errorText: String,
+) : TextEditTextValidator(errorText) {
     override val ignoreEmptyValues: Boolean = false
 
-    override fun isValid(value: String): Boolean {
-        return value.trim().isNotEmpty()
-    }
+    override fun isValid(value: String): Boolean = value.trim().isNotEmpty()
 }
 
-class DoubleValidator(errorText: String) : TextEditTextValidator(errorText) {
+class DoubleValidator(
+    errorText: String,
+) : TextEditTextValidator(errorText) {
     override val ignoreEmptyValues: Boolean = false
 
-    override fun isValid(value: String): Boolean {
-        return try {
+    override fun isValid(value: String): Boolean =
+        try {
             value.toDouble()
             true
         } catch (_: NumberFormatException) {
             false
         }
-    }
 }
 
-class CheckValueValidator(errorText: String) : TextEditTextValidator(errorText) {
+class CheckValueValidator(
+    errorText: String,
+) : TextEditTextValidator(errorText) {
     override val ignoreEmptyValues: Boolean = false
 
-    override fun isValid(value: String): Boolean {
-        return try {
+    override fun isValid(value: String): Boolean =
+        try {
             value.toDouble() != 0.0
         } catch (_: NumberFormatException) {
             false
         }
-    }
 }
 
-class MinLengthValidator(private val min: Int, errorText: String) :
-    TextEditTextValidator(errorText) {
+class MinLengthValidator(
+    private val min: Int,
+    errorText: String,
+) : TextEditTextValidator(errorText) {
     override val ignoreEmptyValues: Boolean = false
 
-    override fun isValid(value: String): Boolean {
-        return value.length >= min
-    }
+    override fun isValid(value: String): Boolean = value.length >= min
 }
 
-class EmailValidator(errorText: String) : TextEditTextValidator(errorText) {
+class EmailValidator(
+    errorText: String,
+) : TextEditTextValidator(errorText) {
     private val emailPattern: String = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}"
 
-    override fun isValid(value: String): Boolean {
-        return hasMatch(emailPattern.toString(), value)
-    }
+    override fun isValid(value: String): Boolean = hasMatch(emailPattern.toString(), value)
 }
 
-class MatchValidator(private val password: String?, errorText: String) :
-    TextEditTextValidator(errorText) {
-    override fun isValid(value: String): Boolean {
-        return value == password
-    }
+class MatchValidator(
+    private val password: String?,
+    errorText: String,
+) : TextEditTextValidator(errorText) {
+    override fun isValid(value: String): Boolean = value == password
 }
 
 class NotMatchValidator(
     private val password: String?,
-    errorText: String
+    errorText: String,
 ) : TextEditTextValidator(errorText) {
-    override fun isValid(value: String): Boolean {
-        return value != password
-    }
+    override fun isValid(value: String): Boolean = value != password
 }
 
 class MultiValidator(
@@ -104,9 +108,5 @@ class MultiValidator(
         return true
     }
 
-    override operator fun invoke(value: String): String? {
-        return if (isValid(value)) null else _errorText
-    }
+    override operator fun invoke(value: String): String? = if (isValid(value)) null else _errorText
 }
-
-

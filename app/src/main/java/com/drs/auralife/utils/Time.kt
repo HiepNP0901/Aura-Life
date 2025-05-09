@@ -6,7 +6,10 @@ import java.time.Duration
 import java.time.Instant
 
 object Time {
-    fun calculateTimeDifference(updateInstant: Instant, context: Context): String {
+    fun calculateTimeDifference(
+        updateInstant: Instant,
+        context: Context,
+    ): String {
         val duration = Duration.between(updateInstant, Instant.now())
         val days = duration.toDays()
         val hours = duration.toHours()

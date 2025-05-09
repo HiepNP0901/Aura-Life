@@ -11,7 +11,11 @@ import com.drs.auralife.R
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 
 object EditLibrary {
-    fun showEditLibraryDialog(context: Context, nameLibrary: String, callback: () -> Unit) {
+    fun showEditLibraryDialog(
+        context: Context,
+        nameLibrary: String,
+        callback: () -> Unit,
+    ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_library, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
@@ -30,7 +34,11 @@ object EditLibrary {
         dialog.show()
     }
 
-    fun showRenameLibraryDialog(context: Context, nameLibrary: String, callback: () -> Unit) {
+    fun showRenameLibraryDialog(
+        context: Context,
+        nameLibrary: String,
+        callback: () -> Unit,
+    ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.dialog_rename, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
@@ -44,33 +52,42 @@ object EditLibrary {
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
             if (editText.text.toString().isNotBlank()) {
                 LibraryRepository.renameLibrary(nameLibrary, editText.text.toString()) {
-                    it.onSuccess {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.rename_successfully),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        callback()
-                    }.onFailure {
-                        Toast.makeText(
-                            context, it.message.toString(), Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    it
+                        .onSuccess {
+                            Toast
+                                .makeText(
+                                    context,
+                                    context.getString(R.string.rename_successfully),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            callback()
+                        }.onFailure {
+                            Toast
+                                .makeText(
+                                    context,
+                                    it.message.toString(),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                        }
                 }
                 dialog.dismiss()
-            }
-            else {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.library_name_cannot_be_empty),
-                    Toast.LENGTH_SHORT
-                ).show()
+            } else {
+                Toast
+                    .makeText(
+                        context,
+                        context.getString(R.string.library_name_cannot_be_empty),
+                        Toast.LENGTH_SHORT,
+                    ).show()
             }
         }
         dialog.show()
     }
 
-    fun showDeleteLibraryDialog(context: Context, nameLibrary: String, callback: () -> Unit) {
+    fun showDeleteLibraryDialog(
+        context: Context,
+        nameLibrary: String,
+        callback: () -> Unit,
+    ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
@@ -81,22 +98,25 @@ object EditLibrary {
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
             LibraryRepository.deleteLibrary(nameLibrary) {
-                it.onSuccess {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.delete_library) + nameLibrary + context.getString(
-                            R.string.successfully
-                        ),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    callback()
-                }.onFailure {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.delete_library_failed),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                it
+                    .onSuccess {
+                        Toast
+                            .makeText(
+                                context,
+                                context.getString(R.string.delete_library) + nameLibrary + context.getString(
+                                    R.string.successfully,
+                                ),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        callback()
+                    }.onFailure {
+                        Toast
+                            .makeText(
+                                context,
+                                context.getString(R.string.delete_library_failed),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                    }
                 dialog.dismiss()
             }
         }
@@ -105,7 +125,10 @@ object EditLibrary {
 
     @SuppressLint("SetTextI18n")
     fun showDeleteFilmFromLibrary(
-        context: Context, nameLibrary: String, slug: String, callback: () -> Unit
+        context: Context,
+        nameLibrary: String,
+        slug: String,
+        callback: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
@@ -117,14 +140,18 @@ object EditLibrary {
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
             LibraryRepository.removeFilmFromLibrary(nameLibrary, slug) {
-                it.onSuccess {
-                    dialog.dismiss()
-                    callback()
-                }.onFailure {
-                    Toast.makeText(
-                        context, context.getString(R.string.error), Toast.LENGTH_SHORT
-                    ).show()
-                }
+                it
+                    .onSuccess {
+                        dialog.dismiss()
+                        callback()
+                    }.onFailure {
+                        Toast
+                            .makeText(
+                                context,
+                                context.getString(R.string.error),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                    }
             }
         }
         dialog.show()

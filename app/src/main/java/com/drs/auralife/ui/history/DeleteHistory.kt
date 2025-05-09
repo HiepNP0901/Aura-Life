@@ -13,7 +13,11 @@ import com.drs.auralife.utils.HistoryUtils
 
 object DeleteHistory {
     @SuppressLint("SetTextI18n")
-    fun showDeleteFilmFromHistory(context: Context, slug: String, callback: () -> Unit) {
+    fun showDeleteFilmFromHistory(
+        context: Context,
+        slug: String,
+        callback: () -> Unit,
+    ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
@@ -28,8 +32,7 @@ object DeleteHistory {
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
             if (Authentication.isLoggedIn()) {
                 HistoryRepository.deleteHistory(slug)
-            }
-            else {
+            } else {
                 HistoryUtils.removeLocalHistory(context, slug)
             }
             dialog.dismiss()

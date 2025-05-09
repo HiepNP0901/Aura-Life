@@ -10,12 +10,12 @@ import androidx.core.app.ActivityCompat
 
 class PermissionPhotoHandler(
     private val activity: Activity,
-    private val activityResultLauncher: ActivityResultLauncher<Intent>
+    private val activityResultLauncher: ActivityResultLauncher<Intent>,
 ) {
     private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
             Manifest.permission.READ_MEDIA_IMAGES,
-            Manifest.permission.READ_MEDIA_VIDEO
+            Manifest.permission.READ_MEDIA_VIDEO,
         )
     } else {
         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -29,7 +29,10 @@ class PermissionPhotoHandler(
         }
     }
 
-    fun handlePermissionsResult(requestCode: Int, grantResults: IntArray) {
+    fun handlePermissionsResult(
+        requestCode: Int,
+        grantResults: IntArray,
+    ) {
         if (requestCode == REQUEST_CODE_PERMISSIONS &&
             grantResults.isNotEmpty() &&
             grantResults.all { it == PackageManager.PERMISSION_GRANTED }

@@ -12,8 +12,7 @@ object SystemUiController {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowInsetsController = window.insetsController
             windowInsetsController?.show(WindowInsets.Type.systemBars())
-        }
-        else {
+        } else {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
     }
@@ -25,8 +24,7 @@ object SystemUiController {
                 it.hide(WindowInsets.Type.systemBars())
                 it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
-        }
-        else {
+        } else {
             window.decorView.systemUiVisibility =
                 (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
         }

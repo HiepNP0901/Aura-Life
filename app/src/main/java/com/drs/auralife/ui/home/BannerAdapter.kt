@@ -11,9 +11,12 @@ import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
 import com.drs.auralife.utils.MyAppGlideModule
 
-class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
-
-    inner class BannerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class BannerAdapter(
+    private val banners: List<Pair<String, String>>,
+) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
+    inner class BannerViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
         val bannerImage: ImageView = itemView.findViewById(R.id.bannerImage)
 
         fun bind(banner: Pair<String, String>) {
@@ -21,12 +24,18 @@ class BannerAdapter(private val banners: List<Pair<String, String>>) : RecyclerV
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BannerViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): BannerViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_banner, parent, false)
         return BannerViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: BannerViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: BannerViewHolder,
+        position: Int,
+    ) {
         holder.bind(banners[position])
 
         holder.itemView.setOnClickListener {

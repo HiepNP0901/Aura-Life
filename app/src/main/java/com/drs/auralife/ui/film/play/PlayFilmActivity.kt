@@ -24,6 +24,7 @@ import com.drs.auralife.data.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository
 import com.drs.auralife.data.model.film.FilmDetails
+import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.payment.PaymentActivity
 import com.drs.auralife.utils.HistoryUtils
@@ -288,8 +289,13 @@ class PlayFilmActivity : AppCompatActivity() {
         }
 
         btnCreate.setOnClickListener {
-            val intent = Intent(this, PaymentActivity::class.java)
-            startActivity(intent)
+            if (Authentication.isLoggedIn()) {
+                val intent = Intent(this, PaymentActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         dialog.show()

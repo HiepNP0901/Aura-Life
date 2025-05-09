@@ -17,7 +17,9 @@ class LibraryFragment : Fragment() {
     val libraryAdapter = LibraryAdapter(mutableListOf(), this)
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View? {
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
@@ -38,15 +40,12 @@ class LibraryFragment : Fragment() {
             if (!Authentication.isLoggedIn()) {
                 binding.text.visibility = View.VISIBLE
                 binding.text.text = getString(R.string.function_must_login)
-            }
-            else if(it.isEmpty()){
+            } else if (it.isEmpty()) {
                 binding.text.visibility = View.VISIBLE
                 binding.text.text = getString(R.string.empty)
-            }
-            else {
+            } else {
                 binding.text.visibility = View.GONE
             }
         }
-
     }
 }

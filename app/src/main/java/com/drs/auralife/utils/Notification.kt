@@ -22,7 +22,10 @@ object Notification {
         return notifications
     }
 
-    fun saveNotifications(context: Context, notifications: MutableList<Pair<String, String>>) {
+    fun saveNotifications(
+        context: Context,
+        notifications: MutableList<Pair<String, String>>,
+    ) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val jsonArray = JSONArray()
         notifications.forEach { (slug, content) ->
@@ -34,19 +37,26 @@ object Notification {
         sharedPreferences.edit().putString(KEY_NOTIFICATION_LIST, jsonArray.toString()).apply()
     }
 
-    fun addNotification(context: Context, slug: String, content: String) {
+    fun addNotification(
+        context: Context,
+        slug: String,
+        content: String,
+    ) {
         val notifications = getNotifications(context)
         notifications.add(Pair(slug, content))
         saveNotifications(context, notifications)
     }
 
-    fun removeNotification(context: Context, notification: Pair<String, String>) {
+    fun removeNotification(
+        context: Context,
+        notification: Pair<String, String>,
+    ) {
         val notifications = getNotifications(context)
         notifications.remove(notification)
         saveNotifications(context, notifications)
     }
 
-    fun removeAllNotification(context: Context){
+    fun removeAllNotification(context: Context) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         sharedPreferences.edit().remove(KEY_NOTIFICATION_LIST).apply()
     }

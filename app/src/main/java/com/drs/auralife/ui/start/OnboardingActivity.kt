@@ -4,12 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
 import com.drs.auralife.data.model.OnboardingItem
 import com.drs.auralife.ui.MainActivity
 import com.google.android.material.tabs.TabLayoutMediator
-import androidx.core.content.edit
 
 class OnboardingActivity : AppCompatActivity() {
     private lateinit var onboardingAdapter: OnboardingAdapter
@@ -55,16 +55,16 @@ class OnboardingActivity : AppCompatActivity() {
         val onboardingItems = listOf(
             OnboardingItem(
                 R.drawable.bg_onboarding_1,
-                getString(R.string.onboarding_description_1)
+                getString(R.string.onboarding_description_1),
             ),
             OnboardingItem(
                 R.drawable.bg_onboarding_2,
-                getString(R.string.onboarding_description_2)
+                getString(R.string.onboarding_description_2),
             ),
             OnboardingItem(
                 R.drawable.bg_onboarding_3,
-                getString(R.string.onboarding_description_3)
-            )
+                getString(R.string.onboarding_description_3),
+            ),
         )
 
         onboardingAdapter = OnboardingAdapter(onboardingItems)

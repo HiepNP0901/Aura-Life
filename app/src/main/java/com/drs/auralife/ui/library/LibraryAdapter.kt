@@ -8,25 +8,35 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.drs.auralife.R
 import com.drs.auralife.data.firebase.realtime.database.user.library.Library
 import com.drs.auralife.utils.MyAppGlideModule
-import com.drs.auralife.R
 
-class LibraryAdapter(private val library: MutableList<Library>, private val fragment: LibraryFragment): RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
-
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class LibraryAdapter(
+    private val library: MutableList<Library>,
+    private val fragment: LibraryFragment,
+) : RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
+    class ItemViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
         val tvImage = itemView.findViewById<ImageView>(R.id.imageLibrary)
         val tvTitle = itemView.findViewById<TextView>(R.id.nameLibrary)
         val tvDetails = itemView.findViewById<TextView>(R.id.detailsLibrary)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_library, parent, false)
         return ItemViewHolder(view)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ItemViewHolder,
+        position: Int,
+    ) {
         val item = library[position]
         val context = holder.itemView.context
 
@@ -34,16 +44,16 @@ class LibraryAdapter(private val library: MutableList<Library>, private val frag
 
         holder.tvTitle.text = item.name
 
-        holder.tvDetails.text = context.getString(R.string.quantity) +": " + item.listFilm.size.toString()
+        holder.tvDetails.text = context.getString(R.string.quantity) + ": " + item.listFilm.size.toString()
 
-        holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener {
             val intent = Intent(context, LibraryDetailsActivity::class.java)
             intent.putExtra(LIBRARY_NAME, item.name)
             context.startActivity(intent)
         }
 
-        holder.itemView.setOnLongClickListener{
-            EditLibrary.showEditLibraryDialog(context, item.name){
+        holder.itemView.setOnLongClickListener {
+            EditLibrary.showEditLibraryDialog(context, item.name) {
                 fragment.refreshLibrary()
             }
             true

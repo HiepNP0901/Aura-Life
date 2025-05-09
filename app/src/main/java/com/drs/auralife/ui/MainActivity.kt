@@ -57,14 +57,14 @@ import com.google.android.material.navigation.NavigationView
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var searchBar: EditText
-    private lateinit var searchLayout: LinearLayout
-    private lateinit var searchResults: RecyclerView
-    private lateinit var viewPager: ViewPager2
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
-    private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var permissionPhotoHandler: PermissionPhotoHandler
+    private val searchBar: EditText by lazy { findViewById(R.id.search_bar) }
+    private val searchLayout: LinearLayout by lazy { findViewById(R.id.search_layout) }
+    private val searchResults: RecyclerView by lazy { findViewById(R.id.search_results) }
+    private val viewPager: ViewPager2 by lazy { findViewById(R.id.view_pager) }
+    private val drawerLayout: DrawerLayout by lazy { findViewById(R.id.main_layout) }
+    private val navigationView: NavigationView by lazy { findViewById(R.id.navigation_view) }
+    private val bottomNavigationView: BottomNavigationView by lazy { findViewById(R.id.bottom_navigation_view) }
+    private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private var searchIsVisible = false
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
@@ -72,7 +72,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initializeViews()
         setupDrawer()
         setupBackPressed()
         setupViewPager()
@@ -85,17 +84,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionPhotoHandler.handlePermissionsResult(requestCode, grantResults)
-    }
-
-    private fun initializeViews() {
-        viewPager = findViewById(R.id.view_pager)
-        drawerLayout = findViewById(R.id.main_layout)
-        searchLayout = findViewById(R.id.search_layout)
-        searchBar = findViewById(R.id.search_bar)
-        searchResults = findViewById(R.id.search_results)
-        navigationView = findViewById(R.id.navigation_view)
-        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        permissionPhotoHandler?.handlePermissionsResult(requestCode, grantResults)
     }
 
     private fun setupDrawer() {
@@ -125,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             .findViewById<ImageFilterView>(R.id.navProfilePic)
             .setOnClickListener {
                 if (Authentication.isLoggedIn()) {
-                    permissionPhotoHandler.checkAndRequestPermissions()
+                    permissionPhotoHandler?.checkAndRequestPermissions()
                 } else {
                     startActivity(Intent(this, LoginActivity::class.java))
                 }

@@ -15,7 +15,6 @@ class SplashActivity : AppCompatActivity() {
     private var isFirstTime by Delegates.notNull<Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_splash_screen)
@@ -31,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
                         startActivity(Intent(this, OnboardingActivity::class.java))
                         finish()
                     },
-                    3000
+                    3000,
                 )
         } else {
             Handler(Looper.getMainLooper())
@@ -40,7 +39,7 @@ class SplashActivity : AppCompatActivity() {
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()
                     },
-                    1000
+                    1000,
                 )
         }
     }

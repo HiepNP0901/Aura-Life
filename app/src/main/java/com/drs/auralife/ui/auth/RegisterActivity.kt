@@ -4,12 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.utils.Validator
-import android.widget.Toast
 
 const val USERNAME = "@username"
 
@@ -31,7 +31,8 @@ class RegisterActivity : AppCompatActivity() {
 
         // Initialize the fragment
         fragment = LogoFragment.setTitle(getString(R.string.register_title))
-        supportFragmentManager.beginTransaction()
+        supportFragmentManager
+            .beginTransaction()
             .add(binding.containerFragment.id, fragment)
             .commit()
 
@@ -46,8 +47,10 @@ class RegisterActivity : AppCompatActivity() {
     // Set the click listeners for the buttons
     private fun setBindingButton() {
         binding.createAccount.setOnClickListener {
-            Validator(this).confirmPasswordValidator(password.text.toString())
-                .invoke(confirmPassword.text.toString())?.let {
+            Validator(this)
+                .confirmPasswordValidator(password.text.toString())
+                .invoke(confirmPassword.text.toString())
+                ?.let {
                     confirmPassword.error = it
                     confirmPassword.requestFocus()
                 }
@@ -76,7 +79,6 @@ class RegisterActivity : AppCompatActivity() {
                         binding.createAccount.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
-
                     }
                 }
             }
@@ -108,8 +110,10 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         binding.confirmPassword.doAfterTextChanged {
-            Validator(this).confirmPasswordValidator(password.text.toString())
-                .invoke(confirmPassword.text.toString())?.let {
+            Validator(this)
+                .confirmPasswordValidator(password.text.toString())
+                .invoke(confirmPassword.text.toString())
+                ?.let {
                     confirmPassword.error = it
                     confirmPassword.requestFocus()
                 } ?: run {

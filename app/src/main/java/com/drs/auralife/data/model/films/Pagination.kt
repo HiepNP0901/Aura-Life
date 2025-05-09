@@ -4,5 +4,5 @@ data class Pagination(
     val currentPage: Int,
     val totalItems: Int,
     val totalItemsPerPage: Int,
-    val totalPages: Int
+    val totalPages: Int,
 )

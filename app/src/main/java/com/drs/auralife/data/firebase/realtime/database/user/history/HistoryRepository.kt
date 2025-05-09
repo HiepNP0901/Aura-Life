@@ -10,25 +10,41 @@ object HistoryRepository {
         val userId = Authentication.getUserId()
 
         userId.let {
-            userRef.child(it.toString()).child("history").get().addOnSuccessListener {
-                val historyList = mutableListOf<History>()
-                for (snapshot in it.children) {
-                    val historyData = History(
-                        snapshot.child("slug").value.toString(),
-                        snapshot.child("episode").value.toString().toInt(),
-                        snapshot.child("position").value.toString().toLong(),
-                        snapshot.child("date").value.toString()
-                    )
-                    historyData.let { historyList.add(it) }
+            userRef
+                .child(it.toString())
+                .child("history")
+                .get()
+                .addOnSuccessListener {
+                    val historyList = mutableListOf<History>()
+                    for (snapshot in it.children) {
+                        val historyData = History(
+                            snapshot.child("slug").value.toString(),
+                            snapshot
+                                .child("episode")
+                                .value
+                                .toString()
+                                .toInt(),
+                            snapshot
+                                .child("position")
+                                .value
+                                .toString()
+                                .toLong(),
+                            snapshot.child("date").value.toString(),
+                        )
+                        historyData.let { historyList.add(it) }
+                    }
+                    onDataReceived(historyList)
+                }.addOnFailureListener {
+                    onDataReceived(emptyList())
                 }
-                onDataReceived(historyList)
-            }.addOnFailureListener {
-                onDataReceived(emptyList())
-            }
         }
     }
 
-    fun addHistoryData(slug: String, episode: Int, position: Long) {
+    fun addHistoryData(
+        slug: String,
+        episode: Int,
+        position: Long,
+    ) {
         val userId = Authentication.getUserId()
 
         userId.let {

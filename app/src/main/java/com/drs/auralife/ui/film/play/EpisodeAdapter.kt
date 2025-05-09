@@ -8,14 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.model.film.ServerData
 
-class EpisodeAdapter(private val episodes: List<ServerData>, private val onItemClick: (Int) -> Unit)
-    : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
-
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class EpisodeAdapter(
+    private val episodes: List<ServerData>,
+    private val onItemClick: (Int) -> Unit,
+) : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
+    inner class ViewHolder(
+        view: View,
+    ) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.episodeNumber)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         val view = LayoutInflater
             .from(parent.context)
             .inflate(R.layout.item_episode, parent, false)
@@ -23,7 +29,10 @@ class EpisodeAdapter(private val episodes: List<ServerData>, private val onItemC
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         holder.textView.text = episodes[position].name
 
         holder.textView.setOnClickListener {
@@ -34,4 +43,3 @@ class EpisodeAdapter(private val episodes: List<ServerData>, private val onItemC
 
     override fun getItemCount(): Int = episodes.size
 }
-

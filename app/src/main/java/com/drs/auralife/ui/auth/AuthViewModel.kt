@@ -6,16 +6,25 @@ import androidx.lifecycle.viewModelScope
 import com.drs.auralife.data.firebase.Authentication
 import kotlinx.coroutines.launch
 
-class AuthViewModel() : ViewModel() {
-
-    fun login(context: Context, username: String, password: String, onResult: (Result<String>) -> Unit) {
+class AuthViewModel : ViewModel() {
+    fun login(
+        context: Context,
+        username: String,
+        password: String,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             val result = Authentication.login(context, username, password)
             onResult(result)
         }
     }
 
-    fun register(context: Context, username: String, password: String, onResult: (Result<String>) -> Unit) {
+    fun register(
+        context: Context,
+        username: String,
+        password: String,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             val result = Authentication.register(context, username, password)
             onResult(result)

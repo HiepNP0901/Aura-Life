@@ -8,11 +8,17 @@ import com.google.firebase.database.FirebaseDatabase
 object AvatarRepository {
     val userRef = FirebaseDatabase.getInstance().getReference("users")
 
-    fun uploadAvatar(bitmap: Bitmap, callback: (Result<Boolean>) -> Unit) {
+    fun uploadAvatar(
+        bitmap: Bitmap,
+        callback: (Result<Boolean>) -> Unit,
+    ) {
         val base64String = ImageEncoderDecoder.encodeToBase64(bitmap)
         val userId = Authentication.getUserId()
         userId.let {
-            userRef.child(it.toString()).child("avatar").setValue(base64String)
+            userRef
+                .child(it.toString())
+                .child("avatar")
+                .setValue(base64String)
                 .addOnSuccessListener {
                     callback(Result.success(true))
                 }.addOnFailureListener { e ->

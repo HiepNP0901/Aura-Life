@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.model.OnboardingItem
 
-class OnboardingAdapter(private val onboardingItems: List<OnboardingItem>
+class OnboardingAdapter(
+    private val onboardingItems: List<OnboardingItem>,
 ) : RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {
-
-    inner class OnboardingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class OnboardingViewHolder(
+        view: View,
+    ) : RecyclerView.ViewHolder(view) {
         private val imageSlide = view.findViewById<ImageView>(R.id.onboardingLogo)
         private val textTitle = view.findViewById<TextView>(R.id.onboardingText)
 
@@ -22,14 +24,20 @@ class OnboardingAdapter(private val onboardingItems: List<OnboardingItem>
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OnboardingViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): OnboardingViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_onboarding, parent, false)
         return OnboardingViewHolder(view)
     }
 
     override fun getItemCount(): Int = onboardingItems.size
 
-    override fun onBindViewHolder(holder: OnboardingViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: OnboardingViewHolder,
+        position: Int,
+    ) {
         holder.bind(onboardingItems[position])
     }
 }

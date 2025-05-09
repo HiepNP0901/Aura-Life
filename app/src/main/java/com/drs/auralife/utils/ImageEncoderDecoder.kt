@@ -11,7 +11,7 @@ object ImageEncoderDecoder {
         bitmap: Bitmap,
         compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
         quality: Int = 100,
-        size: Int = 80
+        size: Int = 80,
     ): String {
         val resizedBitmap = bitmap.scale(size, size, false)
         val outputStream = ByteArrayOutputStream()
@@ -21,14 +21,12 @@ object ImageEncoderDecoder {
     }
 
     // Decode Base64 string to Bitmap
-    fun decodeFromBase64(base64String: String): Bitmap? {
-        return try {
+    fun decodeFromBase64(base64String: String): Bitmap? =
+        try {
             val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
             BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             null
         }
-    }
 }

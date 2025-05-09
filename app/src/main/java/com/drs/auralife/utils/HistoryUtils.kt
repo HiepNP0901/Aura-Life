@@ -27,7 +27,10 @@ object HistoryUtils {
         return histories
     }
 
-    fun saveLocalHistories(context: Context, histories: MutableList<History>) {
+    fun saveLocalHistories(
+        context: Context,
+        histories: MutableList<History>,
+    ) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val jsonArray = JSONArray()
         histories.forEach { history ->
@@ -41,7 +44,12 @@ object HistoryUtils {
         sharedPreferences.edit { putString(KEY_HISTORY_LIST, jsonArray.toString()) }
     }
 
-    fun addLocalHistory(context: Context, slug: String, episode: Int, position: Long) {
+    fun addLocalHistory(
+        context: Context,
+        slug: String,
+        episode: Int,
+        position: Long,
+    ) {
         val history = History(slug, episode, position, System.currentTimeMillis().toString())
         val histories = getLocalHistories(context)
         histories.removeIf { it.slug == slug }
@@ -49,7 +57,10 @@ object HistoryUtils {
         saveLocalHistories(context, histories)
     }
 
-    fun removeLocalHistory(context: Context, slug: String) {
+    fun removeLocalHistory(
+        context: Context,
+        slug: String,
+    ) {
         val histories = getLocalHistories(context)
         histories.removeIf { it.slug == slug }
         saveLocalHistories(context, histories)
