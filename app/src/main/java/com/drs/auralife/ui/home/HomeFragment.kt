@@ -72,17 +72,16 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        binding.recyclerView.apply {
-            val displayMetrics = resources.displayMetrics
-            var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
-            layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
-            adapter = filmAdapter
-        }
-
-        val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-        val viewModel = FilmsViewModel(requireContext())
-
         if (context?.isConnectedToInternet() == true) {
+            binding.recyclerView.apply {
+                val displayMetrics = resources.displayMetrics
+                var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
+                layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
+                adapter = filmAdapter
+            }
+
+            val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
+            val viewModel = FilmsViewModel(requireContext())
             viewModel.fetchLatestFilms(1) {
                 it?.let {
                     paginate = it.pagination
