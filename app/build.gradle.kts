@@ -53,7 +53,8 @@ android {
 }
 
 dependencies {
-    // --- Testing ---
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.fragment.ktx) // --- Testing ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
