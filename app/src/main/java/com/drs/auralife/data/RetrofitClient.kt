@@ -9,9 +9,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
     private const val BASE_URL = "https://phimapi.com"
 
+    @Volatile
+    private var retrofitInstance: Retrofit? = null
+
     private fun createOkHttpClient(context: Context): OkHttpClient {
         val cacheSize = (5 * 1024 * 1024).toLong() // 5MB
-        val cache = Cache(context.cacheDir, cacheSize)
+        val appContext = context.applicationContext
+        val cache = Cache(appContext.cacheDir, cacheSize)
 
         return OkHttpClient
             .Builder()
@@ -27,11 +31,15 @@ object RetrofitClient {
             }.build()
     }
 
-    fun create(context: Context): Retrofit =
-        Retrofit
-            .Builder()
-            .baseUrl(BASE_URL)
-            .client(createOkHttpClient(context))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    fun create(context: Context): Retrofit {
+        return retrofitInstance ?: synchronized(this) {
+            retrofitInstance ?: Retrofit
+                .Builder()
+                .baseUrl(BASE_URL)
+                .client(createOkHttpClient(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .also { retrofitInstance = it }
+        }
+    }
 }

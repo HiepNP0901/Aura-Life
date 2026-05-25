@@ -3,12 +3,13 @@ package com.drs.auralife.ui.start
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
 import com.drs.auralife.ui.MainActivity
 import kotlin.properties.Delegates
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -23,24 +24,16 @@ class SplashActivity : AppCompatActivity() {
             getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getBoolean("isFirstTime", true)
 
-        if (isFirstTime) {
-            Handler(Looper.getMainLooper())
-                .postDelayed(
-                    {
-                        startActivity(Intent(this, OnboardingActivity::class.java))
-                        finish()
-                    },
-                    3000,
-                )
-        } else {
-            Handler(Looper.getMainLooper())
-                .postDelayed(
-                    {
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    },
-                    1000,
-                )
+        lifecycleScope.launch {
+            if (isFirstTime) {
+                delay(3000)
+                startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
+            } else {
+                delay(1000)
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            }
+            finish()
         }
     }
 }
+

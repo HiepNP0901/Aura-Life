@@ -1,12 +1,12 @@
 package com.drs.auralife.ui.explore
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmsViewModel
@@ -15,27 +15,31 @@ import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.ui.film.FilmAdapter
 import java.util.Locale
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ExploreFragment : Fragment() {
-    private val binding by lazy { FragmentExploreBinding.inflate(layoutInflater) }
+    private var _binding: FragmentExploreBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
+        _binding = FragmentExploreBinding.inflate(inflater, container, false)
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
 
-        CategoryRepository.getCategoryData {
-            it.forEach { category ->
+        CategoryRepository.getCategoryData { categories ->
+            if (_binding == null) return@getCategoryData
+            categories.forEach { category ->
+                val currentContext = context ?: return@forEach
                 val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
 
                 item
                     .findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList)
                     .setOnClickListener {
-                        context?.let {
-                            startActivity(ExploreDetailsActivity.newInstance(it, category))
-                        }
+                        startActivity(ExploreDetailsActivity.newInstance(currentContext, category))
                     }
 
                 val filmAdapter = FilmAdapter(mutableListOf())
@@ -49,14 +53,15 @@ class ExploreFragment : Fragment() {
                         category.vi
                 }
 
-                FilmsViewModel(requireContext()).fetchFilmsByCategory(category.slug, 1) {
-                    it?.data?.let {
-                        for (movie in it.items) {
-                            movie.posterUrl = it.appDomainCdnImage + "/" + movie.posterUrl
-                            movie.thumbUrl = it.appDomainCdnImage + "/" + movie.thumbUrl
+                FilmsViewModel(currentContext).fetchFilmsByCategory(category.slug, 1) {
+                    if (_binding == null) return@fetchFilmsByCategory
+                    it?.data?.let { data ->
+                        for (movie in data.items) {
+                            movie.posterUrl = data.appDomainCdnImage + "/" + movie.posterUrl
+                            movie.thumbUrl = data.appDomainCdnImage + "/" + movie.thumbUrl
                         }
 
-                        filmAdapter.addItem(it.items)
+                        filmAdapter.addItem(data.items)
                     }
                 }
             }
@@ -67,14 +72,19 @@ class ExploreFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        @Suppress("DEPRECATION")
-        Handler().postDelayed({
-            binding.root.isSelected = true
-        }, 3000)
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(3000)
+            _binding?.root?.isSelected = true
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        binding.root.isSelected = false
+        _binding?.root?.isSelected = false
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

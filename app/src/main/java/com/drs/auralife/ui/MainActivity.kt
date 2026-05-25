@@ -67,6 +67,8 @@ class MainActivity : AppCompatActivity() {
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private var searchIsVisible = false
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -286,18 +288,24 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun afterTextChanged(s: Editable?) {
-                    if (s.toString().isEmpty()) {
+                    searchRunnable?.let { searchHandler.removeCallbacks(it) }
+                    val query = s.toString().trim()
+                    if (query.isEmpty()) {
                         filmAdapter.clearItems()
                     } else {
-                        viewModel.searchFilms(s.toString(), 5) {
-                            it?.data?.let {
-                                for (item in it.items) {
-                                    item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
-                                    item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
+                        val runnable = Runnable {
+                            viewModel.searchFilms(query, 5) {
+                                it?.data?.let { data ->
+                                    for (item in data.items) {
+                                        item.posterUrl = data.appDomainCdnImage + "/" + item.posterUrl
+                                        item.thumbUrl = data.appDomainCdnImage + "/" + item.thumbUrl
+                                    }
+                                    filmAdapter.replaceItems(data.items)
                                 }
-                                filmAdapter.replaceItems(it.items)
                             }
                         }
+                        searchRunnable = runnable
+                        searchHandler.postDelayed(runnable, 500)
                     }
                 }
             },

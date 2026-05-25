@@ -13,14 +13,16 @@ import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.ui.MainActivity
 
 class LibraryFragment : Fragment() {
-    val binding by lazy { FragmentLibraryBinding.inflate(layoutInflater) }
+    private var _binding: FragmentLibraryBinding? = null
+    private val binding get() = _binding!!
     val libraryAdapter = LibraryAdapter(mutableListOf(), this)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
+        _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_notifications).visibility = View.VISIBLE
@@ -32,9 +34,15 @@ class LibraryFragment : Fragment() {
         refreshLibrary()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     fun refreshLibrary() {
         binding.recyclerView.adapter = libraryAdapter
         LibraryRepository.getLibrary {
+            if (_binding == null) return@getLibrary
             libraryAdapter.refreshLibrary(it)
 
             if (!Authentication.isLoggedIn()) {

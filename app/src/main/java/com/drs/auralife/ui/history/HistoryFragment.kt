@@ -23,14 +23,16 @@ import java.time.Instant
 class HistoryFragment :
     Fragment(),
     FilmAdapter.FragmentListener {
-    private val binding by lazy { FragmentLibraryBinding.inflate(layoutInflater) }
+    private var _binding: FragmentLibraryBinding? = null
+    private val binding get() = _binding!!
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
+        _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         (requireActivity() as MainActivity).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
         filmAdapter.setCallback(this)
@@ -42,9 +44,15 @@ class HistoryFragment :
         refreshHistory()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     fun refreshHistory() {
         if (Authentication.isLoggedIn()) {
             HistoryRepository.getHistoryData { listHistory ->
+                if (_binding == null) return@getHistoryData
                 refreshRecyclerView(listHistory)
             }
         } else {
@@ -65,14 +73,16 @@ class HistoryFragment :
             binding.recyclerView.adapter = filmAdapter
             val tempList = mutableListOf<Movie>()
             listHistory.forEach { history ->
-                FilmsViewModel(requireContext()).fetchFilmDetails(history.slug) {
+                val currentContext = context ?: return@forEach
+                FilmsViewModel(currentContext).fetchFilmDetails(history.slug) {
+                    if (_binding == null) return@fetchFilmDetails
                     it?.movie?.let { movie ->
-                        context?.applicationContext?.let {
+                        context?.applicationContext?.let { appContext ->
                             movie.content = Time.calculateTimeDifference(
                                 Instant.ofEpochMilli(
                                     history.date.toLong(),
                                 ),
-                                it,
+                                appContext,
                             ) + "<br>" + movie.content
                         }
 
