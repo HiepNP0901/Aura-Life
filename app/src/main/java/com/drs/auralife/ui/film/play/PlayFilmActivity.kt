@@ -27,8 +27,8 @@ import com.drs.auralife.data.model.film.FilmDetails
 import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.payment.PaymentActivity
-import com.drs.auralife.utils.HistoryUtils
-import com.drs.auralife.utils.SystemUiController
+import com.drs.auralife.core.utils.HistoryUtils
+import com.drs.auralife.core.utils.SystemUiController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

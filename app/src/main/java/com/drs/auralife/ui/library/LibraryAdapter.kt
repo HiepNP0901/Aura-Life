@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.realtime.database.user.library.Library
-import com.drs.auralife.utils.MyAppGlideModule
+import com.drs.auralife.core.utils.MyAppGlideModule
 
 class LibraryAdapter(
     private val library: MutableList<Library>,

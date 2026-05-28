@@ -17,7 +17,7 @@ import com.drs.auralife.ui.auth.LoginActivity
 import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.film.play.PlayFilmActivity
 import com.drs.auralife.ui.library.AddToLibrary
-import com.drs.auralife.utils.MyAppGlideModule
+import com.drs.auralife.core.utils.MyAppGlideModule
 
 class FilmDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityFilmDetailsBinding.inflate(layoutInflater) }

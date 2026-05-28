@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.ui.film.SLUG
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
-import com.drs.auralife.utils.MyAppGlideModule
+import com.drs.auralife.core.utils.MyAppGlideModule
 
 class BannerAdapter(
     private val banners: List<Pair<String, String>>,

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityRegisterBinding
-import com.drs.auralife.utils.Validator
+import com.drs.auralife.core.utils.Validator
 
 const val USERNAME = "@username"
 

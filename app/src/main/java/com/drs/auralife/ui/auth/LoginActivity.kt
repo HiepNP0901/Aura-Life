@@ -15,7 +15,7 @@ import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.databinding.ActivityLoginBinding
-import com.drs.auralife.utils.Validator
+import com.drs.auralife.core.utils.Validator
 
 class LoginActivity : AppCompatActivity() {
     private val binding: ActivityLoginBinding by lazy {

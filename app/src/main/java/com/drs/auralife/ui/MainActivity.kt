@@ -48,10 +48,10 @@ import com.drs.auralife.ui.history.HistoryFragment
 import com.drs.auralife.ui.home.HomeFragment
 import com.drs.auralife.ui.library.LibraryFragment
 import com.drs.auralife.ui.payment.PaymentActivity
-import com.drs.auralife.utils.MyAppGlideModule
-import com.drs.auralife.utils.Notification
-import com.drs.auralife.utils.PermissionPhotoHandler
-import com.drs.auralife.utils.UpdateLibraryWorker
+import com.drs.auralife.core.utils.MyAppGlideModule
+import com.drs.auralife.core.utils.Notification
+import com.drs.auralife.core.utils.PermissionPhotoHandler
+import com.drs.auralife.core.utils.UpdateLibraryWorker
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import java.util.concurrent.TimeUnit

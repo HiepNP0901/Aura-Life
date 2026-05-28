@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.ui.film.details.FilmDetailsActivity
-import com.drs.auralife.utils.MyAppGlideModule
-import com.drs.auralife.utils.Time
+import com.drs.auralife.core.utils.MyAppGlideModule
+import com.drs.auralife.core.utils.Time
 import java.time.Duration
 import java.time.Instant
 import java.util.Locale

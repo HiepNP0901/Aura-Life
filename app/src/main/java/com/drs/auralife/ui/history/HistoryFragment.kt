@@ -16,8 +16,8 @@ import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.ui.MainActivity
 import com.drs.auralife.ui.film.FilmAdapter
 import com.drs.auralife.ui.film.HORIZONTAL
-import com.drs.auralife.utils.HistoryUtils
-import com.drs.auralife.utils.Time
+import com.drs.auralife.core.utils.HistoryUtils
+import com.drs.auralife.core.utils.Time
 import java.time.Instant
 
 class HistoryFragment :

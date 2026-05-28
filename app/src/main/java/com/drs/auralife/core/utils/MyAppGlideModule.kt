@@ -1,4 +1,4 @@
-package com.drs.auralife.utils
+package com.drs.auralife.core.utils
 
 import android.app.Activity
 import android.content.Context
