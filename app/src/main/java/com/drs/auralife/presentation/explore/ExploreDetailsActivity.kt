@@ -7,15 +7,17 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.category.Category
-import com.drs.auralife.data.model.films.Films
-import com.drs.auralife.data.model.search.SearchResults
-import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.ActivityExploreDetailsBinding
+import com.drs.auralife.domain.model.Film
 import com.drs.auralife.presentation.film.FilmAdapter
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 private const val CATEGORY_SLUG = "SLUG_CATEGORY"
 private const val CATEGORY_NAME = "NAME_CATEGORY"
@@ -26,7 +28,9 @@ class ExploreDetailsActivity : AppCompatActivity() {
     private val viewModel: FilmsViewModel by viewModels()
     private val filmAdapter by lazy { FilmAdapter(mutableListOf()) }
     private var isLoading = false
-    private lateinit var pagination: Pagination
+    private var currentPage = 1
+    private var totalPages = 0
+    private var currentSlug: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,36 +48,41 @@ class ExploreDetailsActivity : AppCompatActivity() {
             binding.tvNameApp.text = "${binding.tvNameApp.text} - $it"
         }
 
-        intent.getStringExtra(CATEGORY_SLUG)?.let { slug ->
-            isLoading = true
-            viewModel.fetchFilmsByCategoryLegacy(slug, 1) { result: SearchResults? ->
-                result?.data?.let {
-                    for (item in it.items) {
-                        item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
-                        item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
-                    }
-                    filmAdapter.addItem(it.items)
-                    pagination = it.params.pagination
-                    isLoading = false
+        currentSlug = intent.getStringExtra(CATEGORY_SLUG)
+        currentSlug?.let { slug ->
+            observeCategoryFilms()
+            viewModel.getFilmsByCategory(slug, 1)
+        }
+        setupPagination()
+    }
 
-                    binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
-                        val lastVisibleItemPosition =
-                            (binding.recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
-                        if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && pagination.currentPage < pagination.totalPages && !isLoading) {
-                            isLoading = true
-                            viewModel.fetchFilmsByCategoryLegacy(slug, pagination.currentPage + 1) { result: SearchResults? ->
-                                result?.data?.let {
-                                    for (item in it.items) {
-                                        item.posterUrl = it.appDomainCdnImage + "/" + item.posterUrl
-                                        item.thumbUrl = it.appDomainCdnImage + "/" + item.thumbUrl
-                                    }
-                                    filmAdapter.addItem(it.items)
-                                    pagination = it.params.pagination
-                                    isLoading = false
-                                }
-                            }
-                        }
-                    }
+    private fun observeCategoryFilms() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.categoryFilmsState.collect { films ->
+                    filmAdapter.replaceItems(films)
+                    isLoading = false
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.categoryTotalPages.collect { pages ->
+                    totalPages = pages
+                }
+            }
+        }
+    }
+
+    private fun setupPagination() {
+        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
+            val lastVisibleItemPosition =
+                (binding.recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+            if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
+                isLoading = true
+                currentPage++
+                currentSlug?.let { slug ->
+                    viewModel.loadMoreFilmsByCategory(slug, currentPage)
                 }
             }
         }
@@ -111,4 +120,3 @@ class ExploreDetailsActivity : AppCompatActivity() {
         }
     }
 }
-

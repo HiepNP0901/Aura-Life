@@ -4,6 +4,7 @@ import com.drs.auralife.data.model.film.Episode
 import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
+import com.drs.auralife.domain.model.FilmEpisode
 
 object FilmMapper {
     fun Movie.toDomainFilm(): Film {
@@ -24,23 +25,33 @@ object FilmMapper {
             id = movie.movieID ?: movie.slug,
             slug = movie.slug,
             title = movie.name ?: movie.originName ?: "",
+            originName = movie.originName ?: "",
             posterUrl = movie.posterUrl.orEmpty(),
             thumbUrl = movie.thumbUrl.orEmpty(),
+            trailerUrl = movie.trailerUrl,
             description = movie.content.orEmpty(),
-            videos = episodes.flatMap { episode -> mapEpisodeToUrls(episode) },
-            metadata = mapOf(
-                "year" to (movie.year?.toString() ?: ""),
-                "type" to (movie.type ?: ""),
-                "language" to (movie.lang ?: ""),
-                "status" to (movie.status ?: ""),
-                "quality" to (movie.quality ?: ""),
-                "episodeCurrent" to (movie.episodeCurrent ?: ""),
-                "episodeTotal" to (movie.episodeTotal ?: ""),
-            ),
+            episodeCurrent = movie.episodeCurrent,
+            episodeTotal = movie.episodeTotal,
+            quality = movie.quality,
+            language = movie.lang,
+            duration = movie.time,
+            year = movie.year,
+            status = movie.status,
+            directors = movie.director,
+            actors = movie.actor,
+            categories = movie.category?.map { it.name },
+            countries = movie.country?.map { it.name },
+            episodes = episodes.flatMap { episode -> mapEpisodeToDomain(episode) },
         )
     }
 
-    private fun mapEpisodeToUrls(episode: Episode): List<String> {
-        return episode.serverData.mapNotNull { it.linkEmbed.takeIf { link -> link.isNotBlank() } }
+    private fun mapEpisodeToDomain(episode: Episode): List<FilmEpisode> {
+        return episode.serverData.map { data ->
+            FilmEpisode(
+                name = data.name,
+                filename = data.filename,
+                linkM3u8 = data.linkM3u8,
+            )
+        }
     }
 }

@@ -8,8 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.user.library.Library
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
-import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
+import com.drs.auralife.domain.model.Film
 import com.drs.auralife.presentation.film.FilmAdapter
 import com.drs.auralife.presentation.film.HORIZONTAL
 
@@ -35,11 +35,22 @@ class LibraryDetailsActivity :
             binding.tvNameApp.text = "${binding.tvNameApp.text} - $it"
             LibraryRepository.getLibraryData(it) { library ->
                 this.library = library
-                val tempList = mutableListOf<Movie>()
+                val tempList = mutableListOf<Film>()
                 for (slug in library.listFilm.map { it.slug }) {
-                    viewModel.fetchFilmDetailsLegacy(slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
-                        filmDetails?.let {
-                            tempList.add(it.movie)
+                    viewModel.fetchFilmDetails(slug) { filmDetails: com.drs.auralife.domain.model.FilmDetails? ->
+                        filmDetails?.let { fd ->
+                            tempList.add(
+                                Film(
+                                    id = fd.slug,
+                                    slug = fd.slug,
+                                    title = fd.title,
+                                    posterUrl = fd.posterUrl,
+                                    thumbUrl = fd.thumbUrl,
+                                    description = fd.description,
+                                    category = fd.categories?.firstOrNull() ?: "",
+                                    episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                                )
+                            )
 
                             if (tempList.size == library.listFilm.size) {
                                 val sortedList = library.listFilm.mapNotNull { filmLibrary ->
@@ -74,9 +85,9 @@ class LibraryDetailsActivity :
             EditLibrary.showDeleteFilmFromLibrary(this, library.name, slug) {
                 filmAdapter.removeItem(slug)
                 val newSlug = library.listFilm.map { it.slug }.last { it != slug }
-                viewModel.fetchFilmDetailsLegacy(newSlug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
-                    filmDetails?.let {
-                        LibraryRepository.updatePosterUrl(library.name, it.movie.posterUrl.toString())
+                viewModel.fetchFilmDetails(newSlug) { filmDetails: com.drs.auralife.domain.model.FilmDetails? ->
+                    filmDetails?.let { fd ->
+                        LibraryRepository.updatePosterUrl(library.name, fd.posterUrl)
                     }
                 }
             }

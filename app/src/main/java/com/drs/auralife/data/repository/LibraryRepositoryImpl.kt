@@ -7,8 +7,9 @@ import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.repository.LibraryRepository
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import javax.inject.Inject
 
-class LibraryRepositoryImpl : LibraryRepository {
+class LibraryRepositoryImpl @Inject constructor() : LibraryRepository {
     override suspend fun getLibraries(): List<Library> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseLibraryRepository.getLibrary { firebaseLibraries ->

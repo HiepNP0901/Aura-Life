@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
 import com.drs.auralife.presentation.MainActivity
@@ -11,6 +12,7 @@ import kotlin.properties.Delegates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
     private var isFirstTime by Delegates.notNull<Boolean>()

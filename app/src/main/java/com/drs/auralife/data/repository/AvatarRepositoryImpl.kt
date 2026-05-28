@@ -4,8 +4,9 @@ import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository as
 import com.drs.auralife.domain.repository.AvatarRepository
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import javax.inject.Inject
 
-class AvatarRepositoryImpl : AvatarRepository {
+class AvatarRepositoryImpl @Inject constructor() : AvatarRepository {
     override suspend fun getAvatarUrl(): String? {
         return suspendCancellableCoroutine { continuation ->
             // Firebase AvatarRepository returns Bitmap, not URL

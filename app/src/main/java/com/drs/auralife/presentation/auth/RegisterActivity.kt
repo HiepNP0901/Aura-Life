@@ -5,15 +5,19 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
+import dagger.hilt.android.AndroidEntryPoint
 import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.core.utils.Validator
 
 const val USERNAME = "@username"
 
+@AndroidEntryPoint
 class RegisterActivity : AppCompatActivity() {
+    private val authViewModel: AuthViewModel by viewModels()
     private val binding: ActivityRegisterBinding by lazy {
         ActivityRegisterBinding.inflate(layoutInflater)
     }
@@ -68,7 +72,7 @@ class RegisterActivity : AppCompatActivity() {
             if (confirmPassword.error == null && username.error == null && password.error == null) {
                 binding.createAccount.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-                AuthViewModel().register(this, username.text.toString(), password.text.toString()) { result ->
+                authViewModel.register(this, username.text.toString(), password.text.toString()) { result ->
                     if (result.isSuccess) {
                         Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
                         val resultIntent = Intent()

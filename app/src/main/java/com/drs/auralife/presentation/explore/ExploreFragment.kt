@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.category.CategoryRepository
-import com.drs.auralife.data.model.search.SearchResults
 import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.domain.model.Film
 import com.drs.auralife.presentation.film.FilmAdapter
 import java.util.Locale
 import kotlinx.coroutines.delay
@@ -57,15 +57,10 @@ class ExploreFragment : Fragment() {
                         category.vi
                 }
 
-                viewModel.fetchFilmsByCategoryLegacy(category.slug, 1) { result: SearchResults? ->
-                    if (_binding == null) return@fetchFilmsByCategoryLegacy
-                    result?.data?.let { data ->
-                        for (movie in data.items) {
-                            movie.posterUrl = data.appDomainCdnImage + "/" + movie.posterUrl
-                            movie.thumbUrl = data.appDomainCdnImage + "/" + movie.thumbUrl
-                        }
-
-                        filmAdapter.addItem(data.items)
+                viewModel.fetchFilmsByCategory(category.slug, 1) { films: List<Film>? ->
+                    if (_binding == null) return@fetchFilmsByCategory
+                    films?.let { list ->
+                        filmAdapter.addItem(list)
                     }
                 }
             }

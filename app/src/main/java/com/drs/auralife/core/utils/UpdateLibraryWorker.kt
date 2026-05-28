@@ -11,12 +11,19 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
 import com.drs.auralife.data.FilmAPI
-import com.drs.auralife.data.RetrofitClient
+import com.drs.auralife.data.firebase.realtime.database.user.library.Library
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 const val CHANNEL_ID = "episode_update_channel"
 
@@ -24,58 +31,77 @@ class UpdateLibraryWorker(
     appContext: Context,
     workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
-    private val api: FilmAPI = RetrofitClient.create(applicationContext).create(FilmAPI::class.java)
+    private val api: FilmAPI = run {
+        val cacheSize = (5 * 1024 * 1024).toLong()
+        val cache = Cache(applicationContext.cacheDir, cacheSize)
+        val client = OkHttpClient.Builder()
+            .cache(cache)
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("Cache-Control", "public, max-age=${86400}")
+                    .header("Accept", "application/json")
+                    .build()
+                chain.proceed(request)
+            }.build()
+        Retrofit.Builder()
+            .baseUrl("https://phimapi.com")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(FilmAPI::class.java)
+    }
 
     override suspend fun doWork(): Result {
-        checkForNewEpisode { updates ->
-            if (updates.isNotEmpty()) {
-                sendNotification(applicationContext.getString(R.string.new_episodes), updates)
-            }
+        val updates = checkForNewEpisode()
+        if (updates.isNotEmpty()) {
+            sendNotification(applicationContext.getString(R.string.new_episodes), updates)
         }
         return Result.success()
     }
 
-    private fun checkForNewEpisode(callback: (List<String>) -> Unit) {
+    private suspend fun checkForNewEpisode(): List<String> {
+        val library = getLibrary()
         val updates = mutableListOf<String>()
-        var totalRequests = 0
-        var completedRequests = 0
 
-        LibraryRepository.getLibrary { library ->
-            library.forEach { libraryItem ->
-                libraryItem.listFilm.forEach { filmItem ->
-                    totalRequests++
-                    runBlocking(Dispatchers.IO) {
+        coroutineScope {
+            library.flatMap { libraryItem ->
+                libraryItem.listFilm.map { filmItem ->
+                    async(Dispatchers.IO) {
                         try {
                             val filmDetails = api.getFilmDetails(filmItem.slug)
                             if (filmItem.episode != filmDetails.movie.episodeCurrent) {
-                                val message =
-                                    if (Locale.getDefault().language == "vi") {
-                                        "${filmDetails.movie.name} đã có tập mới"
-                                    } else {
-                                        "${filmDetails.movie.originName} has a new episode"
-                                    }
-
-                                if (!updates.contains(message)) {
-                                    updates.add(message)
-                                    LibraryRepository.updateEpisode(
-                                        libraryItem.name,
-                                        filmItem.slug,
-                                        filmDetails.movie.episodeCurrent.toString(),
-                                    )
-                                    Notification.addNotification(applicationContext, filmItem.slug, message)
+                                val message = if (Locale.getDefault().language == "vi") {
+                                    "${filmDetails.movie.name} \u0111ã có t\u1eadp m\u1edbi"
+                                } else {
+                                    "${filmDetails.movie.originName} has a new episode"
                                 }
+
+                                synchronized(updates) {
+                                    if (!updates.contains(message)) {
+                                        updates.add(message)
+                                    }
+                                }
+
+                                LibraryRepository.updateEpisode(
+                                    libraryItem.name,
+                                    filmItem.slug,
+                                    filmDetails.movie.episodeCurrent.toString(),
+                                )
+                                Notification.addNotification(applicationContext, filmItem.slug, message)
                             }
                         } catch (_: Exception) {
                         }
-
-                        completedRequests++
-
-                        if (completedRequests == totalRequests) {
-                            callback(updates)
-                        }
                     }
                 }
-            }
+            }.awaitAll()
+        }
+
+        return updates
+    }
+
+    private suspend fun getLibrary(): List<Library> = suspendCoroutine { continuation ->
+        LibraryRepository.getLibrary { library ->
+            continuation.resume(library)
         }
     }
 

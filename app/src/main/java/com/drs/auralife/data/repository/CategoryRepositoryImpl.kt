@@ -6,8 +6,9 @@ import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.repository.CategoryRepository
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import javax.inject.Inject
 
-class CategoryRepositoryImpl : CategoryRepository {
+class CategoryRepositoryImpl @Inject constructor() : CategoryRepository {
     override suspend fun getCategories(): List<Category> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseCategoryRepository.getCategoryData { firebaseCategories ->

@@ -6,20 +6,18 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.BannerRepository
-import com.drs.auralife.data.model.films.Films
-import com.drs.auralife.data.model.search.SearchResults
-import com.drs.auralife.data.model.films.Pagination
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.MainActivity
 import com.drs.auralife.presentation.film.FilmAdapter
@@ -28,14 +26,15 @@ import kotlinx.coroutines.launch
 
 @dagger.hilt.android.AndroidEntryPoint
 class HomeFragment : Fragment() {
-    private val viewModel: FilmsViewModel by viewModels()
     private var isLoading = false
-    private var filmAdapter = FilmAdapter(mutableListOf())
+    private var currentPage = 1
+    private var totalPages = 0
+    private val filmAdapter = FilmAdapter(mutableListOf())
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var paginate: Pagination
+    private val viewModel: FilmsViewModel by viewModels()
 
     private val bannerHandler = Handler(Looper.getMainLooper())
     private var bannerRunnable: Runnable? = null
@@ -117,36 +116,28 @@ class HomeFragment : Fragment() {
                 adapter = filmAdapter
             }
 
-            val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-            viewModel.fetchLatestFilmsLegacy(1) { result: Films? ->
-                if (_binding == null) return@fetchLatestFilmsLegacy
-                result?.let {
-                    paginate = it.pagination
-                    filmAdapter.addItem(it.items)
-                    binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
-                        if (_binding == null) return@addOnScrollChangedListener
-                        if (paginate.currentPage < paginate.totalPages) {
-                            val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-                            if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
-                                isLoading = true
-                                viewModel.fetchLatestFilmsLegacy(paginate.currentPage + 1) { result: Films? ->
-                                    if (_binding == null) return@fetchLatestFilmsLegacy
-                                    result?.let {
-                                        paginate = it.pagination
-                                        filmAdapter.addItem(it.items)
-                                    }
-                                    isLoading = false
-                                }
-                            }
-                        }
+            observeLatestFilms()
 
-                        val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                        if (firstVisibleItemPosition > 0) {
-                            binding.scrollToTopButton.visibility = View.VISIBLE
-                        } else {
-                            binding.scrollToTopButton.visibility = View.GONE
-                        }
+            currentPage = 1
+            viewModel.getLatestFilms(currentPage)
+
+            val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
+            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
+                if (_binding == null) return@addOnScrollChangedListener
+                if (currentPage < totalPages) {
+                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                    if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
+                        isLoading = true
+                        currentPage++
+                        viewModel.loadMoreLatestFilms(currentPage)
                     }
+                }
+
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                if (firstVisibleItemPosition > 0) {
+                    binding.scrollToTopButton.visibility = View.VISIBLE
+                } else {
+                    binding.scrollToTopButton.visibility = View.GONE
                 }
             }
 
@@ -163,6 +154,24 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun observeLatestFilms() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.latestFilmsState.collect { films ->
+                    filmAdapter.replaceItems(films)
+                    isLoading = false
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.latestFilmsTotalPages.collect { pages ->
+                    totalPages = pages
+                }
+            }
+        }
+    }
+
     fun Context.isConnectedToInternet(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
@@ -170,4 +179,3 @@ class HomeFragment : Fragment() {
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
-

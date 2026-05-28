@@ -9,12 +9,14 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.realtime.database.user.premium.PremiumRepository
 import com.drs.auralife.data.model.PaymentItem
 import com.drs.auralife.databinding.ActivityPaymentBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
+@AndroidEntryPoint
 class PaymentActivity : AppCompatActivity() {
     private val binding by lazy { ActivityPaymentBinding.inflate(layoutInflater) }
     private lateinit var paymentAdapter: PaymentAdapter

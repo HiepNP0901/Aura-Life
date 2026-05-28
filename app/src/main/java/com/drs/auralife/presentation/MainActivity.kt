@@ -43,7 +43,6 @@ import com.drs.auralife.core.utils.UpdateLibraryWorker
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository
 import com.drs.auralife.data.firebase.realtime.database.user.premium.PremiumRepository
-import com.drs.auralife.data.model.search.SearchResults
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.explore.ExploreFragment
 import com.drs.auralife.presentation.film.FilmAdapter
@@ -56,7 +55,11 @@ import com.drs.auralife.presentation.library.LibraryFragment
 import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 import com.google.android.material.navigation.NavigationView
 import java.util.concurrent.TimeUnit
 
@@ -275,6 +278,8 @@ class MainActivity : AppCompatActivity() {
         searchResults.layoutManager = LinearLayoutManager(this)
         searchResults.adapter = filmAdapter
 
+        observeSearchResults()
+
         searchBar.addTextChangedListener(
             object : TextWatcher {
                 override fun beforeTextChanged(
@@ -300,15 +305,7 @@ class MainActivity : AppCompatActivity() {
                         filmAdapter.clearItems()
                     } else {
                         val runnable = Runnable {
-                            filmsViewModel.searchFilmsLegacy(query, 5) { result: SearchResults? ->
-                                result?.data?.let { data ->
-                                    for (item in data.items) {
-                                        item.posterUrl = data.appDomainCdnImage + "/" + item.posterUrl
-                                        item.thumbUrl = data.appDomainCdnImage + "/" + item.thumbUrl
-                                    }
-                                    filmAdapter.replaceItems(data.items)
-                                }
-                            }
+                            filmsViewModel.searchFilms(query, 5)
                         }
                         searchRunnable = runnable
                         searchHandler.postDelayed(runnable, 500)
@@ -316,6 +313,16 @@ class MainActivity : AppCompatActivity() {
                 }
             },
         )
+    }
+
+    private fun observeSearchResults() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filmsViewModel.searchResultsState.collect { results ->
+                    filmAdapter.replaceItems(results)
+                }
+            }
+        }
     }
 
     @SuppressLint("InflateParams")

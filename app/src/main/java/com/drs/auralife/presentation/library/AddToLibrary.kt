@@ -13,13 +13,15 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.util.TypedValueCompat.dpToPx
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
-import com.drs.auralife.data.model.film.Movie
+
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 object AddToLibrary {
     fun showAddLibraryDialog(
         context: Context,
-        film: Movie,
+        slug: String,
+        posterUrl: String?,
+        episodeCurrent: String?,
     ) {
         LibraryRepository.getLibrary { libraries ->
             val bottomSheetDialog = BottomSheetDialog(context)
@@ -32,7 +34,7 @@ object AddToLibrary {
             val btnCreateLibrary = dialogView.findViewById<Button>(R.id.btnCreateLibrary)
             btnCreateLibrary.setOnClickListener {
                 bottomSheetDialog.dismiss()
-                showCreateLibraryDialog(context, film)
+                showCreateLibraryDialog(context, slug, posterUrl, episodeCurrent)
             }
             libraries.forEach { library ->
                 container.addView(
@@ -51,7 +53,7 @@ object AddToLibrary {
                                 }
                         text = library.name
                         setOnClickListener {
-                            addToLibrary(context, film, library.name)
+                            addToLibrary(context, slug, posterUrl, episodeCurrent, library.name)
                             bottomSheetDialog.dismiss()
                         }
                     },
@@ -63,7 +65,9 @@ object AddToLibrary {
 
     fun showCreateLibraryDialog(
         context: Context,
-        film: Movie,
+        slug: String,
+        posterUrl: String?,
+        episodeCurrent: String?,
     ) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_rename, null)
         val title = dialogView.findViewById<TextView>(R.id.title)
@@ -81,9 +85,9 @@ object AddToLibrary {
             if (newLibraryName.isNotBlank()) {
                 LibraryRepository.createLibrary(
                     newLibraryName,
-                    film.posterUrl.toString(),
-                    film.slug,
-                    film.episodeCurrent.toString(),
+                    posterUrl.toString(),
+                    slug,
+                    episodeCurrent.toString(),
                 ) {
                     it
                         .onSuccess {
@@ -120,14 +124,16 @@ object AddToLibrary {
 
     fun addToLibrary(
         context: Context,
-        film: Movie,
+        slug: String,
+        posterUrl: String?,
+        episodeCurrent: String?,
         libraryName: String,
     ) {
         LibraryRepository.addLibraryData(
             libraryName,
-            film.posterUrl.toString(),
-            film.slug,
-            film.episodeCurrent.toString(),
+            posterUrl.toString(),
+            slug,
+            episodeCurrent.toString(),
         ) {
             it
                 .onSuccess {

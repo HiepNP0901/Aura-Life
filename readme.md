@@ -1,70 +1,68 @@
 # AuraLife
 
 ## Project purpose
-AuraLife is an Android application with current code organization that is not aligned with Clean Architecture. The project needs a refactor so that data access, business logic, and presentation are separated into proper layers.
+AuraLife is an Android application that provides movie streaming services.
 
-## Current package structure
-- `com.drs.auralife.core` : utilities and shared helpers
-- `com.drs.auralife.data` : network, Firebase, models, and even ViewModel logic
-- `com.drs.auralife.ui` : presentation components, but currently used as view layer and business logic combined
+## Current architecture
+The project follows **Clean Architecture** with dependency injection managed by **Hilt**.
 
-## Target architecture
-Use Clean Architecture with the following top-level packages:
-- `com.drs.auralife.core`
-  - shared utilities, constants, extensions, platform helpers
-- `com.drs.auralife.data`
-  - `network` : Retrofit API definitions
-  - `firebase` : Firebase helpers and data access
-  - `repository` : concrete repository implementations
-  - `model.remote` : API / Firebase DTOs
-  - `model.local` : local persistence models if needed
-  - `mapper` : remote/local -> domain mapping
-- `com.drs.auralife.domain`
-  - `model` : pure business entities, no Retrofit/Firebase imports
-  - `repository` : repository interfaces used by domain and presentation
-  - `usecase` : business use cases / interactor classes
-- `com.drs.auralife.presentation`
-  - Activities, Fragments, Adapters
-  - ViewModels / presentation state
-  - UI-only logic and state management
+### Package structure
+```
+com.drs.auralife
+├── core/              — utilities, constants, helpers
+├── data/              — network, Firebase, DTOs, mappers, repository implementations
+│   ├── di/            — Hilt modules (NetworkModule, RepositoryModule)
+│   ├── firebase/      — Firebase helpers and data access
+│   ├── mapper/        — DTO ↔ domain mapping (FilmMapper, FirebaseMapper)
+│   ├── model/         — DTOs for API and Firebase
+│   └── repository/    — concrete repository implementations
+├── domain/            — business logic layer (no platform dependencies)
+│   ├── model/         — pure domain entities (Film, FilmDetails, PagedResult, etc.)
+│   ├── repository/    — repository interfaces
+│   └── usecase/       — business use cases
+└── presentation/      — Activities, Fragments, ViewModels, Adapters
+    └── viewmodel/     — shared ViewModels (FilmsViewModel, AuthViewModel)
+```
 
-## Primary goals for refactor
-1. Create a real `domain` layer before moving other code.
-2. Move all business logic and use-case logic out of presentation (`presentation` package) and data access classes.
-3. Ensure `presentation` only depends on the `domain` layer and interfaces, not on `data` implementations.
-4. Move all concrete data access and mapping into `data.repository` and `data.mapper`.
-5. Separate API/Firebase DTOs from domain entities.
-6. Replace direct repository calls in Activities/Fragments with ViewModel + use case flows.
+### Architecture principles
+- `presentation` depends only on `domain` (interfaces + models), not on `data` implementations
+- `domain` has no Retrofit, Firebase, or Android dependencies
+- `data` implements domain interfaces and handles DTO ↔ domain mapping
+- All dependencies wired via Hilt DI modules
 
-## Recommended migration plan
-1. Create `app/src/main/java/com/drs/auralife/domain` with `model`, `repository`, and `usecase` packages.
-2. Define domain entities for core business objects:
-   - `Film`, `FilmDetails`, `Category`, `Library`, `HistoryItem`, `PremiumStatus`, etc.
-3. Define repository interfaces in `domain.repository` for all data sources:
-   - `FilmRepository`, `CategoryRepository`, `LibraryRepository`, `BannerRepository`, `HistoryRepository`, `PremiumRepository`, `AvatarRepository`.
-4. Create use cases for actions that application code needs:
-   - `GetLatestFilmsUseCase`, `SearchFilmsUseCase`, `GetFilmDetailsUseCase`, `GetCategoryListUseCase`, `AddFilmToLibraryUseCase`, etc.
-5. Move `FilmAPI` to `data.network` and keep Retrofit client there.
-6. Implement repository classes in `data.repository` that use `data.network` and `data.firebase`.
-7. Create mappers in `data.mapper` to convert from remote DTOs to domain models.
-8. Rename `ui` package to `presentation` and update package declarations.
-9. Move `FilmsViewModel` and any other ViewModel into `presentation.viewmodel`.
-10. Refactor existing Activities/Fragments to observe ViewModel state and execute use cases.
+## Dependency Injection (Hilt)
+- `@HiltAndroidApp` in `AuraLifeApplication`
+- `@AndroidEntryPoint` on all Activities and Fragments
+- `@HiltViewModel` on ViewModels with `@Inject constructor`
+- `@Inject constructor` on use cases and repository implementations
 
-## Important quality checks
-- No business rules inside `presentation`.
-- No Retrofit/Firebase dependencies inside `domain`.
-- No ViewModel inside `data`.
-- Keep one source of truth per data concept through repository/use case layer.
-- Avoid direct `DataSnapshot` logic or Firebase callbacks inside UI classes.
+### Hilt modules
+- **NetworkModule** — provides OkHttpClient, Retrofit, FilmAPI
+- **RepositoryModule** — binds all 7 repository interfaces to their implementations
+
+### Migrated components
+- **FilmsViewModel** — StateFlow-based reactive state for latest films, category films, search, film details
+- **FilmAdapter** — uses `domain.model.Film` instead of `data.model.film.Movie`
+- **EpisodeAdapter** — uses `domain.model.FilmEpisode` instead of `data.model.film.ServerData`
+- **FilmDetailsActivity**, **PlayFilmActivity** — observe `filmDetailsState`
+- **MainActivity** (search) — observe `searchResultsState` with debounce
+- **ExploreDetailsActivity** — observe `categoryFilmsState` + `loadMoreFilmsByCategory`
+- **HomeFragment** — observe `latestFilmsState` + `loadMoreLatestFilms`
+- **LibraryDetailsActivity**, **HistoryFragment** — use `fetchFilmDetails` (domain callback)
+- **ExploreFragment** — use `fetchFilmsByCategory` (domain callback)
+- **LoginActivity**, **RegisterActivity** — use `by viewModels()` for `AuthViewModel`
+
+### Domain models added
+- `Film`, `FilmDetails`, `FilmEpisode` — enriched domain entities
+- `PagedResult<T>` — generic paginated result
+- `Category`, `HistoryItem`, `Library`, `PremiumStatus` — domain counterparts of Firebase DTOs
+
+## Still to do (known gaps)
+- UI files still call Firebase singleton objects directly (Authentication, Firebase repos) — planned for future migration to domain repository layer
+- `UpdateLibraryWorker` creates its own Retrofit/OkHttpClient inline (not using Hilt injection)
+- Verify runtime behavior (CDN prefix, episode playback, pagination) with device/emulator testing
 
 ## Build and run
 1. Open the project in Android Studio.
 2. Sync Gradle.
 3. Use `./gradlew assembleDebug` to verify the code compiles.
-
-## Notes for the agent
-- The focus is on project structure and dependency direction, not on feature changes.
-- Start by establishing the `domain` layer and repository interfaces.
-- Then rewire existing code gradually from `data` and `presentation` into the new clean layers.
-- Do not remove features; preserve functionality while moving code.

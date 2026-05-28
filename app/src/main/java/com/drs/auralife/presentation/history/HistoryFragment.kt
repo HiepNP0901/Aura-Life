@@ -12,14 +12,13 @@ import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.history.History
 import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository
-import com.drs.auralife.data.model.film.Movie
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.presentation.MainActivity
 import com.drs.auralife.presentation.film.FilmAdapter
 import com.drs.auralife.presentation.film.HORIZONTAL
 import com.drs.auralife.core.utils.HistoryUtils
 import com.drs.auralife.core.utils.Time
-import java.time.Instant
+import com.drs.auralife.domain.model.Film
 
 @dagger.hilt.android.AndroidEntryPoint
 class HistoryFragment :
@@ -74,22 +73,29 @@ class HistoryFragment :
         } else {
             binding.text.visibility = View.GONE
             binding.recyclerView.adapter = filmAdapter
-            val tempList = mutableListOf<Movie>()
+            val tempList = mutableListOf<Film>()
             listHistory.forEach { history ->
-                val currentContext = context ?: return@forEach
-                viewModel.fetchFilmDetailsLegacy(history.slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
-                    if (_binding == null) return@fetchFilmDetailsLegacy
-                    filmDetails?.movie?.let { movie ->
-                        context?.applicationContext?.let { appContext ->
-                            movie.content = Time.calculateTimeDifference(
-                                Instant.ofEpochMilli(
-                                    history.date.toLong(),
-                                ),
-                                appContext,
-                            ) + "<br>" + movie.content
-                        }
-
-                        tempList.add(movie)
+                viewModel.fetchFilmDetails(history.slug) { filmDetails: com.drs.auralife.domain.model.FilmDetails? ->
+                    if (_binding == null) return@fetchFilmDetails
+                    filmDetails?.let { fd ->
+                        val timeDiff = context?.let { ctx ->
+                            Time.calculateTimeDifference(
+                                java.time.Instant.ofEpochMilli(history.date.toLong()),
+                                ctx,
+                            )
+                        } ?: ""
+                        tempList.add(
+                            Film(
+                                id = fd.slug,
+                                slug = fd.slug,
+                                title = fd.title,
+                                posterUrl = fd.posterUrl,
+                                thumbUrl = fd.thumbUrl,
+                                description = "$timeDiff<br>${fd.description}",
+                                category = fd.categories?.firstOrNull() ?: "",
+                                episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                            )
+                        )
                     }
                     if (tempList.size == listHistory.size) {
                         val sortedList = listHistory

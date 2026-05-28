@@ -14,6 +14,9 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.TypedValueCompat.dpToPx
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -24,7 +27,7 @@ import com.drs.auralife.R
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository
-import com.drs.auralife.data.model.film.FilmDetails
+import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.film.SLUG
 import com.drs.auralife.presentation.payment.PaymentActivity
@@ -33,6 +36,7 @@ import com.drs.auralife.core.utils.SystemUiController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 @dagger.hilt.android.AndroidEntryPoint
 class PlayFilmActivity : AppCompatActivity() {
@@ -84,27 +88,37 @@ class PlayFilmActivity : AppCompatActivity() {
         numberEpInLine = resources.displayMetrics.widthPixels / resources.displayMetrics.densityDpi
         recyclerView?.layoutManager = GridLayoutManager(this, ++numberEpInLine)
 
+        observeFilmDetails()
+
         slug?.let { slug ->
             HistoryRepository.getHistoryData { listHistory ->
                 listHistory.find { it.slug == slug }?.let {
                     currentEpisode = it.episode
                     currentPosition = it.position
                 }
-                viewModel.fetchFilmDetailsLegacy(slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
-                    filmDetails?.let {
-                        film = it
-                        playEpisode(currentEpisode)
-                        recyclerView?.adapter = EpisodeAdapter(it.episodes[0].serverData) { ep ->
-                            playEpisode(ep)
-                        }
-                    }
-                }
+                viewModel.getFilmDetails(slug)
             }
         }
 
         handler.postDelayed(checkPlaybackRunnable, 1000)
 
         settingExoPlayer()
+    }
+
+    private fun observeFilmDetails() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filmDetailsState.collect { details ->
+                    details?.let {
+                        film = it
+                        playEpisode(currentEpisode)
+                        recyclerView?.adapter = EpisodeAdapter(it.episodes) { ep ->
+                            playEpisode(ep)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -155,15 +169,15 @@ class PlayFilmActivity : AppCompatActivity() {
 
     private fun playEpisode(episodeIndex: Int) {
         film?.let { filmDetails ->
-            val episodes = filmDetails.episodes[0].serverData
-            if (episodeIndex in episodes.indices) {
-                exoPlayer?.setMediaItem(MediaItem.fromUri(episodes[episodeIndex].linkM3u8))
+            if (episodeIndex in filmDetails.episodes.indices) {
+                val episode = filmDetails.episodes[episodeIndex]
+                exoPlayer?.setMediaItem(MediaItem.fromUri(episode.linkM3u8))
 
                 exoPlayer?.prepare()
                 exoPlayer?.seekTo(currentPosition)
                 exoPlayer?.play()
 
-                nameFilm?.text = episodes[episodeIndex].filename
+                nameFilm?.text = episode.filename
                 if (currentEpisode != episodeIndex) {
                     currentPosition = 0
                 }
@@ -304,4 +318,3 @@ class PlayFilmActivity : AppCompatActivity() {
         dialog.show()
     }
 }
-

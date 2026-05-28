@@ -9,15 +9,19 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import com.drs.auralife.R
+import dagger.hilt.android.AndroidEntryPoint
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.databinding.ActivityLoginBinding
 import com.drs.auralife.core.utils.Validator
 
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
+    private val authViewModel: AuthViewModel by viewModels()
     private val binding: ActivityLoginBinding by lazy {
         ActivityLoginBinding.inflate(layoutInflater)
     }
@@ -87,7 +91,7 @@ class LoginActivity : AppCompatActivity() {
             if (username.error == null && password.error == null) {
                 binding.loginButton.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-                AuthViewModel().login(this, username.text.toString(), password.text.toString()) { result ->
+                authViewModel.login(this, username.text.toString(), password.text.toString()) { result ->
                     if (result.isSuccess) {
                         Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
                         Authentication.isLoggedIn.postValue(true)

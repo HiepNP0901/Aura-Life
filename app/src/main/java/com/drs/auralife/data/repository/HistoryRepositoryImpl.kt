@@ -8,8 +8,9 @@ import com.drs.auralife.domain.repository.HistoryRepository
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import javax.inject.Inject
 
-class HistoryRepositoryImpl : HistoryRepository {
+class HistoryRepositoryImpl @Inject constructor() : HistoryRepository {
     override suspend fun getHistory(): List<HistoryItem> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseHistoryRepository.getHistoryData { firebaseHistory ->

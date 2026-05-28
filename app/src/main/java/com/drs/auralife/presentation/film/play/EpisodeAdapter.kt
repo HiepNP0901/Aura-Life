@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.data.model.film.ServerData
+import com.drs.auralife.domain.model.FilmEpisode
 
 class EpisodeAdapter(
-    private val episodes: List<ServerData>,
+    private val episodes: List<FilmEpisode>,
     private val onItemClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
     inner class ViewHolder(
@@ -43,4 +43,3 @@ class EpisodeAdapter(
 
     override fun getItemCount(): Int = episodes.size
 }
-

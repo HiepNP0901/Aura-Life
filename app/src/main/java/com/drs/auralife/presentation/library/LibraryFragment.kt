@@ -6,12 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import com.drs.auralife.R
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.presentation.MainActivity
 
+@AndroidEntryPoint
 class LibraryFragment : Fragment() {
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!

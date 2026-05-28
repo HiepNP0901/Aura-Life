@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import com.drs.auralife.databinding.FragmentLogoBinding
 
 private const val TITLE = "@string/name"
 
+@AndroidEntryPoint
 class LogoFragment : Fragment() {
     private var title: String? = null
     private val binding: FragmentLogoBinding by lazy {

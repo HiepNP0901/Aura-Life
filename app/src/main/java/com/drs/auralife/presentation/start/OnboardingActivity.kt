@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.content.edit
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
@@ -11,6 +12,7 @@ import com.drs.auralife.data.model.OnboardingItem
 import com.drs.auralife.presentation.MainActivity
 import com.google.android.material.tabs.TabLayoutMediator
 
+@AndroidEntryPoint
 class OnboardingActivity : AppCompatActivity() {
     private lateinit var onboardingAdapter: OnboardingAdapter
     private lateinit var onboardingViewPager: ViewPager2

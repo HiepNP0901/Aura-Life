@@ -10,9 +10,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.coroutines.resume
 
-class PremiumRepositoryImpl : PremiumRepository {
+class PremiumRepositoryImpl @Inject constructor() : PremiumRepository {
     override suspend fun getPremiumStatus(): PremiumStatus {
         return suspendCancellableCoroutine { continuation ->
             FirebasePremiumRepository.getPremiumStatus { firebasePremium ->
