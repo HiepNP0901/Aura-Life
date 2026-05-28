@@ -3,7 +3,7 @@ package com.drs.auralife.domain.usecase
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.repository.HistoryRepository
 
-class GetHistoryUseCase(
+class GetHistoryUseCase @javax.inject.Inject constructor(
     private val historyRepository: HistoryRepository,
 ) {
     suspend operator fun invoke(): List<HistoryItem> {

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
@@ -19,9 +20,10 @@ import java.util.Locale
 private const val CATEGORY_SLUG = "SLUG_CATEGORY"
 private const val CATEGORY_NAME = "NAME_CATEGORY"
 
+@dagger.hilt.android.AndroidEntryPoint
 class ExploreDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityExploreDetailsBinding.inflate(layoutInflater) }
-    private val viewModel by lazy { FilmsViewModel(this) }
+    private val viewModel: FilmsViewModel by viewModels()
     private val filmAdapter by lazy { FilmAdapter(mutableListOf()) }
     private var isLoading = false
     private lateinit var pagination: Pagination

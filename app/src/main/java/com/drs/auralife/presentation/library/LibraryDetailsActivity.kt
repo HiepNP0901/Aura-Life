@@ -3,6 +3,7 @@ package com.drs.auralife.presentation.library
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.user.library.Library
@@ -14,11 +15,12 @@ import com.drs.auralife.presentation.film.HORIZONTAL
 
 const val LIBRARY_NAME = "@libraryName"
 
+@dagger.hilt.android.AndroidEntryPoint
 class LibraryDetailsActivity :
     AppCompatActivity(),
     FilmAdapter.FragmentListener {
     private val binding by lazy { ActivityLibraryDetailsBinding.inflate(layoutInflater) }
-    private val viewModel by lazy { FilmsViewModel(this) }
+    private val viewModel: FilmsViewModel by viewModels()
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL, false)
     private lateinit var library: Library
 

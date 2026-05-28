@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
@@ -19,8 +20,10 @@ import com.drs.auralife.presentation.film.play.PlayFilmActivity
 import com.drs.auralife.presentation.library.AddToLibrary
 import com.drs.auralife.core.utils.MyAppGlideModule
 
+@dagger.hilt.android.AndroidEntryPoint
 class FilmDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityFilmDetailsBinding.inflate(layoutInflater) }
+    private val viewModel: FilmsViewModel by viewModels()
     private var slug: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +37,7 @@ class FilmDetailsActivity : AppCompatActivity() {
 
     private fun updateUI() {
         slug?.let {
-            FilmsViewModel(this).fetchFilmDetailsLegacy(it) { film: com.drs.auralife.data.model.film.FilmDetails? ->
+            viewModel.fetchFilmDetailsLegacy(it) { film: com.drs.auralife.data.model.film.FilmDetails? ->
                 film?.let {
                     binding.nameFilm.text = it.movie.name
                     binding.nameEngFilm.text = it.movie.originName

@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
@@ -79,12 +81,17 @@ dependencies {
     // --- Lifecycle & Data ---
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.work.runtime.ktx)
 
     // --- Networking ---
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+
+    // --- Hilt ---
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     // --- Coroutines ---
     implementation(libs.kotlinx.coroutines.android)

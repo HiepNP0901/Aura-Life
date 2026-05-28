@@ -10,22 +10,26 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.presentation.viewmodel.FilmsViewModel
+import com.drs.auralife.data.FilmAPI
+import com.drs.auralife.data.RetrofitClient
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 const val CHANNEL_ID = "episode_update_channel"
 
 class UpdateLibraryWorker(
-    private val context: Context,
+    appContext: Context,
     workerParams: WorkerParameters,
-) : CoroutineWorker(context, workerParams) {
-    private val filmViewModel = FilmsViewModel(context)
+) : CoroutineWorker(appContext, workerParams) {
+    private val api: FilmAPI = RetrofitClient.create(applicationContext).create(FilmAPI::class.java)
 
     override suspend fun doWork(): Result {
         checkForNewEpisode { updates ->
             if (updates.isNotEmpty()) {
-                sendNotification(context.getString(R.string.new_episodes), updates)
+                sendNotification(applicationContext.getString(R.string.new_episodes), updates)
             }
         }
         return Result.success()
@@ -40,14 +44,15 @@ class UpdateLibraryWorker(
             library.forEach { libraryItem ->
                 libraryItem.listFilm.forEach { filmItem ->
                     totalRequests++
-                    filmViewModel.fetchFilmDetailsLegacy(filmItem.slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
-                        filmDetails?.let { film ->
-                            if (filmItem.episode != film.movie.episodeCurrent) {
+                    runBlocking(Dispatchers.IO) {
+                        try {
+                            val filmDetails = api.getFilmDetails(filmItem.slug)
+                            if (filmItem.episode != filmDetails.movie.episodeCurrent) {
                                 val message =
                                     if (Locale.getDefault().language == "vi") {
-                                        "${film.movie.name} đã có tập mới"
+                                        "${filmDetails.movie.name} đã có tập mới"
                                     } else {
-                                        "${film.movie.originName} has a new episode"
+                                        "${filmDetails.movie.originName} has a new episode"
                                     }
 
                                 if (!updates.contains(message)) {
@@ -55,11 +60,12 @@ class UpdateLibraryWorker(
                                     LibraryRepository.updateEpisode(
                                         libraryItem.name,
                                         filmItem.slug,
-                                        film.movie.episodeCurrent.toString(),
+                                        filmDetails.movie.episodeCurrent.toString(),
                                     )
-                                    Notification.addNotification(context, filmItem.slug, message)
+                                    Notification.addNotification(applicationContext, filmItem.slug, message)
                                 }
                             }
+                        } catch (_: Exception) {
                         }
 
                         completedRequests++
@@ -122,4 +128,3 @@ class UpdateLibraryWorker(
         )
     }
 }
-

@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.media3.common.MediaItem
@@ -33,7 +34,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@dagger.hilt.android.AndroidEntryPoint
 class PlayFilmActivity : AppCompatActivity() {
+    private val viewModel: FilmsViewModel by viewModels()
     private var recyclerView: RecyclerView? = null
 
     private var exoPlayer: ExoPlayer? = null
@@ -87,7 +90,7 @@ class PlayFilmActivity : AppCompatActivity() {
                     currentEpisode = it.episode
                     currentPosition = it.position
                 }
-                FilmsViewModel(this).fetchFilmDetailsLegacy(slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
+                viewModel.fetchFilmDetailsLegacy(slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
                     filmDetails?.let {
                         film = it
                         playEpisode(currentEpisode)

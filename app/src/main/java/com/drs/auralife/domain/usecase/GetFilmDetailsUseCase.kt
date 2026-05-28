@@ -3,7 +3,7 @@ package com.drs.auralife.domain.usecase
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.repository.FilmRepository
 
-class GetFilmDetailsUseCase(
+class GetFilmDetailsUseCase @javax.inject.Inject constructor(
     private val filmRepository: FilmRepository,
 ) {
     suspend operator fun invoke(slug: String): FilmDetails {

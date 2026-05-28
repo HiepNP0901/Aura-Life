@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
@@ -19,7 +20,9 @@ import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@dagger.hilt.android.AndroidEntryPoint
 class ExploreFragment : Fragment() {
+    private val viewModel: FilmsViewModel by viewModels()
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
 
@@ -54,7 +57,7 @@ class ExploreFragment : Fragment() {
                         category.vi
                 }
 
-                FilmsViewModel(currentContext).fetchFilmsByCategoryLegacy(category.slug, 1) { result: SearchResults? ->
+                viewModel.fetchFilmsByCategoryLegacy(category.slug, 1) { result: SearchResults? ->
                     if (_binding == null) return@fetchFilmsByCategoryLegacy
                     result?.data?.let { data ->
                         for (movie in data.items) {

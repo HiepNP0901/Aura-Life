@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.drs.auralife.R
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.Authentication
@@ -20,9 +21,11 @@ import com.drs.auralife.core.utils.HistoryUtils
 import com.drs.auralife.core.utils.Time
 import java.time.Instant
 
+@dagger.hilt.android.AndroidEntryPoint
 class HistoryFragment :
     Fragment(),
     FilmAdapter.FragmentListener {
+    private val viewModel: FilmsViewModel by viewModels()
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!
     private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
@@ -74,7 +77,7 @@ class HistoryFragment :
             val tempList = mutableListOf<Movie>()
             listHistory.forEach { history ->
                 val currentContext = context ?: return@forEach
-                FilmsViewModel(currentContext).fetchFilmDetailsLegacy(history.slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
+                viewModel.fetchFilmDetailsLegacy(history.slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
                     if (_binding == null) return@fetchFilmDetailsLegacy
                     filmDetails?.movie?.let { movie ->
                         context?.applicationContext?.let { appContext ->

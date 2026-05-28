@@ -7,7 +7,7 @@ import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.repository.FilmRepository
 
-class FilmRepositoryImpl(
+class FilmRepositoryImpl @javax.inject.Inject constructor(
     private val api: FilmAPI,
 ) : FilmRepository {
     override suspend fun getLatestFilms(page: Int): List<Film> {

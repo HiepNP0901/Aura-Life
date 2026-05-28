@@ -2,7 +2,7 @@ package com.drs.auralife.domain.usecase
 
 import com.drs.auralife.domain.repository.LibraryRepository
 
-class RemoveFilmFromLibraryUseCase(
+class RemoveFilmFromLibraryUseCase @javax.inject.Inject constructor(
     private val libraryRepository: LibraryRepository,
 ) {
     suspend operator fun invoke(libraryName: String, slug: String): Boolean {

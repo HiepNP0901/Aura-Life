@@ -1,18 +1,16 @@
 package com.drs.auralife.presentation.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.data.FilmAPI
-import com.drs.auralife.data.RetrofitClient
-import com.drs.auralife.data.repository.FilmRepositoryImpl
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
 import com.drs.auralife.domain.usecase.GetLatestFilmsUseCase
 import com.drs.auralife.domain.usecase.SearchFilmsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,42 +19,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import com.drs.auralife.data.model.film.FilmDetails as FilmDetailsResponse
 import com.drs.auralife.data.model.films.Films
 import com.drs.auralife.data.model.search.SearchResults
+import javax.inject.Inject
 
-class FilmsViewModel(
+@HiltViewModel
+class FilmsViewModel @Inject constructor(
     private val getLatestFilmsUseCase: GetLatestFilmsUseCase,
     private val getFilmsByCategoryUseCase: GetFilmsByCategoryUseCase,
     private val searchFilmsUseCase: SearchFilmsUseCase,
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
-    private val legacyApi: FilmAPI? = null,
+    private val legacyApi: FilmAPI,
 ) : ViewModel() {
-
-    constructor(context: Context) : this(
-        buildUseCases(context).first,
-        buildUseCases(context).second,
-        buildUseCases(context).third,
-        buildUseCases(context).fourth,
-        RetrofitClient.create(context).create(FilmAPI::class.java),
-    )
-
-    companion object {
-        private fun buildUseCases(context: Context): UseCaseBundle {
-            val api = RetrofitClient.create(context).create(FilmAPI::class.java)
-            val repository = FilmRepositoryImpl(api)
-            return UseCaseBundle(
-                GetLatestFilmsUseCase(repository),
-                GetFilmsByCategoryUseCase(repository),
-                SearchFilmsUseCase(repository),
-                GetFilmDetailsUseCase(repository),
-            )
-        }
-    }
-
-    private data class UseCaseBundle(
-        val first: GetLatestFilmsUseCase,
-        val second: GetFilmsByCategoryUseCase,
-        val third: SearchFilmsUseCase,
-        val fourth: GetFilmDetailsUseCase,
-    )
 
     // StateFlow for reactive state management
     private val _latestFilmsState = MutableStateFlow<List<Film>>(emptyList())
@@ -184,9 +156,7 @@ class FilmsViewModel(
         callback: (Films?) -> Unit,
     ) {
         viewModelScope.launch {
-            legacyApi?.let {
-                callback(it.getLatestFilms(page))
-            } ?: callback(null)
+            callback(legacyApi.getLatestFilms(page))
         }
     }
 
@@ -196,9 +166,7 @@ class FilmsViewModel(
         callback: (SearchResults?) -> Unit,
     ) {
         viewModelScope.launch {
-            legacyApi?.let {
-                callback(it.getFilmsByCategory(slug, page))
-            } ?: callback(null)
+            callback(legacyApi.getFilmsByCategory(slug, page))
         }
     }
 
@@ -208,9 +176,7 @@ class FilmsViewModel(
         callback: (SearchResults?) -> Unit,
     ) {
         viewModelScope.launch {
-            legacyApi?.let {
-                callback(it.searchFilms(keyword, limit))
-            } ?: callback(null)
+            callback(legacyApi.searchFilms(keyword, limit))
         }
     }
 
@@ -219,9 +185,7 @@ class FilmsViewModel(
         callback: (FilmDetailsResponse?) -> Unit,
     ) {
         viewModelScope.launch {
-            legacyApi?.let {
-                callback(it.getFilmDetails(slug))
-            } ?: callback(null)
+            callback(legacyApi.getFilmDetails(slug))
         }
     }
 }

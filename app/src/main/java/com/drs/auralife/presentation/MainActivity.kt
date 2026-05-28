@@ -55,10 +55,12 @@ import com.drs.auralife.presentation.home.HomeFragment
 import com.drs.auralife.presentation.library.LibraryFragment
 import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
+import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import java.util.concurrent.TimeUnit
 
+@dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val searchBar: EditText by lazy { findViewById(R.id.search_bar) }
     private val searchLayout: LinearLayout by lazy { findViewById(R.id.search_layout) }
@@ -267,9 +269,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSearchBar() {
-        val viewModel = FilmsViewModel(this)
+    private val filmsViewModel: FilmsViewModel by viewModels()
 
+    private fun setupSearchBar() {
         searchResults.layoutManager = LinearLayoutManager(this)
         searchResults.adapter = filmAdapter
 
@@ -298,7 +300,7 @@ class MainActivity : AppCompatActivity() {
                         filmAdapter.clearItems()
                     } else {
                         val runnable = Runnable {
-                            viewModel.searchFilmsLegacy(query, 5) { result: SearchResults? ->
+                            filmsViewModel.searchFilmsLegacy(query, 5) { result: SearchResults? ->
                                 result?.data?.let { data ->
                                     for (item in data.items) {
                                         item.posterUrl = data.appDomainCdnImage + "/" + item.posterUrl

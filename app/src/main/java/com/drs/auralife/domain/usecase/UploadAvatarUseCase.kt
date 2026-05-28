@@ -2,7 +2,7 @@ package com.drs.auralife.domain.usecase
 
 import com.drs.auralife.domain.repository.AvatarRepository
 
-class UploadAvatarUseCase(
+class UploadAvatarUseCase @javax.inject.Inject constructor(
     private val avatarRepository: AvatarRepository,
 ) {
     suspend operator fun invoke(imageBytes: ByteArray): Boolean {

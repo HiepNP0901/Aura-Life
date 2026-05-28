@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.presentation.viewmodel.FilmsViewModel
@@ -25,7 +26,9 @@ import com.drs.auralife.presentation.film.FilmAdapter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@dagger.hilt.android.AndroidEntryPoint
 class HomeFragment : Fragment() {
+    private val viewModel: FilmsViewModel by viewModels()
     private var isLoading = false
     private var filmAdapter = FilmAdapter(mutableListOf())
 
@@ -115,8 +118,6 @@ class HomeFragment : Fragment() {
             }
 
             val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-            val currentContext = context ?: return
-            val viewModel = FilmsViewModel(currentContext)
             viewModel.fetchLatestFilmsLegacy(1) { result: Films? ->
                 if (_binding == null) return@fetchLatestFilmsLegacy
                 result?.let {
