@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.data.FilmsViewModel
+import com.drs.auralife.presentation.viewmodel.FilmsViewModel
 import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import java.util.Locale
 
@@ -40,8 +40,8 @@ class UpdateLibraryWorker(
             library.forEach { libraryItem ->
                 libraryItem.listFilm.forEach { filmItem ->
                     totalRequests++
-                    filmViewModel.fetchFilmDetails(filmItem.slug) { it ->
-                        it?.let { film ->
+                    filmViewModel.fetchFilmDetailsLegacy(filmItem.slug) { filmDetails: com.drs.auralife.data.model.film.FilmDetails? ->
+                        filmDetails?.let { film ->
                             if (filmItem.episode != film.movie.episodeCurrent) {
                                 val message =
                                     if (Locale.getDefault().language == "vi") {
@@ -122,3 +122,4 @@ class UpdateLibraryWorker(
         )
     }
 }
+

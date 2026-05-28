@@ -24,30 +24,30 @@
         tools:ignore="UnusedAttribute"
         tools:targetApi="31">
         <activity
-            android:name=".ui.payment.PaymentActivity"
+            android:name=".presentation.payment.PaymentActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.explore.ExploreDetailsActivity"
+            android:name=".presentation.explore.ExploreDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.library.LibraryDetailsActivity"
+            android:name=".presentation.library.LibraryDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.film.play.PlayFilmActivity"
+            android:name=".presentation.film.play.PlayFilmActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".ui.film.details.FilmDetailsActivity"
+            android:name=".presentation.film.details.FilmDetailsActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".ui.auth.RegisterActivity"
+            android:name=".presentation.auth.RegisterActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".ui.auth.LoginActivity"
+            android:name=".presentation.auth.LoginActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -62,10 +62,10 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".ui.start.OnboardingActivity"
+            android:name=".presentation.start.OnboardingActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".ui.start.SplashActivity"
+            android:name=".presentation.start.SplashActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
