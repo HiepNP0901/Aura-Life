@@ -8,7 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.content.edit
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
-import com.drs.auralife.data.model.OnboardingItem
+import com.drs.auralife.domain.model.OnboardingItem
 import com.drs.auralife.presentation.MainActivity
 import com.google.android.material.tabs.TabLayoutMediator
 

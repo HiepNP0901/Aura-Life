@@ -1,10 +1,11 @@
-package com.drs.auralife.presentation.film.details
+package com.drs.auralife.presentation.filmdetails
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -13,37 +14,45 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
-import com.drs.auralife.presentation.viewmodel.FilmsViewModel
-import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.databinding.ActivityFilmDetailsBinding
 import com.drs.auralife.domain.model.FilmDetails
+import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.presentation.auth.LoginActivity
-import com.drs.auralife.presentation.film.SLUG
-import com.drs.auralife.presentation.film.play.PlayFilmActivity
-import com.drs.auralife.presentation.library.AddToLibrary
+import com.drs.auralife.presentation.library.AddToLibraryDialog
+import com.drs.auralife.presentation.library.LibraryViewModel
+import com.drs.auralife.presentation.playfilm.PlayFilmActivity
 import com.drs.auralife.core.utils.MyAppGlideModule
+import javax.inject.Inject
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+
+const val EXTRA_SLUG = "@slug"
 
 @dagger.hilt.android.AndroidEntryPoint
 class FilmDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityFilmDetailsBinding.inflate(layoutInflater) }
-    private val viewModel: FilmsViewModel by viewModels()
+    private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
+    private val libraryViewModel: LibraryViewModel by viewModels()
     private var slug: String? = null
+
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        slug = intent.getStringExtra(SLUG)
+        slug = intent.getStringExtra(EXTRA_SLUG)
 
-        observeState()
-        slug?.let { viewModel.getFilmDetails(it) }
+        observeFilmDetails()
+        observeOperationResult()
+        slug?.let { filmDetailsViewModel.getFilmDetails(it) }
     }
 
-    private fun observeState() {
+    private fun observeFilmDetails() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filmDetailsState.collect { film ->
+                filmDetailsViewModel.filmDetailsState.collect { film ->
                     film?.let { updateUI(it) }
                 }
             }
@@ -75,16 +84,48 @@ class FilmDetailsActivity : AppCompatActivity() {
 
         binding.playButton.setOnClickListener {
             val intent = Intent(this, PlayFilmActivity::class.java)
-            intent.putExtra(SLUG, film.slug)
+            intent.putExtra(EXTRA_SLUG, film.slug)
             startActivity(intent)
         }
 
         binding.addToLibrary.setOnClickListener {
-            if (Authentication.isLoggedIn()) {
-                AddToLibrary.showAddLibraryDialog(this, film.slug, film.posterUrl, film.episodeCurrent)
+            if (authRepository.isLoggedIn()) {
+                lifecycleScope.launch {
+                    libraryViewModel.getLibraries()
+                    val libraries = libraryViewModel.librariesLoaded.first()
+                    AddToLibraryDialog.showAddLibraryDialog(
+                        context = this@FilmDetailsActivity,
+                        slug = film.slug,
+                        posterUrl = film.posterUrl,
+                        episodeCurrent = film.episodeCurrent,
+                        libraries = libraries,
+                        onAddToLibrary = { libraryName ->
+                            libraryViewModel.addToLibrary(libraryName, film.slug, film.posterUrl, film.episodeCurrent ?: "")
+                        },
+                        onCreateLibrary = { newName ->
+                            libraryViewModel.createLibrary(newName, film.posterUrl, film.slug, film.episodeCurrent ?: "")
+                        },
+                    )
+                }
             } else {
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
+            }
+        }
+    }
+
+    private fun observeOperationResult() {
+        lifecycleScope.launch {
+            libraryViewModel.operationResult.collect { result ->
+                result.onSuccess { success ->
+                    Toast.makeText(
+                        this@FilmDetailsActivity,
+                        if (success) R.string.added_to_library_successfully else R.string.library_already_exists,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }.onFailure { e ->
+                    Toast.makeText(this@FilmDetailsActivity, e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

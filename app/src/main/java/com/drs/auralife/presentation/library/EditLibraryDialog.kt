@@ -8,28 +8,24 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import com.drs.auralife.R
-import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 
-object EditLibrary {
+object EditLibraryDialog {
     fun showEditLibraryDialog(
         context: Context,
         nameLibrary: String,
-        callback: () -> Unit,
+        onRename: (newName: String) -> Unit,
+        onDelete: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_library, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
         dialogView.findViewById<AppCompatButton>(R.id.btnRename).setOnClickListener {
             dialog.dismiss()
-            showRenameLibraryDialog(context, nameLibrary) {
-                callback()
-            }
+            showRenameLibraryDialog(context, nameLibrary, onRename)
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnDelete).setOnClickListener {
             dialog.dismiss()
-            showDeleteLibraryDialog(context, nameLibrary) {
-                callback()
-            }
+            showDeleteLibraryDialog(context, nameLibrary, onDelete)
         }
         dialog.show()
     }
@@ -37,7 +33,7 @@ object EditLibrary {
     fun showRenameLibraryDialog(
         context: Context,
         nameLibrary: String,
-        callback: () -> Unit,
+        onConfirm: (newName: String) -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.dialog_rename, null)
@@ -51,25 +47,7 @@ object EditLibrary {
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
             if (editText.text.toString().isNotBlank()) {
-                LibraryRepository.renameLibrary(nameLibrary, editText.text.toString()) {
-                    it
-                        .onSuccess {
-                            Toast
-                                .makeText(
-                                    context,
-                                    context.getString(R.string.rename_successfully),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                            callback()
-                        }.onFailure {
-                            Toast
-                                .makeText(
-                                    context,
-                                    it.message.toString(),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                        }
-                }
+                onConfirm(editText.text.toString())
                 dialog.dismiss()
             } else {
                 Toast
@@ -86,7 +64,7 @@ object EditLibrary {
     fun showDeleteLibraryDialog(
         context: Context,
         nameLibrary: String,
-        callback: () -> Unit,
+        onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
@@ -97,28 +75,8 @@ object EditLibrary {
             dialog.dismiss()
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
-            LibraryRepository.deleteLibrary(nameLibrary) {
-                it
-                    .onSuccess {
-                        Toast
-                            .makeText(
-                                context,
-                                context.getString(R.string.delete_library) + nameLibrary + context.getString(
-                                    R.string.successfully,
-                                ),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        callback()
-                    }.onFailure {
-                        Toast
-                            .makeText(
-                                context,
-                                context.getString(R.string.delete_library_failed),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                    }
-                dialog.dismiss()
-            }
+            onConfirm()
+            dialog.dismiss()
         }
         dialog.show()
     }
@@ -128,7 +86,7 @@ object EditLibrary {
         context: Context,
         nameLibrary: String,
         slug: String,
-        callback: () -> Unit,
+        onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
@@ -139,22 +97,9 @@ object EditLibrary {
             dialog.dismiss()
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
-            LibraryRepository.removeFilmFromLibrary(nameLibrary, slug) {
-                it
-                    .onSuccess {
-                        dialog.dismiss()
-                        callback()
-                    }.onFailure {
-                        Toast
-                            .makeText(
-                                context,
-                                context.getString(R.string.error),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                    }
-            }
+            onConfirm()
+            dialog.dismiss()
         }
         dialog.show()
     }
 }
-

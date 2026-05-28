@@ -16,25 +16,24 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.presentation.viewmodel.FilmsViewModel
-import com.drs.auralife.data.firebase.realtime.database.BannerRepository
+import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.MainActivity
-import com.drs.auralife.presentation.film.FilmAdapter
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@dagger.hilt.android.AndroidEntryPoint
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
     private var isLoading = false
     private var currentPage = 1
     private var totalPages = 0
-    private val filmAdapter = FilmAdapter(mutableListOf())
+    private val filmAdapter = HomeFilmAdapter(mutableListOf())
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: FilmsViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     private val bannerHandler = Handler(Looper.getMainLooper())
     private var bannerRunnable: Runnable? = null
@@ -54,10 +53,11 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        setupBanner()
+        observeBanners()
+        homeViewModel.loadBanners()
         setupRecyclerView()
         viewLifecycleOwner.lifecycleScope.launch {
-            delay(3000)
+            delay(FOCUS_DELAY_MS)
             if (_binding != null) {
                 view.isSelected = true
             }
@@ -68,7 +68,7 @@ class HomeFragment : Fragment() {
         super.onResume()
         bannerRunnable?.let {
             bannerHandler.removeCallbacks(it)
-            bannerHandler.postDelayed(it, 3000)
+            bannerHandler.postDelayed(it, BANNER_SCROLL_INTERVAL_MS)
         }
     }
 
@@ -84,26 +84,28 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    private fun setupBanner() {
-        BannerRepository.getBannerData { bannerData ->
-            if (_binding == null) return@getBannerData
-            val bannerViewPager = binding.bannerViewPager
-            bannerViewPager.adapter = BannerAdapter(bannerData)
+    private fun observeBanners() {
+        lifecycleScope.launch {
+            homeViewModel.bannersState.collect { bannerData ->
+                if (_binding == null || bannerData.isEmpty()) return@collect
+                val bannerViewPager = binding.bannerViewPager
+                bannerViewPager.adapter = BannerAdapter(bannerData)
 
-            bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
+                bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
 
-            val runnable = object : Runnable {
-                override fun run() {
-                    if (_binding == null) return
-                    val currentItem = bannerViewPager.currentItem
-                    val nextItem = if (currentItem == bannerData.size - 1) 0 else currentItem + 1
-                    bannerViewPager.setCurrentItem(nextItem, true)
-                    bannerHandler.postDelayed(this, 3000)
+                val runnable = object : Runnable {
+                    override fun run() {
+                        if (_binding == null) return
+                        val currentItem = bannerViewPager.currentItem
+                        val nextItem = if (currentItem == bannerData.size - 1) 0 else currentItem + 1
+                        bannerViewPager.setCurrentItem(nextItem, true)
+                        bannerHandler.postDelayed(this, BANNER_SCROLL_INTERVAL_MS)
+                    }
                 }
-            }
 
-            bannerRunnable = runnable
-            bannerHandler.postDelayed(runnable, 3000)
+                bannerRunnable = runnable
+                bannerHandler.postDelayed(runnable, BANNER_SCROLL_INTERVAL_MS)
+            }
         }
     }
 
@@ -119,7 +121,7 @@ class HomeFragment : Fragment() {
             observeLatestFilms()
 
             currentPage = 1
-            viewModel.getLatestFilms(currentPage)
+            homeViewModel.getLatestFilms(currentPage)
 
             val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
             binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
@@ -129,7 +131,7 @@ class HomeFragment : Fragment() {
                     if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
                         isLoading = true
                         currentPage++
-                        viewModel.loadMoreLatestFilms(currentPage)
+                        homeViewModel.loadMoreLatestFilms(currentPage)
                     }
                 }
 
@@ -148,7 +150,7 @@ class HomeFragment : Fragment() {
             Toast
                 .makeText(
                     context,
-                    "Vui lòng kết nối mạng và thử lại!!",
+                    getString(R.string.no_internet_retry),
                     Toast.LENGTH_LONG,
                 ).show()
         }
@@ -157,7 +159,7 @@ class HomeFragment : Fragment() {
     private fun observeLatestFilms() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.latestFilmsState.collect { films ->
+                homeViewModel.latestFilmsState.collect { films ->
                     filmAdapter.replaceItems(films)
                     isLoading = false
                 }
@@ -165,7 +167,7 @@ class HomeFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.latestFilmsTotalPages.collect { pages ->
+                homeViewModel.latestFilmsTotalPages.collect { pages ->
                     totalPages = pages
                 }
             }
@@ -177,5 +179,10 @@ class HomeFragment : Fragment() {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    companion object {
+        private const val FOCUS_DELAY_MS = 3000L
+        private const val BANNER_SCROLL_INTERVAL_MS = 3000L
     }
 }

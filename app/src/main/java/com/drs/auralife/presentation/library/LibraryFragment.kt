@@ -5,19 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
 import com.drs.auralife.databinding.FragmentLibraryBinding
+import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.presentation.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!
-    val libraryAdapter = LibraryAdapter(mutableListOf(), this)
+    private val libraryViewModel: LibraryViewModel by viewModels()
+    private lateinit var libraryAdapter: LibraryAdapter
+
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,6 +39,24 @@ class LibraryFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        libraryAdapter = LibraryAdapter(
+            library = mutableListOf(),
+            onRename = { oldName, newName ->
+                libraryViewModel.renameLibrary(oldName, newName)
+            },
+            onDelete = { name ->
+                libraryViewModel.deleteLibrary(name)
+            },
+        )
+        binding.recyclerView.adapter = libraryAdapter
+
+        observeLibraries()
+        observeOperationResult()
+    }
+
     override fun onResume() {
         super.onResume()
         refreshLibrary()
@@ -41,22 +67,38 @@ class LibraryFragment : Fragment() {
         _binding = null
     }
 
-    fun refreshLibrary() {
-        binding.recyclerView.adapter = libraryAdapter
-        LibraryRepository.getLibrary {
-            if (_binding == null) return@getLibrary
-            libraryAdapter.refreshLibrary(it)
+    private fun observeLibraries() {
+        lifecycleScope.launch {
+            libraryViewModel.librariesState.collect { libraries ->
+                if (_binding == null) return@collect
+                libraryAdapter.refreshLibrary(libraries.toMutableList())
 
-            if (!Authentication.isLoggedIn()) {
-                binding.text.visibility = View.VISIBLE
-                binding.text.text = getString(R.string.function_must_login)
-            } else if (it.isEmpty()) {
-                binding.text.visibility = View.VISIBLE
-                binding.text.text = getString(R.string.empty)
-            } else {
-                binding.text.visibility = View.GONE
+                if (!authRepository.isLoggedIn()) {
+                    binding.text.visibility = View.VISIBLE
+                    binding.text.text = getString(R.string.function_must_login)
+                } else if (libraries.isEmpty()) {
+                    binding.text.visibility = View.VISIBLE
+                    binding.text.text = getString(R.string.empty)
+                } else {
+                    binding.text.visibility = View.GONE
+                }
             }
         }
     }
-}
 
+    private fun observeOperationResult() {
+        lifecycleScope.launch {
+            libraryViewModel.operationResult.collect { result ->
+                result.onSuccess {
+                    refreshLibrary()
+                }.onFailure { e ->
+                    Toast.makeText(requireContext(), e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun refreshLibrary() {
+        libraryViewModel.getLibraries()
+    }
+}

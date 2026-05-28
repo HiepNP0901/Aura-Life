@@ -99,4 +99,21 @@
     <string name="upgrade_now">Nâng cấp ngay</string>
     <string name="choose">Chọn</string>
     <string name="library_is_exits">Thư viện đã tồn tại!</string>
+    <string name="payment_select_plan">Chọn một gói trước khi tiếp tục</string>
+    <string name="premium_status">Premium</string>
+    <string name="registration_date">Ngày đăng ký: %s</string>
+    <string name="expiry_date">Ngày hết hạn: %s</string>
+    <string name="free_status">Free</string>
+    <string name="purchase_success">Đã mua gói thành công</string>
+    <string name="payment_unavailable">Chức năng thanh toán hiện chưa khả dụng, vui lòng liên hệ Admin để nâng cấp tài khoản.</string>
+    <string name="plan_1_month_title">Gói 1 tháng</string>
+    <string name="plan_1_month_desc">Gói xem phim tiêu chuẩn</string>
+    <string name="plan_1_month_price">59.000đ/tháng</string>
+    <string name="plan_3_month_title">Gói 3 tháng</string>
+    <string name="plan_3_month_desc">Tiết kiệm hơn 10%</string>
+    <string name="plan_3_month_price">159.000đ/3 tháng</string>
+    <string name="plan_6_month_title">Gói 6 tháng</string>
+    <string name="plan_6_month_desc">Tiết kiệm hơn 21%</string>
+    <string name="plan_6_month_price">279.000đ/6 tháng</string>
+    <string name="no_internet_retry">Vui lòng kết nối mạng và thử lại!!</string>
 </resources>

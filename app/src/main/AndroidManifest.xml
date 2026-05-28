@@ -34,11 +34,11 @@
             android:name=".presentation.library.LibraryDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.film.play.PlayFilmActivity"
+            android:name=".presentation.playfilm.PlayFilmActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.film.details.FilmDetailsActivity"
+            android:name=".presentation.filmdetails.FilmDetailsActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity

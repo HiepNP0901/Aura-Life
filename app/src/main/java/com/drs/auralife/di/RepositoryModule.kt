@@ -1,5 +1,6 @@
 package com.drs.auralife.di
 
+import com.drs.auralife.data.repository.AuthRepositoryImpl
 import com.drs.auralife.data.repository.AvatarRepositoryImpl
 import com.drs.auralife.data.repository.BannerRepositoryImpl
 import com.drs.auralife.data.repository.CategoryRepositoryImpl
@@ -7,6 +8,7 @@ import com.drs.auralife.data.repository.FilmRepositoryImpl
 import com.drs.auralife.data.repository.HistoryRepositoryImpl
 import com.drs.auralife.data.repository.LibraryRepositoryImpl
 import com.drs.auralife.data.repository.PremiumRepositoryImpl
+import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.repository.AvatarRepository
 import com.drs.auralife.domain.repository.BannerRepository
 import com.drs.auralife.domain.repository.CategoryRepository
@@ -51,4 +53,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAvatarRepository(impl: AvatarRepositoryImpl): AvatarRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
 }

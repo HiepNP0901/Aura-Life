@@ -29,6 +29,8 @@ object FirebaseMapper {
             slug = this.slug,
             title = "", // Title will be populated from film details if needed
             watchedAt = this.date.toLongOrNull() ?: System.currentTimeMillis(),
+            episode = this.episode,
+            position = this.position,
         )
     }
 

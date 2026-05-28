@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.presentation.film.SLUG
-import com.drs.auralife.presentation.film.details.FilmDetailsActivity
+import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
+import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.core.utils.MyAppGlideModule
 
 class BannerAdapter(
@@ -40,7 +40,7 @@ class BannerAdapter(
 
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, FilmDetailsActivity::class.java)
-            intent.putExtra(SLUG, banners[position].first)
+            intent.putExtra(EXTRA_SLUG, banners[position].first)
             holder.itemView.context.startActivity(intent)
         }
     }

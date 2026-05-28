@@ -1,0 +1,77 @@
+package com.drs.auralife.presentation.library
+
+import android.content.Intent
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.drs.auralife.R
+import com.drs.auralife.domain.model.Film
+import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
+import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
+import com.drs.auralife.core.utils.MyAppGlideModule
+
+class LibraryFilmAdapter(
+    private val films: MutableList<Film>,
+) : RecyclerView.Adapter<LibraryFilmAdapter.ViewHolder>() {
+
+    interface Listener {
+        fun onLongClick(slug: String)
+    }
+
+    private var listener: Listener? = null
+
+    fun setCallback(listener: Listener) {
+        this.listener = listener
+    }
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivPoster: ImageView = itemView.findViewById(R.id.posterView)
+        val tvTitle: TextView = itemView.findViewById(R.id.nameFilm)
+        val tvDetails: TextView = itemView.findViewById(R.id.details)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_film_horizontal, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val film = films[position]
+        holder.apply {
+            tvTitle.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            tvDetails.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            tvTitle.text = film.title
+            tvDetails.text = film.description
+            MyAppGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
+            itemView.setOnClickListener {
+                val intent = Intent(itemView.context, FilmDetailsActivity::class.java)
+                intent.putExtra(EXTRA_SLUG, film.slug)
+                itemView.context.startActivity(intent)
+            }
+            itemView.setOnLongClickListener {
+                listener?.onLongClick(film.slug)
+                true
+            }
+        }
+    }
+
+    override fun getItemCount(): Int = films.size
+
+    fun replaceItems(newItems: List<Film>) {
+        films.clear()
+        films.addAll(newItems)
+        notifyDataSetChanged()
+    }
+
+    fun removeItem(slug: String) {
+        val position = films.indexOfFirst { it.slug == slug }
+        if (position != -1) {
+            films.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
+}

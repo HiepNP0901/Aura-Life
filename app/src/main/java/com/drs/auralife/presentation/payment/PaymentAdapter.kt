@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.data.model.PaymentItem
+import com.drs.auralife.domain.model.PaymentItem
 
 class PaymentAdapter(
     private val paymentItems: List<PaymentItem>,
@@ -31,7 +31,7 @@ class PaymentAdapter(
             tvDescription.text = item.description
             tvPrice.text = item.price
 
-            // Đổi màu nền nếu được chọn
+            // Highlight selected item
             cardView.setCardBackgroundColor(
                 if (isSelected) {
                     Color.BLUE
@@ -40,13 +40,13 @@ class PaymentAdapter(
                 },
             )
 
-            // Đổi màu chữ nếu cần (tùy chọn)
+            // Adjust text color for selected item
             val textColor = if (isSelected) Color.WHITE else Color.BLACK
             tvTitle.setTextColor(textColor)
             tvDescription.setTextColor(textColor)
             tvPrice.setTextColor(if (isSelected) Color.WHITE else Color.GRAY)
 
-            // Xử lý khi click vào item
+            // Handle item click
             itemView.setOnClickListener {
                 notifyItemChanged(selectedPosition)
                 selectedPosition = getBindingAdapterPosition()

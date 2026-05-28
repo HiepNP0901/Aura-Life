@@ -8,10 +8,12 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
-import dagger.hilt.android.AndroidEntryPoint
-import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.core.utils.Validator
+import com.drs.auralife.databinding.ActivityRegisterBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 const val USERNAME = "@username"
 
@@ -30,25 +32,51 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Set the content view using the binding object
         setContentView(binding.root)
 
-        // Initialize the fragment
         fragment = LogoFragment.setTitle(getString(R.string.register_title))
         supportFragmentManager
             .beginTransaction()
             .add(binding.containerFragment.id, fragment)
             .commit()
 
-        // Initialize the views
         username = binding.username
         password = binding.password
         confirmPassword = binding.confirmPassword
         setBindingButton()
         setBindingEditText()
+        observeAuthState()
     }
 
-    // Set the click listeners for the buttons
+    private fun observeAuthState() {
+        lifecycleScope.launch {
+            authViewModel.authState.collect { state ->
+                when (state) {
+                    is AuthUiState.Loading -> {
+                        binding.createAccount.isEnabled = false
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is AuthUiState.Success -> {
+                        binding.createAccount.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@RegisterActivity, state.message, Toast.LENGTH_SHORT).show()
+                        val resultIntent = Intent()
+                        resultIntent.putExtra(USERNAME, username.text.toString())
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
+                    }
+                    is AuthUiState.Error -> {
+                        binding.createAccount.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@RegisterActivity, state.message, Toast.LENGTH_SHORT).show()
+                        authViewModel.resetState()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     private fun setBindingButton() {
         binding.createAccount.setOnClickListener {
             Validator(this)
@@ -70,21 +98,7 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             if (confirmPassword.error == null && username.error == null && password.error == null) {
-                binding.createAccount.isEnabled = false
-                binding.progressBar.visibility = View.VISIBLE
-                authViewModel.register(this, username.text.toString(), password.text.toString()) { result ->
-                    if (result.isSuccess) {
-                        Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
-                        val resultIntent = Intent()
-                        resultIntent.putExtra(USERNAME, username.text.toString())
-                        setResult(RESULT_OK, resultIntent)
-                        finish()
-                    } else {
-                        binding.createAccount.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                authViewModel.register(username.text.toString(), password.text.toString())
             }
         }
 
@@ -93,7 +107,6 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    // Set action do after text changed for the edit text
     private fun setBindingEditText() {
         binding.username.doAfterTextChanged {
             Validator(this).emailValidator.invoke(username.text.toString())?.let {
@@ -126,4 +139,3 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 }
-

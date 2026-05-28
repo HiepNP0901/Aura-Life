@@ -7,11 +7,10 @@ import kotlin.coroutines.resume
 import javax.inject.Inject
 
 class BannerRepositoryImpl @Inject constructor() : BannerRepository {
-    override suspend fun getBanners(): List<String> {
+    override suspend fun getBanners(): List<Pair<String, String>> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseBannerRepository.getBannerData { bannerPairs ->
-                val bannerUrls = bannerPairs.map { it.second }
-                continuation.resume(bannerUrls)
+                continuation.resume(bannerPairs)
             }
         }
     }

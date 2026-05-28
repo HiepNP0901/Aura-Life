@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.film.play
+package com.drs.auralife.presentation.playfilm
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -24,15 +24,16 @@ import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.presentation.viewmodel.FilmsViewModel
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository
+import com.drs.auralife.presentation.filmdetails.FilmDetailsViewModel
 import com.drs.auralife.domain.model.FilmDetails
+import com.drs.auralife.domain.repository.AuthRepository
+import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.auth.LoginActivity
-import com.drs.auralife.presentation.film.SLUG
+import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.core.utils.HistoryUtils
 import com.drs.auralife.core.utils.SystemUiController
+import javax.inject.Inject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -40,8 +41,12 @@ import kotlinx.coroutines.launch
 
 @dagger.hilt.android.AndroidEntryPoint
 class PlayFilmActivity : AppCompatActivity() {
-    private val viewModel: FilmsViewModel by viewModels()
+    private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
+    private val historyViewModel: HistoryViewModel by viewModels()
     private var recyclerView: RecyclerView? = null
+
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     private var exoPlayer: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -49,14 +54,14 @@ class PlayFilmActivity : AppCompatActivity() {
 
     private var btnPrevious: ImageButton? = null
     private var btnRewind: ImageButton? = null
-    private var btnPlay: ImageButton? = null
+    private var btnPlayPause: ImageButton? = null
     private var btnForward: ImageButton? = null
     private var btnNext: ImageButton? = null
 
     private var fullscreenButton: ImageButton? = null
     private var rotateButton: ImageButton? = null
 
-    private var numberEpInLine = 3
+    private var numberEpInLine = DEFAULT_EPISODES_PER_LINE
     private var currentEpisode = 0
     private var currentPosition: Long = 0
     private var isFullscreen = false
@@ -67,14 +72,14 @@ class PlayFilmActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play_film)
 
-        slug = intent.getStringExtra(SLUG)
+        slug = intent.getStringExtra(EXTRA_SLUG)
 
         exoPlayer = ExoPlayer.Builder(this).build()
         playerView = findViewById(R.id.player_view)
         playerView?.apply {
             player = exoPlayer
 
-            btnPlay = findViewById(R.id.btn_play_pause)
+            btnPlayPause = findViewById(R.id.btn_play_pause)
             btnRewind = findViewById(R.id.btn_rewind)
             btnForward = findViewById(R.id.btn_forward)
             btnPrevious = findViewById(R.id.btn_previous)
@@ -91,16 +96,23 @@ class PlayFilmActivity : AppCompatActivity() {
         observeFilmDetails()
 
         slug?.let { slug ->
-            HistoryRepository.getHistoryData { listHistory ->
-                listHistory.find { it.slug == slug }?.let {
-                    currentEpisode = it.episode
-                    currentPosition = it.position
+            lifecycleScope.launch {
+                if (authRepository.isLoggedIn()) {
+                    historyViewModel.getHistoryItem(slug)?.let {
+                        currentEpisode = it.episode
+                        currentPosition = it.position
+                    }
+                } else {
+                    HistoryUtils.getLocalHistories(this@PlayFilmActivity).find { it.slug == slug }?.let {
+                        currentEpisode = it.episode
+                        currentPosition = it.position
+                    }
                 }
-                viewModel.getFilmDetails(slug)
+                filmDetailsViewModel.getFilmDetails(slug)
             }
         }
 
-        handler.postDelayed(checkPlaybackRunnable, 1000)
+        handler.postDelayed(checkPlaybackRunnable, PLAYBACK_INITIAL_DELAY_MS)
 
         settingExoPlayer()
     }
@@ -108,7 +120,7 @@ class PlayFilmActivity : AppCompatActivity() {
     private fun observeFilmDetails() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filmDetailsState.collect { details ->
+                filmDetailsViewModel.filmDetailsState.collect { details ->
                     details?.let {
                         film = it
                         playEpisode(currentEpisode)
@@ -136,28 +148,24 @@ class PlayFilmActivity : AppCompatActivity() {
         toggleFullscreen()
         currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
         playEpisode(currentEpisode)
-        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - 1000
+        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - POSITION_OFFSET_MS
     }
 
     override fun onStop() {
         super.onStop()
         exoPlayer?.apply {
-            if (Authentication.isLoggedIn()) {
-                HistoryRepository.addHistoryData(
-                    slug.toString(),
-                    currentEpisode,
-                    currentPosition,
-                )
-            } else {
-                HistoryUtils.addLocalHistory(
-                    this@PlayFilmActivity,
-                    slug.toString(),
-                    currentEpisode,
-                    currentPosition,
-                )
-            }
+                if (authRepository.isLoggedIn()) {
+                    historyViewModel.addToHistory(slug.toString(), currentEpisode, currentPosition)
+                } else {
+                    HistoryUtils.addLocalHistory(
+                        this@PlayFilmActivity,
+                        slug.toString(),
+                        currentEpisode,
+                        currentPosition,
+                    )
+                }
             pause()
-            btnPlay?.isSelected = false
+            btnPlayPause?.isSelected = false
         }
     }
 
@@ -182,7 +190,7 @@ class PlayFilmActivity : AppCompatActivity() {
                     currentPosition = 0
                 }
                 currentEpisode = episodeIndex
-                btnPlay?.isSelected = true
+                btnPlayPause?.isSelected = true
             }
         }
     }
@@ -199,25 +207,25 @@ class PlayFilmActivity : AppCompatActivity() {
                 },
             )
 
-            btnPlay?.isSelected = true
+            btnPlayPause?.isSelected = true
 
-            btnPlay?.setOnClickListener {
+            btnPlayPause?.setOnClickListener {
                 if (isPlaying == true) {
                     pause()
-                    btnPlay?.isSelected = false
+                    btnPlayPause?.isSelected = false
                 } else {
                     play()
-                    btnPlay?.isSelected = true
+                    btnPlayPause?.isSelected = true
                 }
             }
 
             btnRewind?.setOnClickListener {
-                val rewindPosition = currentPosition - 5000
+                val rewindPosition = currentPosition - REWIND_MS
                 exoPlayer?.seekTo(rewindPosition.coerceAtLeast(0))
             }
 
             btnForward?.setOnClickListener {
-                val forwardPosition = currentPosition + 15000
+                val forwardPosition = currentPosition + FORWARD_MS
                 seekTo(forwardPosition.coerceAtMost(duration))
             }
 
@@ -256,7 +264,7 @@ class PlayFilmActivity : AppCompatActivity() {
             if (!isFullscreen) {
                 SystemUiController.showSystemUI(window)
                 otherViews.forEach { it?.visibility = View.VISIBLE }
-                layoutParams.height = dpToPx(250f, resources.displayMetrics).toInt()
+                layoutParams.height = dpToPx(PLAYER_HEIGHT_DP, resources.displayMetrics).toInt()
             } else {
                 SystemUiController.autoHideSystemUI(window)
                 otherViews.forEach { it?.visibility = View.GONE }
@@ -276,17 +284,17 @@ class PlayFilmActivity : AppCompatActivity() {
                     "",
                 )!! < dateFormat.format(Date())
 
-                val maxDurationMs = 5 * 60 * 1000
+                val maxDurationMs = FREE_PREVIEW_LIMIT_MS
 
                 if (isPremium && currentPosition >= maxDurationMs) {
                     pause()
-                    btnPlay?.isSelected = false
-                    seekTo(maxDurationMs.toLong() - 1000)
+                    btnPlayPause?.isSelected = false
+                    seekTo(maxDurationMs.toLong() - POSITION_OFFSET_MS)
                     showPremiumDialog()
                 }
             }
 
-            handler.postDelayed(this, 1000)
+            handler.postDelayed(this, PLAYBACK_CHECK_INTERVAL_MS)
         }
     }
 
@@ -306,7 +314,7 @@ class PlayFilmActivity : AppCompatActivity() {
         }
 
         btnCreate.setOnClickListener {
-            if (Authentication.isLoggedIn()) {
+            if (authRepository.isLoggedIn()) {
                 val intent = Intent(this, PaymentActivity::class.java)
                 startActivity(intent)
             } else {
@@ -316,5 +324,16 @@ class PlayFilmActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    companion object {
+        private const val DEFAULT_EPISODES_PER_LINE = 3
+        private const val PLAYBACK_INITIAL_DELAY_MS = 1000L
+        private const val PLAYBACK_CHECK_INTERVAL_MS = 1000L
+        private const val POSITION_OFFSET_MS = 1000L
+        private const val REWIND_MS = 5000L
+        private const val FORWARD_MS = 15000L
+        private const val PLAYER_HEIGHT_DP = 250f
+        private const val FREE_PREVIEW_LIMIT_MS = 5 * 60 * 1000
     }
 }
