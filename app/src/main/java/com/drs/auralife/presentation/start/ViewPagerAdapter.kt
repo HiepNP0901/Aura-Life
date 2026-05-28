@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation
+package com.drs.auralife.presentation.start
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -12,4 +12,3 @@ class ViewPagerAdapter(
 
     override fun createFragment(position: Int): Fragment = fragments[position]
 }
-

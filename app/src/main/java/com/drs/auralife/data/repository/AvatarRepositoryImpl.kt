@@ -1,26 +1,45 @@
 package com.drs.auralife.data.repository
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.drs.auralife.core.utils.ImageEncoderDecoder
+import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository as FirebaseAvatarRepository
 import com.drs.auralife.domain.repository.AvatarRepository
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class AvatarRepositoryImpl @Inject constructor() : AvatarRepository {
     override suspend fun getAvatarUrl(): String? {
+        return null
+    }
+
+    override suspend fun getAvatar(): Bitmap? {
+        val userId = Authentication.getUserId() ?: return null
         return suspendCancellableCoroutine { continuation ->
-            // Firebase AvatarRepository returns Bitmap, not URL
-            // For now, we'll return null as the domain expects URL string
-            // This might need adjustment based on actual requirements
-            continuation.resume(null)
+            FirebaseDatabase.getInstance().getReference("users")
+                .child(userId)
+                .child("avatar")
+                .get()
+                .addOnSuccessListener {
+                    val bitmap = ImageEncoderDecoder.decodeFromBase64(it.value.toString())
+                    continuation.resume(bitmap)
+                }
+                .addOnFailureListener {
+                    continuation.resume(null)
+                }
         }
     }
 
     override suspend fun uploadAvatar(imageBytes: ByteArray): Boolean {
+        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            ?: return false
         return suspendCancellableCoroutine { continuation ->
-            // Convert ByteArray to Bitmap if needed
-            // For now, we'll return false as implementation depends on Bitmap conversion
-            continuation.resume(false)
+            FirebaseAvatarRepository.uploadAvatar(bitmap) { result ->
+                continuation.resume(result.isSuccess)
+            }
         }
     }
 }

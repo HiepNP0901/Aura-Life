@@ -9,12 +9,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.data.firebase.realtime.database.user.library.Library
 import com.drs.auralife.core.utils.MyAppGlideModule
+import com.drs.auralife.domain.model.Library
 
 class LibraryAdapter(
     private val library: MutableList<Library>,
-    private val fragment: LibraryFragment,
+    private val onRename: (oldName: String, newName: String) -> Unit,
+    private val onDelete: (name: String) -> Unit,
 ) : RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
     class ItemViewHolder(
         itemView: View,
@@ -44,7 +45,7 @@ class LibraryAdapter(
 
         holder.tvTitle.text = item.name
 
-        holder.tvDetails.text = context.getString(R.string.quantity) + ": " + item.listFilm.size.toString()
+        holder.tvDetails.text = context.getString(R.string.quantity) + ": " + item.films.size.toString()
 
         holder.itemView.setOnClickListener {
             val intent = Intent(context, LibraryDetailsActivity::class.java)
@@ -53,9 +54,13 @@ class LibraryAdapter(
         }
 
         holder.itemView.setOnLongClickListener {
-            EditLibrary.showEditLibraryDialog(context, item.name) {
-                fragment.refreshLibrary()
-            }
+            val libraryName = item.name
+            EditLibraryDialog.showEditLibraryDialog(
+                context,
+                libraryName,
+                onRename = { newName -> onRename(libraryName, newName) },
+                onDelete = { onDelete(libraryName) },
+            )
             true
         }
     }
@@ -70,4 +75,3 @@ class LibraryAdapter(
         notifyDataSetChanged()
     }
 }
-

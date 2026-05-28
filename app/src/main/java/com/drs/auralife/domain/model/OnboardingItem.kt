@@ -1,4 +1,4 @@
-package com.drs.auralife.data.model
+package com.drs.auralife.domain.model
 
 data class OnboardingItem(
     val image: Int,

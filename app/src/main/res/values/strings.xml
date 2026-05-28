@@ -124,4 +124,23 @@
     <string name="watched_more_than_5_minutes">You watched more than 5 minutes! Upgrade to Premium to see unlimited.</string>
     <string name="upgrade_now">Upgrade now</string>
     <string name="choose">Choose</string>
+    <!-- Strings related to payment -->
+    <string name="payment_select_plan">Select a plan before continuing</string>
+    <string name="premium_status">Premium</string>
+    <string name="registration_date">Registration date: %s</string>
+    <string name="expiry_date">Expiry date: %s</string>
+    <string name="free_status">Free</string>
+    <string name="purchase_success">Purchase successful</string>
+    <string name="payment_unavailable">Payment function is currently unavailable, please contact Admin to upgrade your account.</string>
+    <string name="plan_1_month_title">1 Month Plan</string>
+    <string name="plan_1_month_desc">Standard movie plan</string>
+    <string name="plan_1_month_price">59,000đ/month</string>
+    <string name="plan_3_month_title">3 Month Plan</string>
+    <string name="plan_3_month_desc">Save over 10%%</string>
+    <string name="plan_3_month_price">159,000đ/3 months</string>
+    <string name="plan_6_month_title">6 Month Plan</string>
+    <string name="plan_6_month_desc">Save over 21%%</string>
+    <string name="plan_6_month_price">279,000đ/6 months</string>
+    <string name="no_internet_retry">Please connect to the internet and try again!</string>
+
 </resources>

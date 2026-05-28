@@ -49,4 +49,46 @@ class HistoryRepositoryImpl @Inject constructor() : HistoryRepository {
             }
         }
     }
+
+    override suspend fun addHistory(slug: String, episode: Int, position: Long): Boolean {
+        return suspendCancellableCoroutine { continuation ->
+            val userId = Authentication.getUserId()
+            if (userId != null) {
+                val userRef = FirebaseDatabase.getInstance().getReference("users")
+                userRef
+                    .child(userId)
+                    .child("history")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        for (child in snapshot.children) {
+                            if (child.child("slug").value.toString() == slug) {
+                                child.ref.removeValue()
+                            }
+                        }
+                        val historyData = mapOf(
+                            "slug" to slug,
+                            "episode" to episode,
+                            "position" to position,
+                            "date" to System.currentTimeMillis().toString(),
+                        )
+                        userRef
+                            .child(userId)
+                            .child("history")
+                            .push()
+                            .setValue(historyData)
+                            .addOnSuccessListener {
+                                continuation.resume(true)
+                            }
+                            .addOnFailureListener {
+                                continuation.resume(false)
+                            }
+                    }
+                    .addOnFailureListener {
+                        continuation.resume(false)
+                    }
+            } else {
+                continuation.resume(false)
+            }
+        }
+    }
 }

@@ -60,5 +60,31 @@ class LibraryRepositoryImpl @Inject constructor() : LibraryRepository {
             }
         }
     }
+
+    override suspend fun createLibrary(library: Library): Boolean {
+        return suspendCancellableCoroutine { continuation ->
+            if (library.films.isEmpty()) {
+                continuation.resume(false)
+                return@suspendCancellableCoroutine
+            }
+            val film = library.films.first()
+            FirebaseLibraryRepository.createLibrary(
+                library.name,
+                library.posterUrl,
+                film.slug,
+                film.currentEpisode,
+            ) { result ->
+                continuation.resume(result.isSuccess)
+            }
+        }
+    }
+
+    override suspend fun deleteLibrary(name: String): Boolean {
+        return suspendCancellableCoroutine { continuation ->
+            FirebaseLibraryRepository.deleteLibrary(name) { result ->
+                continuation.resume(result.isSuccess)
+            }
+        }
+    }
 }
 

@@ -21,6 +21,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.utils.widget.ImageFilterButton
@@ -28,6 +29,9 @@ import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.core.content.edit
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -40,27 +44,21 @@ import com.drs.auralife.core.utils.MyAppGlideModule
 import com.drs.auralife.core.utils.Notification
 import com.drs.auralife.core.utils.PermissionPhotoHandler
 import com.drs.auralife.core.utils.UpdateLibraryWorker
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository
-import com.drs.auralife.data.firebase.realtime.database.user.premium.PremiumRepository
 import com.drs.auralife.presentation.auth.LoginActivity
+import com.drs.auralife.presentation.auth.AuthViewModel
+import com.drs.auralife.presentation.NotificationAdapter
 import com.drs.auralife.presentation.explore.ExploreFragment
-import com.drs.auralife.presentation.film.FilmAdapter
-import com.drs.auralife.presentation.film.HORIZONTAL
-import com.drs.auralife.presentation.film.SLUG
-import com.drs.auralife.presentation.film.details.FilmDetailsActivity
+import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
+import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.presentation.history.HistoryFragment
 import com.drs.auralife.presentation.home.HomeFragment
 import com.drs.auralife.presentation.library.LibraryFragment
 import com.drs.auralife.presentation.payment.PaymentActivity
-import com.drs.auralife.presentation.viewmodel.FilmsViewModel
-import androidx.activity.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.start.ViewPagerAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.launch
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @dagger.hilt.android.AndroidEntryPoint
@@ -74,7 +72,7 @@ class MainActivity : AppCompatActivity() {
     private val bottomNavigationView: BottomNavigationView by lazy { findViewById(R.id.bottom_navigation_view) }
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private var searchIsVisible = false
-    private val filmAdapter = FilmAdapter(mutableListOf(), HORIZONTAL)
+    private val filmAdapter = SearchFilmAdapter(mutableListOf())
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
 
@@ -123,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             .getHeaderView(0)
             .findViewById<ImageFilterView>(R.id.navProfilePic)
             .setOnClickListener {
-                if (Authentication.isLoggedIn()) {
+                if (mainViewModel.authState.value) {
                     permissionPhotoHandler?.checkAndRequestPermissions()
                 } else {
                     startActivity(Intent(this, LoginActivity::class.java))
@@ -138,48 +136,67 @@ class MainActivity : AppCompatActivity() {
         val navFreemium = navigationHeader.findViewById<TextView>(R.id.navFreemium)
         val sharedPreferences = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
 
-        Authentication.isLoggedIn.observe(this) { isLoggedIn ->
-            if (isLoggedIn) {
-                navLogin.isVisible = false
-                navLogout.isVisible = true
-                navEmail.text = Authentication.getEmail()
-                AvatarRepository.getAvatar { image -> MyAppGlideModule.loadImage(context = this, image = image, imageView = navPic) }
-                navFreemium.visibility = View.VISIBLE
+        observePremiumStatus(navFreemium, sharedPreferences)
+        observeAvatarResult()
 
-                PremiumRepository.getPremiumStatus {
-                    sharedPreferences.edit { putString("ExpireDate", it.expireDate) }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.authState.collect { isLoggedIn ->
+                    if (isLoggedIn) {
+                        navLogin.isVisible = false
+                        navLogout.isVisible = true
+                        navEmail.text = mainViewModel.userEmail
+                        mainViewModel.loadAvatar()
+                        navFreemium.visibility = View.VISIBLE
+                        mainViewModel.loadPremiumStatus()
 
-                    if (it.status) {
-                        navFreemium.text = getString(R.string.premium)
+                        WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
+                            "UpdateEpisodeWork",
+                            ExistingPeriodicWorkPolicy.KEEP,
+                            PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
+                                6,
+                                TimeUnit.HOURS,
+                            ).build(),
+                        )
+
+                        WorkManager
+                            .getInstance(this@MainActivity)
+                            .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
                     } else {
-                        navFreemium.text = getString(R.string.freemium)
-                    }
-                    navFreemium.setOnClickListener {
-                        startActivity(Intent(this, PaymentActivity::class.java))
+                        navLogin.isVisible = true
+                        navLogout.isVisible = false
+                        navFreemium.visibility = View.GONE
+                        navEmail.text = getString(R.string.example_email)
+                        navPic.setImageResource(R.drawable.ic_profile)
+                        sharedPreferences.edit { putString("ExpireDate", "") }
                     }
                 }
-            } else {
-                navLogin.isVisible = true
-                navLogout.isVisible = false
-                navFreemium.visibility = View.GONE
-                navEmail.text = getString(R.string.example_email)
-                navPic.setImageResource(R.drawable.ic_profile)
-                sharedPreferences.edit { putString("ExpireDate", "") }
             }
+        }
 
-            if (Authentication.isLoggedIn()) {
-                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                    "UpdateEpisodeWork",
-                    ExistingPeriodicWorkPolicy.KEEP,
-                    PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
-                        6,
-                        TimeUnit.HOURS,
-                    ).build(),
-                )
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.avatarState.collect { bitmap ->
+                    if (bitmap != null) {
+                        MyAppGlideModule.loadImage(context = this@MainActivity, image = bitmap, imageView = navPic)
+                    }
+                }
+            }
+        }
+    }
 
-                WorkManager
-                    .getInstance(this)
-                    .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
+    private fun observePremiumStatus(
+        navFreemium: TextView,
+        sharedPreferences: android.content.SharedPreferences,
+    ) {
+        lifecycleScope.launch {
+            mainViewModel.premiumStatus.collect { status ->
+                if (status == null) return@collect
+                sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
+                navFreemium.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
+                navFreemium.setOnClickListener {
+                    startActivity(Intent(this@MainActivity, PaymentActivity::class.java))
+                }
             }
         }
     }
@@ -189,8 +206,7 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.navLogin -> startActivity(Intent(this, LoginActivity::class.java))
                 R.id.navLogout -> {
-                    Authentication.logout()
-                    Authentication.isLoggedIn.postValue(false)
+                    authViewModel.logout()
                     Notification.removeAllNotification(this)
                 }
 
@@ -202,24 +218,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun uploadAvatar(uri: Uri) {
         contentResolver.openInputStream(uri)?.use { inputStream ->
-            AvatarRepository.uploadAvatar(BitmapFactory.decodeStream(inputStream)) {
-                it
-                    .onSuccess {
-                        Toast
-                            .makeText(
-                                this,
-                                getString(R.string.upload_avatar_successfully),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        Authentication.isLoggedIn.postValue(true)
-                    }.onFailure {
-                        Toast
-                            .makeText(
-                                this,
-                                getString(R.string.upload_avatar_failed),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                    }
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            mainViewModel.uploadAvatar(bitmap)
+        }
+    }
+
+    private fun observeAvatarResult() {
+        lifecycleScope.launch {
+            mainViewModel.avatarResult.collect { result ->
+                result.onSuccess {
+                    Toast
+                        .makeText(
+                            this@MainActivity,
+                            getString(R.string.upload_avatar_successfully),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                }.onFailure {
+                    Toast
+                        .makeText(
+                            this@MainActivity,
+                            getString(R.string.upload_avatar_failed),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                }
             }
         }
     }
@@ -272,7 +293,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val filmsViewModel: FilmsViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
 
     private fun setupSearchBar() {
         searchResults.layoutManager = LinearLayoutManager(this)
@@ -305,7 +328,7 @@ class MainActivity : AppCompatActivity() {
                         filmAdapter.clearItems()
                     } else {
                         val runnable = Runnable {
-                            filmsViewModel.searchFilms(query, 5)
+                            searchViewModel.searchFilms(query, 5)
                         }
                         searchRunnable = runnable
                         searchHandler.postDelayed(runnable, 500)
@@ -318,7 +341,7 @@ class MainActivity : AppCompatActivity() {
     private fun observeSearchResults() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filmsViewModel.searchResultsState.collect { results ->
+                searchViewModel.searchResultsState.collect { results ->
                     filmAdapter.replaceItems(results)
                 }
             }
@@ -332,17 +355,19 @@ class MainActivity : AppCompatActivity() {
         val appBarSearch = view.findViewById<ImageButton>(R.id.app_bar_search)
         val appBarNotifications = view.findViewById<ImageButton>(R.id.app_bar_notifications)
 
-        Authentication.isLoggedIn.observe(this) {
-            if (it) {
-                AvatarRepository.getAvatar { bitmapImg ->
-                    MyAppGlideModule.loadImage(
-                        this,
-                        bitmapImg,
-                        appBarProfile,
-                    )
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.avatarState.collect { bitmap ->
+                    if (bitmap != null) {
+                        MyAppGlideModule.loadImage(
+                            this@MainActivity,
+                            bitmap,
+                            appBarProfile,
+                        )
+                    } else {
+                        appBarProfile.setImageResource(R.drawable.ic_profile)
+                    }
                 }
-            } else {
-                appBarProfile.setImageResource(R.drawable.ic_profile)
             }
         }
 
@@ -383,7 +408,7 @@ class MainActivity : AppCompatActivity() {
             notifications,
             {
                 val intent = Intent(this, FilmDetailsActivity::class.java)
-                intent.putExtra(SLUG, it.first)
+                intent.putExtra(EXTRA_SLUG, it.first)
                 startActivity(intent)
             },
             { Notification.removeNotification(this, it) },
@@ -400,4 +425,3 @@ class MainActivity : AppCompatActivity() {
         popupWindow.showAsDropDown(anchor)
     }
 }
-

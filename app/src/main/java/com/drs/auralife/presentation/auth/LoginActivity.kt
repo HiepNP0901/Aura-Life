@@ -12,12 +12,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
-import dagger.hilt.android.AndroidEntryPoint
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
-import com.drs.auralife.databinding.ActivityLoginBinding
 import com.drs.auralife.core.utils.Validator
+import com.drs.auralife.databinding.ActivityLoginBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -33,23 +33,20 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Set the content view using the binding object
         setContentView(binding.root)
 
-        // Initialize the fragment
         fragment = LogoFragment.setTitle(getString(R.string.login_title))
         supportFragmentManager
             .beginTransaction()
             .add(binding.containerFragment.id, fragment)
             .commit()
 
-        // Initialize the views
         username = binding.username
         password = binding.password
         setBindingButton()
         setBindingEditText()
+        observeAuthState()
 
-        // Initialize the result launcher
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult(),
         ) { result ->
@@ -62,7 +59,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Register the receiver and filter
     override fun onStart() {
         super.onStart()
         @Suppress("DEPRECATION")
@@ -70,12 +66,37 @@ class LoginActivity : AppCompatActivity() {
         val orientation = when (display.rotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> LinearLayout.VERTICAL
             Surface.ROTATION_90, Surface.ROTATION_270 -> LinearLayout.HORIZONTAL
-            else -> LinearLayout.VERTICAL // Default to vertical
+            else -> LinearLayout.VERTICAL
         }
         binding.linearLayout.orientation = orientation
     }
 
-    // Set the click listeners for the buttons
+    private fun observeAuthState() {
+        lifecycleScope.launch {
+            authViewModel.authState.collect { state ->
+                when (state) {
+                    is AuthUiState.Loading -> {
+                        binding.loginButton.isEnabled = false
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is AuthUiState.Success -> {
+                        binding.loginButton.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    is AuthUiState.Error -> {
+                        binding.loginButton.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
+                        authViewModel.resetState()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     private fun setBindingButton() {
         binding.loginButton.setOnClickListener {
             Validator(this).passwordValidator.invoke(password.text.toString())?.let {
@@ -89,20 +110,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             if (username.error == null && password.error == null) {
-                binding.loginButton.isEnabled = false
-                binding.progressBar.visibility = View.VISIBLE
-                authViewModel.login(this, username.text.toString(), password.text.toString()) { result ->
-                    if (result.isSuccess) {
-                        Toast.makeText(this, result.getOrNull(), Toast.LENGTH_SHORT).show()
-                        Authentication.isLoggedIn.postValue(true)
-                        LibraryRepository.recheckLibrary()
-                        finish()
-                    } else {
-                        binding.loginButton.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this, result.exceptionOrNull()?.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                authViewModel.login(username.text.toString(), password.text.toString())
             }
         }
 
@@ -111,7 +119,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Set action do after text changed for the edit text
     private fun setBindingEditText() {
         binding.username.doAfterTextChanged {
             Validator(this).emailValidator.invoke(username.text.toString())?.let {
@@ -132,4 +139,3 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 }
-

@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.film.play
+package com.drs.auralife.presentation.playfilm
 
 import android.view.LayoutInflater
 import android.view.View

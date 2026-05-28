@@ -11,11 +11,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.presentation.viewmodel.FilmsViewModel
-import com.drs.auralife.data.firebase.realtime.database.category.Category
+import com.drs.auralife.domain.model.Category
 import com.drs.auralife.databinding.ActivityExploreDetailsBinding
 import com.drs.auralife.domain.model.Film
-import com.drs.auralife.presentation.film.FilmAdapter
 import java.util.Locale
 import kotlinx.coroutines.launch
 
@@ -25,8 +23,8 @@ private const val CATEGORY_NAME = "NAME_CATEGORY"
 @dagger.hilt.android.AndroidEntryPoint
 class ExploreDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityExploreDetailsBinding.inflate(layoutInflater) }
-    private val viewModel: FilmsViewModel by viewModels()
-    private val filmAdapter by lazy { FilmAdapter(mutableListOf()) }
+    private val viewModel: ExploreDetailViewModel by viewModels()
+    private val filmAdapter by lazy { ExploreFilmAdapter(mutableListOf()) }
     private var isLoading = false
     private var currentPage = 1
     private var totalPages = 0
@@ -112,9 +110,9 @@ class ExploreDetailsActivity : AppCompatActivity() {
             )
             intent.putExtra(CATEGORY_SLUG, category.slug)
             if (Locale.getDefault().language == "vi") {
-                intent.putExtra(CATEGORY_NAME, category.vi)
+                intent.putExtra(CATEGORY_NAME, category.name)
             } else {
-                intent.putExtra(CATEGORY_NAME, category.en)
+                intent.putExtra(CATEGORY_NAME, category.localizedName)
             }
             return intent
         }
