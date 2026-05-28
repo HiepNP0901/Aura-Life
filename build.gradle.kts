@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.google.gms.google.services) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.hilt.android) apply false
+    alias(libs.plugins.ksp) apply false
 }
 
 buildscript {

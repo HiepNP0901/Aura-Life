@@ -2,7 +2,7 @@ package com.drs.auralife.data.firebase.realtime.database.user
 
 import android.graphics.Bitmap
 import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.utils.ImageEncoderDecoder
+import com.drs.auralife.core.utils.ImageEncoderDecoder
 import com.google.firebase.database.FirebaseDatabase
 
 object AvatarRepository {
