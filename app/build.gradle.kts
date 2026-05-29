@@ -1,25 +1,28 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
-    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
+    alias(libs.plugins.ktlint)
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xannotation-default-target=param-property")
+    }
 }
 
 android {
     namespace = "com.drs.auralife"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.drs.auralife"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        renderscriptTargetApi = 21
-        renderscriptSupportModeEnabled = true
     }
 
     buildFeatures {
@@ -47,10 +50,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }
 
@@ -102,6 +101,7 @@ dependencies {
     implementation(libs.firebase.database)
 
     // --- Other ---
+    implementation(libs.glide.core)
     implementation(libs.glide.transformations)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)

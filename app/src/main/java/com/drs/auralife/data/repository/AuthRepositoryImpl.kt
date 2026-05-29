@@ -3,8 +3,8 @@ package com.drs.auralife.data.repository
 import android.content.Context
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.domain.repository.AuthRepository
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

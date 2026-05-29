@@ -3,8 +3,8 @@ package com.drs.auralife.data.firebase
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.drs.auralife.R
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 
