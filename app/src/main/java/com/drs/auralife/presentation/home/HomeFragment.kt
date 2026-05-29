@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -86,25 +87,35 @@ class HomeFragment : Fragment() {
 
     private fun observeBanners() {
         lifecycleScope.launch {
-            homeViewModel.bannersState.collect { bannerData ->
-                if (_binding == null || bannerData.isEmpty()) return@collect
-                val bannerViewPager = binding.bannerViewPager
-                bannerViewPager.adapter = BannerAdapter(bannerData)
+            homeViewModel.bannersState.collect { state ->
+                if (_binding == null) return@collect
+                when (state) {
+                    is UiState.Success -> {
+                        val bannerData = state.data
+                        if (bannerData.isEmpty()) return@collect
+                        val bannerViewPager = binding.bannerViewPager
+                        bannerViewPager.adapter = BannerAdapter(bannerData)
 
-                bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
+                        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
 
-                val runnable = object : Runnable {
-                    override fun run() {
-                        if (_binding == null) return
-                        val currentItem = bannerViewPager.currentItem
-                        val nextItem = if (currentItem == bannerData.size - 1) 0 else currentItem + 1
-                        bannerViewPager.setCurrentItem(nextItem, true)
-                        bannerHandler.postDelayed(this, BANNER_SCROLL_INTERVAL_MS)
+                        val runnable = object : Runnable {
+                            override fun run() {
+                                if (_binding == null) return
+                                val currentItem = bannerViewPager.currentItem
+                                val nextItem = if (currentItem == bannerData.size - 1) 0 else currentItem + 1
+                                bannerViewPager.setCurrentItem(nextItem, true)
+                                bannerHandler.postDelayed(this, BANNER_SCROLL_INTERVAL_MS)
+                            }
+                        }
+
+                        bannerRunnable = runnable
+                        bannerHandler.postDelayed(runnable, BANNER_SCROLL_INTERVAL_MS)
                     }
+                    is UiState.Error -> {
+                        Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    }
+                    is UiState.Loading -> {}
                 }
-
-                bannerRunnable = runnable
-                bannerHandler.postDelayed(runnable, BANNER_SCROLL_INTERVAL_MS)
             }
         }
     }
@@ -159,16 +170,18 @@ class HomeFragment : Fragment() {
     private fun observeLatestFilms() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.latestFilmsState.collect { films ->
-                    filmAdapter.replaceItems(films)
+                homeViewModel.latestFilmsState.collect { state ->
+                    when (state) {
+                        is UiState.Success -> {
+                            filmAdapter.replaceItems(state.data.films)
+                            totalPages = state.data.totalPages
+                        }
+                        is UiState.Error -> {
+                            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is UiState.Loading -> {}
+                    }
                     isLoading = false
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.latestFilmsTotalPages.collect { pages ->
-                    totalPages = pages
                 }
             }
         }

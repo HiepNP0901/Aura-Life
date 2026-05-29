@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHistoryBinding
 import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -42,7 +43,7 @@ class HistoryFragment :
 
     override fun onResume() {
         super.onResume()
-        context?.let { historyViewModel.loadHistory(it) }
+        historyViewModel.loadHistory()
     }
 
     override fun onDestroyView() {
@@ -52,15 +53,25 @@ class HistoryFragment :
 
     private fun observeFilms() {
         lifecycleScope.launch {
-            historyViewModel.filmsState.collect { films ->
+            historyViewModel.filmsState.collect { state ->
                 if (_binding == null) return@collect
-                if (films.isEmpty()) {
-                    binding.text.visibility = View.VISIBLE
-                    filmAdapter.clearItems()
-                } else {
-                    binding.text.visibility = View.GONE
-                    binding.recyclerView.adapter = filmAdapter
-                    filmAdapter.replaceItems(films)
+                when (state) {
+                    is UiState.Success -> {
+                        val films = state.data
+                        if (films.isEmpty()) {
+                            binding.text.visibility = View.VISIBLE
+                            filmAdapter.clearItems()
+                        } else {
+                            binding.text.visibility = View.GONE
+                            binding.recyclerView.adapter = filmAdapter
+                            filmAdapter.replaceItems(films)
+                        }
+                    }
+                    is UiState.Error -> {
+                        binding.text.visibility = View.VISIBLE
+                        binding.text.text = state.message
+                    }
+                    is UiState.Loading -> {}
                 }
             }
         }
@@ -69,7 +80,7 @@ class HistoryFragment :
     override fun onLongClick(slug: String) {
         context?.let { ctx ->
             DeleteHistoryDialog.showDeleteFilmFromHistory(ctx, slug) {
-                historyViewModel.deleteHistory(ctx, slug)
+                historyViewModel.deleteHistory(slug)
             }
         }
     }
