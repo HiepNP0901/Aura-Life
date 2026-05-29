@@ -1,6 +1,6 @@
 package com.drs.auralife.di
 
-import com.drs.auralife.data.FilmAPI
+import com.drs.auralife.data.remote.api.FilmAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

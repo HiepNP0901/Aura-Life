@@ -1,11 +1,11 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository as FirebaseHistoryRepository
 import com.drs.auralife.data.local.dao.HistoryDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainHistoryItem
 import com.drs.auralife.data.local.mapper.LocalMapper.toHistoryEntity
-import com.drs.auralife.data.mapper.FirebaseMapper.toDomainHistoryItems
+import com.drs.auralife.data.remote.firebase.Authentication
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainHistoryItems
+import com.drs.auralife.data.remote.firebase.HistoryDataSource as FirebaseHistoryRepository
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.repository.HistoryRepository
 import com.google.firebase.database.FirebaseDatabase
