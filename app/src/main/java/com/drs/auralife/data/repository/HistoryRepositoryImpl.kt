@@ -2,6 +2,9 @@ package com.drs.auralife.data.repository
 
 import com.drs.auralife.data.firebase.Authentication
 import com.drs.auralife.data.firebase.realtime.database.user.history.HistoryRepository as FirebaseHistoryRepository
+import com.drs.auralife.data.local.dao.HistoryDao
+import com.drs.auralife.data.local.mapper.LocalMapper.toDomainHistoryItem
+import com.drs.auralife.data.local.mapper.LocalMapper.toHistoryEntity
 import com.drs.auralife.data.mapper.FirebaseMapper.toDomainHistoryItems
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.repository.HistoryRepository
@@ -10,12 +13,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import javax.inject.Inject
 
-class HistoryRepositoryImpl @Inject constructor() : HistoryRepository {
+class HistoryRepositoryImpl @Inject constructor(
+    private val historyDao: HistoryDao,
+) : HistoryRepository {
     override suspend fun getHistory(): List<HistoryItem> {
-        return suspendCancellableCoroutine { continuation ->
-            FirebaseHistoryRepository.getHistoryData { firebaseHistory ->
-                continuation.resume(firebaseHistory.toDomainHistoryItems())
+        return try {
+            val history = suspendCancellableCoroutine<List<HistoryItem>> { continuation ->
+                FirebaseHistoryRepository.getHistoryData { firebaseHistory ->
+                    continuation.resume(firebaseHistory.toDomainHistoryItems())
+                }
             }
+            historyDao.clear()
+            history.forEach { historyDao.insertHistory(it.toHistoryEntity()) }
+            history
+        } catch (e: Exception) {
+            historyDao.getAll().map { it.toDomainHistoryItem() }
         }
     }
 
