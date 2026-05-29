@@ -12,7 +12,10 @@ import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetLibraryUseCase
 import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase
 import com.drs.auralife.domain.usecase.RenameLibraryUseCase
+import com.drs.auralife.presentation.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,14 +36,11 @@ class LibraryViewModel @Inject constructor(
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
 ) : ViewModel() {
 
-    private val _librariesState = MutableStateFlow<List<Library>>(emptyList())
-    val librariesState: StateFlow<List<Library>> = _librariesState.asStateFlow()
+    private val _librariesState = MutableStateFlow<UiState<List<Library>>>(UiState.Loading)
+    val librariesState: StateFlow<UiState<List<Library>>> = _librariesState.asStateFlow()
 
-    private val _libraryFilmsState = MutableStateFlow<List<Film>>(emptyList())
-    val libraryFilmsState: StateFlow<List<Film>> = _libraryFilmsState.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _libraryFilmsState = MutableStateFlow<UiState<List<Film>>>(UiState.Loading)
+    val libraryFilmsState: StateFlow<UiState<List<Film>>> = _libraryFilmsState.asStateFlow()
 
     private val _operationResult = MutableSharedFlow<Result<Boolean>>()
     val operationResult: SharedFlow<Result<Boolean>> = _operationResult.asSharedFlow()
@@ -50,49 +50,52 @@ class LibraryViewModel @Inject constructor(
 
     fun getLibraries() {
         viewModelScope.launch {
-            _isLoading.value = true
-            try {
+            _librariesState.value = UiState.Loading
+            _librariesState.value = try {
                 val libs = getLibraryUseCase()
-                _librariesState.value = libs
                 _librariesLoaded.emit(libs)
-            } catch (_: Exception) {
-            } finally {
-                _isLoading.value = false
+                UiState.Success(libs)
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Failed to load libraries")
             }
         }
     }
 
     fun loadLibraryFilms(name: String) {
         viewModelScope.launch {
-            _isLoading.value = true
-            try {
+            _libraryFilmsState.value = UiState.Loading
+            _libraryFilmsState.value = try {
                 val lib = getLibraryUseCase().find { it.name == name } ?: return@launch
-                val tempList = mutableListOf<Film>()
-                for (filmLib in lib.films) {
+                val films = buildFilmsFromLibrary(lib)
+                UiState.Success(films)
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Failed to load library films")
+            }
+        }
+    }
+
+    private suspend fun buildFilmsFromLibrary(lib: Library): List<Film> {
+        return coroutineScope {
+            lib.films.map { filmLib ->
+                async {
                     val details = getFilmDetailsUseCase(filmLib.slug)
                     details?.let {
-                        tempList.add(
-                            Film(
-                                id = it.slug,
-                                slug = it.slug,
-                                title = it.title,
-                                posterUrl = it.posterUrl,
-                                thumbUrl = it.thumbUrl,
-                                description = it.description,
-                                category = it.categories?.firstOrNull() ?: "",
-                                episodeCount = it.episodeTotal?.toIntOrNull() ?: 0,
-                            )
+                        Film(
+                            id = it.slug,
+                            slug = it.slug,
+                            title = it.title,
+                            posterUrl = it.posterUrl,
+                            thumbUrl = it.thumbUrl,
+                            description = it.description,
+                            category = it.categories?.firstOrNull() ?: "",
+                            episodeCount = it.episodeTotal?.toIntOrNull() ?: 0,
                         )
                     }
                 }
-                val sortedList = lib.films.mapNotNull { filmLib ->
-                    tempList.find { it.slug == filmLib.slug }
+            }.mapNotNull { it.await() }
+                .let { sorted ->
+                    lib.films.mapNotNull { filmLib -> sorted.find { it.slug == filmLib.slug } }
                 }
-                _libraryFilmsState.value = sortedList
-            } catch (_: Exception) {
-            } finally {
-                _isLoading.value = false
-            }
         }
     }
 

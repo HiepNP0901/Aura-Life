@@ -13,6 +13,7 @@ import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -69,18 +70,28 @@ class LibraryFragment : Fragment() {
 
     private fun observeLibraries() {
         lifecycleScope.launch {
-            libraryViewModel.librariesState.collect { libraries ->
+            libraryViewModel.librariesState.collect { state ->
                 if (_binding == null) return@collect
-                libraryAdapter.refreshLibrary(libraries.toMutableList())
+                when (state) {
+                    is UiState.Success -> {
+                        val libraries = state.data
+                        libraryAdapter.refreshLibrary(libraries.toMutableList())
 
-                if (!authRepository.isLoggedIn()) {
-                    binding.text.visibility = View.VISIBLE
-                    binding.text.text = getString(R.string.function_must_login)
-                } else if (libraries.isEmpty()) {
-                    binding.text.visibility = View.VISIBLE
-                    binding.text.text = getString(R.string.empty)
-                } else {
-                    binding.text.visibility = View.GONE
+                        if (!authRepository.isLoggedIn()) {
+                            binding.text.visibility = View.VISIBLE
+                            binding.text.text = getString(R.string.function_must_login)
+                        } else if (libraries.isEmpty()) {
+                            binding.text.visibility = View.VISIBLE
+                            binding.text.text = getString(R.string.empty)
+                        } else {
+                            binding.text.visibility = View.GONE
+                        }
+                    }
+                    is UiState.Error -> {
+                        binding.text.visibility = View.VISIBLE
+                        binding.text.text = state.message
+                    }
+                    is UiState.Loading -> {}
                 }
             }
         }

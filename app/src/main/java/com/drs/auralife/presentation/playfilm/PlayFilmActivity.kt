@@ -31,7 +31,6 @@ import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.presentation.payment.PaymentActivity
-import com.drs.auralife.core.utils.HistoryUtils
 import com.drs.auralife.core.utils.SystemUiController
 import javax.inject.Inject
 import java.text.SimpleDateFormat
@@ -97,16 +96,9 @@ class PlayFilmActivity : AppCompatActivity() {
 
         slug?.let { slug ->
             lifecycleScope.launch {
-                if (authRepository.isLoggedIn()) {
-                    historyViewModel.getHistoryItem(slug)?.let {
-                        currentEpisode = it.episode
-                        currentPosition = it.position
-                    }
-                } else {
-                    HistoryUtils.getLocalHistories(this@PlayFilmActivity).find { it.slug == slug }?.let {
-                        currentEpisode = it.episode
-                        currentPosition = it.position
-                    }
+                historyViewModel.getHistoryItem(slug)?.let {
+                    currentEpisode = it.episode
+                    currentPosition = it.position
                 }
                 filmDetailsViewModel.getFilmDetails(slug)
             }
@@ -154,16 +146,7 @@ class PlayFilmActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         exoPlayer?.apply {
-                if (authRepository.isLoggedIn()) {
-                    historyViewModel.addToHistory(slug.toString(), currentEpisode, currentPosition)
-                } else {
-                    HistoryUtils.addLocalHistory(
-                        this@PlayFilmActivity,
-                        slug.toString(),
-                        currentEpisode,
-                        currentPosition,
-                    )
-                }
+            historyViewModel.addToHistory(slug.toString(), currentEpisode, currentPosition)
             pause()
             btnPlayPause?.isSelected = false
         }

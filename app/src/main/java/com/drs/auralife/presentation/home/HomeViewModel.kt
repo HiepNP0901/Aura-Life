@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetBannersUseCase
 import com.drs.auralife.domain.usecase.GetLatestFilmsUseCase
+import com.drs.auralife.presentation.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,46 +13,54 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class HomeFilmsData(
+    val films: List<Film>,
+    val totalPages: Int,
+)
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getBannersUseCase: GetBannersUseCase,
     private val getLatestFilmsUseCase: GetLatestFilmsUseCase,
 ) : ViewModel() {
 
-    private val _bannersState = MutableStateFlow<List<Pair<String, String>>>(emptyList())
-    val bannersState: StateFlow<List<Pair<String, String>>> = _bannersState.asStateFlow()
+    private val _bannersState = MutableStateFlow<UiState<List<Pair<String, String>>>>(UiState.Loading)
+    val bannersState: StateFlow<UiState<List<Pair<String, String>>>> = _bannersState.asStateFlow()
 
-    private val _latestFilmsState = MutableStateFlow<List<Film>>(emptyList())
-    val latestFilmsState: StateFlow<List<Film>> = _latestFilmsState.asStateFlow()
-
-    private val _latestFilmsTotalPages = MutableStateFlow(0)
-    val latestFilmsTotalPages: StateFlow<Int> = _latestFilmsTotalPages.asStateFlow()
+    private val _latestFilmsState = MutableStateFlow<UiState<HomeFilmsData>>(UiState.Loading)
+    val latestFilmsState: StateFlow<UiState<HomeFilmsData>> = _latestFilmsState.asStateFlow()
 
     fun loadBanners() {
         viewModelScope.launch {
-            try {
-                _bannersState.value = getBannersUseCase()
-            } catch (_: Exception) {
+            _bannersState.value = UiState.Loading
+            _bannersState.value = try {
+                UiState.Success(getBannersUseCase())
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Failed to load banners")
             }
         }
     }
 
     fun getLatestFilms(page: Int) {
         viewModelScope.launch {
-            try {
+            _latestFilmsState.value = UiState.Loading
+            _latestFilmsState.value = try {
                 val result = getLatestFilmsUseCase(page)
-                _latestFilmsState.value = result.data
-                _latestFilmsTotalPages.value = result.totalPages
-            } catch (_: Exception) {
+                UiState.Success(HomeFilmsData(result.data, result.totalPages))
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Failed to load films")
             }
         }
     }
 
     fun loadMoreLatestFilms(page: Int) {
         viewModelScope.launch {
+            val current = _latestFilmsState.value
+            if (current !is UiState.Success) return@launch
             try {
                 val result = getLatestFilmsUseCase(page)
-                _latestFilmsState.value = _latestFilmsState.value + result.data
+                val allFilms = current.data.films + result.data
+                _latestFilmsState.value = UiState.Success(HomeFilmsData(allFilms, result.totalPages))
             } catch (_: Exception) {
             }
         }
