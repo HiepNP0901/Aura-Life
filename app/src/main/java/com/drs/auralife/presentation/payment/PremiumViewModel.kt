@@ -1,5 +1,6 @@
 package com.drs.auralife.presentation.payment
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.PremiumStatus
@@ -31,7 +32,8 @@ class PremiumViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _premiumStatus.value = getPremiumStatusUseCase()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("PremiumViewModel", "loadPremiumStatus failed", e)
             }
         }
     }
