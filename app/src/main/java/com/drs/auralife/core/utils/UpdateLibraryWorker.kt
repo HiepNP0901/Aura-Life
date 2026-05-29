@@ -10,9 +10,9 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.data.FilmAPI
-import com.drs.auralife.data.firebase.realtime.database.user.library.Library
-import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
+import com.drs.auralife.data.remote.api.FilmAPI
+import com.drs.auralife.data.remote.firebase.LibraryDataSource
+import com.drs.auralife.data.remote.firebase.model.library.Library
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -82,7 +82,7 @@ class UpdateLibraryWorker(
                                     }
                                 }
 
-                                LibraryRepository.updateEpisode(
+                                LibraryDataSource.updateEpisode(
                                     libraryItem.name,
                                     filmItem.slug,
                                     filmDetails.movie.episodeCurrent.toString(),
@@ -100,7 +100,7 @@ class UpdateLibraryWorker(
     }
 
     private suspend fun getLibrary(): List<Library> = suspendCoroutine { continuation ->
-        LibraryRepository.getLibrary { library ->
+        LibraryDataSource.getLibrary { library ->
             continuation.resume(library)
         }
     }

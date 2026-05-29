@@ -1,8 +1,8 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.premium.PremiumRepository as FirebasePremiumRepository
-import com.drs.auralife.data.mapper.FirebaseMapper.toDomainPremiumStatus
+import com.drs.auralife.data.remote.firebase.Authentication
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainPremiumStatus
+import com.drs.auralife.data.remote.firebase.PremiumDataSource as FirebasePremiumRepository
 import com.drs.auralife.domain.model.PremiumStatus
 import com.drs.auralife.domain.repository.PremiumRepository
 import com.google.firebase.database.FirebaseDatabase

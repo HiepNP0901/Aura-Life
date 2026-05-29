@@ -1,13 +1,13 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository as FirebaseLibraryRepository
 import com.drs.auralife.data.local.dao.LibraryDao
 import com.drs.auralife.data.local.dao.LibraryFilmCrossRefDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainLibrary
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryFilmCrossRefs
-import com.drs.auralife.data.mapper.FirebaseMapper.toDomainLibrary as firebaseToDomainLibrary
-import com.drs.auralife.data.mapper.FirebaseMapper.toDomainLibraries
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibraries
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibrary as firebaseToDomainLibrary
+import com.drs.auralife.data.remote.firebase.LibraryDataSource as FirebaseLibraryRepository
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.repository.LibraryRepository
 import kotlinx.coroutines.suspendCancellableCoroutine

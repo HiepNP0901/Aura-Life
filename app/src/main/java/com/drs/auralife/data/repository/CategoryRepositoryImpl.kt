@@ -1,10 +1,10 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.firebase.realtime.database.category.CategoryRepository as FirebaseCategoryRepository
 import com.drs.auralife.data.local.dao.CategoryCacheDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toCategoryCacheEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainCategory
-import com.drs.auralife.data.mapper.FirebaseMapper.toDomainCategories
+import com.drs.auralife.data.remote.firebase.CategoryDataSource as FirebaseCategoryRepository
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainCategories
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.repository.CategoryRepository
 import kotlinx.coroutines.suspendCancellableCoroutine

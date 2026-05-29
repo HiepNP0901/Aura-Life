@@ -3,8 +3,8 @@ package com.drs.auralife.data.repository
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.drs.auralife.core.utils.ImageEncoderDecoder
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository as FirebaseAvatarRepository
+import com.drs.auralife.data.remote.firebase.Authentication
+import com.drs.auralife.data.remote.firebase.AvatarDataSource as FirebaseAvatarRepository
 import com.drs.auralife.domain.repository.AvatarRepository
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.suspendCancellableCoroutine
