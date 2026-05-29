@@ -8,7 +8,7 @@ import com.drs.auralife.domain.usecase.AddToHistoryUseCase
 import com.drs.auralife.domain.usecase.DeleteHistoryUseCase
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetHistoryUseCase
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
