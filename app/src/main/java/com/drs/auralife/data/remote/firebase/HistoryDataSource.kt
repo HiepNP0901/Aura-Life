@@ -10,12 +10,16 @@ object HistoryDataSource {
     suspend fun getHistoryData(): List<History> {
         val userId = Authentication.getUserId() ?: return emptyList()
         val snapshot = userRef.child(userId).child("history").get().await()
-        return snapshot.children.map { snap ->
+        return snapshot.children.mapNotNull { snap ->
+            val slug = snap.child("slug").value?.toString() ?: return@mapNotNull null
+            val episodeStr = snap.child("episode").value?.toString() ?: return@mapNotNull null
+            val positionStr = snap.child("position").value?.toString() ?: return@mapNotNull null
+            val date = snap.child("date").value?.toString() ?: return@mapNotNull null
             History(
-                slug = snap.child("slug").value.toString(),
-                episode = snap.child("episode").value.toString().toInt(),
-                position = snap.child("position").value.toString().toLong(),
-                date = snap.child("date").value.toString(),
+                slug = slug,
+                episode = episodeStr.toIntOrNull() ?: return@mapNotNull null,
+                position = positionStr.toLongOrNull() ?: return@mapNotNull null,
+                date = date,
             )
         }
     }
@@ -26,7 +30,7 @@ object HistoryDataSource {
             val historyRef = userRef.child(userId).child("history")
             val snapshot = historyRef.get().await()
             for (snap in snapshot.children) {
-                if (snap.child("slug").value.toString() == slug) {
+                if (snap.child("slug").value?.toString() == slug) {
                     snap.ref.removeValue().await()
                 }
             }
@@ -43,7 +47,7 @@ object HistoryDataSource {
         return try {
             val snapshot = userRef.child(userId).child("history").get().await()
             for (snap in snapshot.children) {
-                if (snap.child("slug").value.toString() == slug) {
+                if (snap.child("slug").value?.toString() == slug) {
                     snap.ref.removeValue().await()
                 }
             }
