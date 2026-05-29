@@ -22,8 +22,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 const val CHANNEL_ID = "episode_update_channel"
 
@@ -99,11 +97,7 @@ class UpdateLibraryWorker(
         return updates
     }
 
-    private suspend fun getLibrary(): List<Library> = suspendCoroutine { continuation ->
-        LibraryDataSource.getLibrary { library ->
-            continuation.resume(library)
-        }
-    }
+    private suspend fun getLibrary(): List<Library> = LibraryDataSource.getLibrary()
 
     @SuppressLint("ObsoleteSdkInt")
     private fun sendNotification(

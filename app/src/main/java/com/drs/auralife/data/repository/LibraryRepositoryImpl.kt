@@ -5,13 +5,9 @@ import com.drs.auralife.data.local.dao.LibraryFilmCrossRefDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainLibrary
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryFilmCrossRefs
-import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibraries
-import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibrary as firebaseToDomainLibrary
-import com.drs.auralife.data.remote.firebase.LibraryDataSource as FirebaseLibraryRepository
+import com.drs.auralife.data.remote.firebase.LibraryDataSource
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.repository.LibraryRepository
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import javax.inject.Inject
 
 class LibraryRepositoryImpl @Inject constructor(
@@ -20,11 +16,7 @@ class LibraryRepositoryImpl @Inject constructor(
 ) : LibraryRepository {
     override suspend fun getLibraries(): List<Library> {
         return try {
-            val libraries = suspendCancellableCoroutine<List<Library>> { continuation ->
-                FirebaseLibraryRepository.getLibrary { firebaseLibraries ->
-                    continuation.resume(firebaseLibraries.toDomainLibraries())
-                }
-            }
+            val libraries = LibraryDataSource.getLibrary()
             libraryDao.clear()
             libraryFilmCrossRefDao.clear()
             libraries.forEach { lib ->
@@ -39,12 +31,7 @@ class LibraryRepositoryImpl @Inject constructor(
 
     override suspend fun getLibrary(name: String): Library? {
         return try {
-            val library = suspendCancellableCoroutine<Library?> { continuation ->
-                FirebaseLibraryRepository.getLibrary { firebaseLibraries ->
-                    val lib = firebaseLibraries.find { it.name == name }
-                    continuation.resume(lib?.firebaseToDomainLibrary())
-                }
-            }
+            val library = LibraryDataSource.getLibraryData(name)
             if (library != null) {
                 libraryDao.insertLibrary(library.toLibraryEntity())
                 libraryFilmCrossRefDao.insertAll(library.toLibraryFilmCrossRefs())
@@ -56,63 +43,26 @@ class LibraryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addToLibrary(library: Library): Boolean {
-        return suspendCancellableCoroutine { continuation ->
-            if (library.films.isEmpty()) {
-                continuation.resume(false)
-                return@suspendCancellableCoroutine
-            }
-            val film = library.films.first()
-            FirebaseLibraryRepository.addLibraryData(
-                library.name,
-                library.posterUrl,
-                film.slug,
-                film.currentEpisode,
-            ) { result ->
-                continuation.resume(result.isSuccess)
-            }
-        }
+        if (library.films.isEmpty()) return false
+        val film = library.films.first()
+        return LibraryDataSource.addLibraryData(library.name, library.posterUrl, film.slug, film.currentEpisode)
     }
 
     override suspend fun removeFilmFromLibrary(libraryName: String, slug: String): Boolean {
-        return suspendCancellableCoroutine { continuation ->
-            FirebaseLibraryRepository.removeFilmFromLibrary(libraryName, slug) { result ->
-                continuation.resume(result.isSuccess)
-            }
-        }
+        return LibraryDataSource.removeFilmFromLibrary(libraryName, slug)
     }
 
     override suspend fun renameLibrary(oldName: String, newName: String): Boolean {
-        return suspendCancellableCoroutine { continuation ->
-            FirebaseLibraryRepository.renameLibrary(oldName, newName) { result ->
-                continuation.resume(result.isSuccess)
-            }
-        }
+        return LibraryDataSource.renameLibrary(oldName, newName)
     }
 
     override suspend fun createLibrary(library: Library): Boolean {
-        return suspendCancellableCoroutine { continuation ->
-            if (library.films.isEmpty()) {
-                continuation.resume(false)
-                return@suspendCancellableCoroutine
-            }
-            val film = library.films.first()
-            FirebaseLibraryRepository.createLibrary(
-                library.name,
-                library.posterUrl,
-                film.slug,
-                film.currentEpisode,
-            ) { result ->
-                continuation.resume(result.isSuccess)
-            }
-        }
+        if (library.films.isEmpty()) return false
+        val film = library.films.first()
+        return LibraryDataSource.createLibrary(library.name, library.posterUrl, film.slug, film.currentEpisode)
     }
 
     override suspend fun deleteLibrary(name: String): Boolean {
-        return suspendCancellableCoroutine { continuation ->
-            FirebaseLibraryRepository.deleteLibrary(name) { result ->
-                continuation.resume(result.isSuccess)
-            }
-        }
+        return LibraryDataSource.deleteLibrary(name)
     }
 }
-
