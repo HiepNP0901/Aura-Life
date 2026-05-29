@@ -29,7 +29,7 @@ workRuntimeKtx = "2.10.3"
 fragmentKtx = "1.8.9"
 ktlint = "12.2.0"
 ksp = "2.1.0-1.0.29"
-hilt = "2.53.1"
+hilt = "2.59.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
