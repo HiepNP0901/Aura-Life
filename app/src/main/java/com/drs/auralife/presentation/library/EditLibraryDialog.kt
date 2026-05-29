@@ -67,7 +67,7 @@ object EditLibraryDialog {
         onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
-        val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
         dialogView.findViewById<TextView>(R.id.title).text =
             context.getString(R.string.sure_delete_library)
@@ -89,7 +89,7 @@ object EditLibraryDialog {
         onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
-        val dialogView = layoutInflater.inflate(R.layout.diglog_confirm, null)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
         dialogView.findViewById<TextView>(R.id.title).text =
             context.getString(R.string.sure_delete_film)

@@ -282,7 +282,7 @@ class PlayFilmActivity : AppCompatActivity() {
     }
 
     private fun showPremiumDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.diglog_confirm, null)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_confirm, null)
         val title = dialogView.findViewById<TextView>(R.id.title)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
         val btnCreate = dialogView.findViewById<Button>(R.id.btnConfirm)
