@@ -8,7 +8,9 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.domain.repository.AuthRepository
@@ -69,8 +71,9 @@ class LibraryFragment : Fragment() {
     }
 
     private fun observeLibraries() {
-        lifecycleScope.launch {
-            libraryViewModel.librariesState.collect { state ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                libraryViewModel.librariesState.collect { state ->
                 if (_binding == null) return@collect
                 when (state) {
                     is UiState.Success -> {
@@ -93,17 +96,20 @@ class LibraryFragment : Fragment() {
                     }
                     is UiState.Loading -> {}
                 }
+                }
             }
         }
     }
 
     private fun observeOperationResult() {
-        lifecycleScope.launch {
-            libraryViewModel.operationResult.collect { result ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                libraryViewModel.operationResult.collect { result ->
                 result.onSuccess {
                     refreshLibrary()
                 }.onFailure { e ->
                     Toast.makeText(requireContext(), e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+                }
                 }
             }
         }

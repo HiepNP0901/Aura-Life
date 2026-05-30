@@ -12,7 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.core.utils.Validator
 import com.drs.auralife.databinding.ActivityLoginBinding
@@ -73,25 +75,27 @@ class LoginActivity : AppCompatActivity() {
 
     private fun observeAuthState() {
         lifecycleScope.launch {
-            authViewModel.authState.collect { state ->
-                when (state) {
-                    is AuthUiState.Loading -> {
-                        binding.loginButton.isEnabled = false
-                        binding.progressBar.visibility = View.VISIBLE
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authViewModel.authState.collect { state ->
+                    when (state) {
+                        is AuthUiState.Loading -> {
+                            binding.loginButton.isEnabled = false
+                            binding.progressBar.visibility = View.VISIBLE
+                        }
+                        is AuthUiState.Success -> {
+                            binding.loginButton.isEnabled = true
+                            binding.progressBar.visibility = View.GONE
+                            Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                        is AuthUiState.Error -> {
+                            binding.loginButton.isEnabled = true
+                            binding.progressBar.visibility = View.GONE
+                            Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
+                            authViewModel.resetState()
+                        }
+                        else -> {}
                     }
-                    is AuthUiState.Success -> {
-                        binding.loginButton.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-                    is AuthUiState.Error -> {
-                        binding.loginButton.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
-                        authViewModel.resetState()
-                    }
-                    else -> {}
                 }
             }
         }
