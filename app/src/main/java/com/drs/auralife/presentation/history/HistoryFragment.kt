@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHistoryBinding
-import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.AppBarProvider
 import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ class HistoryFragment :
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        (requireActivity() as MainActivity).setupAppBar(binding.appBar)
+        (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
         filmAdapter.setCallback(this)
         return binding.root
