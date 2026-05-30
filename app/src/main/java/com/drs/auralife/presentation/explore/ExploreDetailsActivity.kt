@@ -87,11 +87,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
                 }
             }
         }
-<<<<<<< Updated upstream
-        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener!!)
-=======
         scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
->>>>>>> Stashed changes
     }
 
     override fun onRestart() {
