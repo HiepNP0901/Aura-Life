@@ -33,6 +33,7 @@ class SearchController(
     private val filmAdapter = SearchFilmAdapter(mutableListOf())
     private val queryFlow = MutableStateFlow("")
     private var searchIsVisible = false
+    private lateinit var textWatcher: TextWatcher
 
     fun setup() {
         searchResults.layoutManager = LinearLayoutManager(activity)
@@ -59,7 +60,7 @@ class SearchController(
     }
 
     fun destroy() {
-        // no-op: coroutines cancel with lifecycle
+        searchBar.removeTextChangedListener(textWatcher)
     }
 
     private fun hideSearch() {
@@ -97,7 +98,7 @@ class SearchController(
     }
 
     private fun setupTextWatcher() {
-        searchBar.addTextChangedListener(object : TextWatcher {
+        textWatcher = object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -107,6 +108,7 @@ class SearchController(
                     filmAdapter.replaceItems(emptyList())
                 }
             }
-        })
+        }
+        searchBar.addTextChangedListener(textWatcher)
     }
 }

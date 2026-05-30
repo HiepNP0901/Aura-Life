@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentExploreBinding
-import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.AppBarProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ import java.util.Locale
 class ExploreFragment : Fragment() {
     private val exploreViewModel: ExploreViewModel by viewModels()
     private var _binding: FragmentExploreBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,7 +29,7 @@ class ExploreFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentExploreBinding.inflate(inflater, container, false)
-        (requireActivity() as MainActivity).setupAppBar(binding.appBar)
+        (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
 
         exploreViewModel.loadCategories()
 
