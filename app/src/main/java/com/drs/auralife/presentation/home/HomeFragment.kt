@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,12 +33,13 @@ class HomeFragment : Fragment() {
     private val filmAdapter = HomeFilmAdapter(mutableListOf())
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     private val homeViewModel: HomeViewModel by viewModels()
 
     private val bannerHandler = Handler(Looper.getMainLooper())
     private var bannerRunnable: Runnable? = null
+    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -81,7 +83,8 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
+        scrollListener?.let { binding.recyclerView.viewTreeObserver.removeOnScrollChangedListener(it) }
+        scrollListener = null
         _binding = null
     }
 
@@ -135,8 +138,8 @@ class HomeFragment : Fragment() {
             homeViewModel.getLatestFilms(currentPage)
 
             val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
-                if (_binding == null) return@addOnScrollChangedListener
+            scrollListener = ViewTreeObserver.OnScrollChangedListener {
+                if (_binding == null) return@OnScrollChangedListener
                 if (currentPage < totalPages) {
                     val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                     if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
@@ -153,6 +156,7 @@ class HomeFragment : Fragment() {
                     binding.scrollToTopButton.visibility = View.GONE
                 }
             }
+            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener)
 
             binding.scrollToTopButton.setOnClickListener {
                 binding.recyclerView.smoothScrollToPosition(0)

@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private var searchController: SearchController? = null
+    private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
 
     private val authViewModel: AuthViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
@@ -275,13 +276,12 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
         viewPager.isUserInputEnabled = false
         viewPager.adapter = ViewPagerAdapter(this, fragments)
-        viewPager.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    bottomNavigationView.menu[position].isChecked = true
-                }
-            },
-        )
+        pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                bottomNavigationView.menu[position].isChecked = true
+            }
+        }
+        viewPager.registerOnPageChangeCallback(pageChangeCallback!!)
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -311,6 +311,8 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
     override fun onDestroy() {
         searchController?.destroy()
+        pageChangeCallback?.let { viewPager.unregisterOnPageChangeCallback(it) }
+        drawerLayout.removeDrawerListener(actionBarDrawerToggle)
         super.onDestroy()
     }
 
