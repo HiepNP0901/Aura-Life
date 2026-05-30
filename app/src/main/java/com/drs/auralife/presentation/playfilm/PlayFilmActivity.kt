@@ -140,7 +140,7 @@ class PlayFilmActivity : AppCompatActivity() {
         toggleFullscreen()
         currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
         playEpisode(currentEpisode)
-        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - POSITION_OFFSET_MS
+        currentPosition = (savedInstanceState.getLong("exoPlayerPosition", 0) - POSITION_OFFSET_MS).coerceAtLeast(0L)
     }
 
     override fun onStop() {

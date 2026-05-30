@@ -12,13 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class AuthUiState {
-    data object Idle : AuthUiState()
-    data object Loading : AuthUiState()
-    data class Success(val message: String) : AuthUiState()
-    data class Error(val message: String) : AuthUiState()
-}
-
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,

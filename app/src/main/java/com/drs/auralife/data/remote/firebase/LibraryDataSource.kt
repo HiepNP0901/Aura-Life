@@ -10,18 +10,20 @@ object LibraryDataSource {
     private val userRef = FirebaseDatabase.getInstance().getReference("users")
     private val libraryRef = userRef.child(Authentication.getUserId().toString()).child("library")
 
-    private fun snapshotToLibrary(snapshot: DataSnapshot): Library =
-        Library(
-            name = snapshot.key.toString(),
-            posterUrl = snapshot.child("posterUrl").value.toString(),
-            listFilm = snapshot.child("listFilm").children.map {
-                FilmLibrary(slug = it.key.toString(), episode = it.value.toString())
-            }.toMutableList(),
-        )
+    private fun snapshotToLibrary(snapshot: DataSnapshot): Library? {
+        val name = snapshot.key ?: return null
+        val posterUrl = snapshot.child("posterUrl").value?.toString() ?: return null
+        val listFilm = snapshot.child("listFilm").children.mapNotNull {
+            val slug = it.key ?: return@mapNotNull null
+            val episode = it.value?.toString() ?: return@mapNotNull null
+            FilmLibrary(slug = slug, episode = episode)
+        }.toMutableList()
+        return Library(name = name, posterUrl = posterUrl, listFilm = listFilm)
+    }
 
     suspend fun getLibrary(): List<Library> {
         val snapshot = libraryRef.get().await()
-        return snapshot.children.map { snapshotToLibrary(it) }
+        return snapshot.children.mapNotNull { snapshotToLibrary(it) }
     }
 
     suspend fun getLibraryData(name: String): Library? {
