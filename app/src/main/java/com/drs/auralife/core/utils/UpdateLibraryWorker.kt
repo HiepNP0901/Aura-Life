@@ -2,6 +2,7 @@ package com.drs.auralife.core.utils
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
+import android.util.Log
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -10,9 +11,9 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.data.FilmAPI
-import com.drs.auralife.data.firebase.realtime.database.user.library.Library
-import com.drs.auralife.data.firebase.realtime.database.user.library.LibraryRepository
+import com.drs.auralife.data.remote.api.FilmAPI
+import com.drs.auralife.data.remote.firebase.LibraryDataSource
+import com.drs.auralife.data.remote.firebase.model.library.Library
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -22,8 +23,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 const val CHANNEL_ID = "episode_update_channel"
 
@@ -82,14 +81,15 @@ class UpdateLibraryWorker(
                                     }
                                 }
 
-                                LibraryRepository.updateEpisode(
+                                LibraryDataSource.updateEpisode(
                                     libraryItem.name,
                                     filmItem.slug,
                                     filmDetails.movie.episodeCurrent.toString(),
                                 )
                                 Notification.addNotification(applicationContext, filmItem.slug, message)
                             }
-                        } catch (_: Exception) {
+                        } catch (e: Exception) {
+                            Log.e("UpdateLibraryWorker", "checkForNewEpisode failed", e)
                         }
                     }
                 }
@@ -99,11 +99,7 @@ class UpdateLibraryWorker(
         return updates
     }
 
-    private suspend fun getLibrary(): List<Library> = suspendCoroutine { continuation ->
-        LibraryRepository.getLibrary { library ->
-            continuation.resume(library)
-        }
-    }
+    private suspend fun getLibrary(): List<Library> = LibraryDataSource.getLibrary()
 
     @SuppressLint("ObsoleteSdkInt")
     private fun sendNotification(

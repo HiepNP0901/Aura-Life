@@ -1,14 +1,14 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.FilmAPI
 import com.drs.auralife.data.local.dao.FilmDao
 import com.drs.auralife.data.local.dao.FilmDetailsDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilm
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilmDetails
 import com.drs.auralife.data.local.mapper.LocalMapper.toFilmDetailsEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toFilmEntity
-import com.drs.auralife.data.mapper.FilmMapper.toDomainFilm as apiToDomainFilm
-import com.drs.auralife.data.mapper.FilmMapper.toDomainFilmDetails as apiToDomainFilmDetails
+import com.drs.auralife.data.remote.api.FilmAPI
+import com.drs.auralife.data.remote.api.FilmMapper.toDomainFilm as apiToDomainFilm
+import com.drs.auralife.data.remote.api.FilmMapper.toDomainFilmDetails as apiToDomainFilmDetails
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.model.PagedResult
@@ -45,9 +45,10 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
             val response = api.getFilmsByCategory(slug, page)
             val cdn = response.data.appDomainCdnImage
             val films = response.data.items.map { movie ->
-                movie.posterUrl = cdn + "/" + movie.posterUrl
-                movie.thumbUrl = cdn + "/" + movie.thumbUrl
-                movie.apiToDomainFilm()
+                movie.apiToDomainFilm().copy(
+                    posterUrl = "$cdn/${movie.posterUrl}",
+                    thumbUrl = "$cdn/${movie.thumbUrl}",
+                )
             }
             filmDao.clearFilms()
             filmDao.insertFilms(films.map { it.toFilmEntity() })
@@ -70,9 +71,10 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
         val response = api.searchFilms(keyword, limit)
         val cdn = response.data.appDomainCdnImage
         return response.data.items.map { movie ->
-            movie.posterUrl = cdn + "/" + movie.posterUrl
-            movie.thumbUrl = cdn + "/" + movie.thumbUrl
-            movie.apiToDomainFilm()
+            movie.apiToDomainFilm().copy(
+                posterUrl = "$cdn/${movie.posterUrl}",
+                thumbUrl = "$cdn/${movie.thumbUrl}",
+            )
         }
     }
 

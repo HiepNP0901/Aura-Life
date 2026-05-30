@@ -1,10 +1,13 @@
 package com.drs.auralife.presentation.library
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -37,8 +40,16 @@ class LibraryDetailsActivity :
 
     private fun observeLibraryFilms() {
         lifecycleScope.launch {
-            libraryViewModel.libraryFilmsState.collect { films ->
-                filmAdapter.replaceItems(films)
+            libraryViewModel.libraryFilmsState.collect { state ->
+                when (state) {
+                    is UiState.Success -> {
+                        filmAdapter.replaceItems(state.data)
+                    }
+                    is UiState.Error -> {
+                        Toast.makeText(this@LibraryDetailsActivity, state.message, Toast.LENGTH_SHORT).show()
+                    }
+                    is UiState.Loading -> {}
+                }
             }
         }
     }

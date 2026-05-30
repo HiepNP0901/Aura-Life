@@ -1,5 +1,6 @@
 package com.drs.auralife.presentation.explore
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Category
@@ -30,7 +31,8 @@ class ExploreViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 _categoriesState.value = getCategoriesUseCase()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("ExploreViewModel", "loadCategories failed", e)
             } finally {
                 _isLoading.value = false
             }
@@ -42,7 +44,8 @@ class ExploreViewModel @Inject constructor(
             try {
                 val result = getFilmsByCategoryUseCase(slug, page)
                 onResult(result.data)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("ExploreViewModel", "getFilmsByCategoryList failed", e)
                 onResult(null)
             }
         }

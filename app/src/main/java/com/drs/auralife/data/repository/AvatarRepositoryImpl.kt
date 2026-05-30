@@ -3,8 +3,8 @@ package com.drs.auralife.data.repository
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.drs.auralife.core.utils.ImageEncoderDecoder
-import com.drs.auralife.data.firebase.Authentication
-import com.drs.auralife.data.firebase.realtime.database.user.AvatarRepository as FirebaseAvatarRepository
+import com.drs.auralife.data.remote.firebase.Authentication
+import com.drs.auralife.data.remote.firebase.AvatarDataSource as FirebaseAvatarRepository
 import com.drs.auralife.domain.repository.AvatarRepository
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -24,7 +24,8 @@ class AvatarRepositoryImpl @Inject constructor() : AvatarRepository {
                 .child("avatar")
                 .get()
                 .addOnSuccessListener {
-                    val bitmap = ImageEncoderDecoder.decodeFromBase64(it.value.toString())
+                    val value = it.value?.toString()
+                    val bitmap = if (value != null) ImageEncoderDecoder.decodeFromBase64(value) else null
                     continuation.resume(bitmap)
                 }
                 .addOnFailureListener {
