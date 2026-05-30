@@ -5,10 +5,6 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -27,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.utils.widget.ImageFilterButton
 import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.core.content.edit
-import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -47,8 +42,7 @@ import com.drs.auralife.core.utils.UpdateLibraryWorker
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.auth.AuthViewModel
 import com.drs.auralife.presentation.common.NotificationAdapter
-import com.drs.auralife.presentation.search.SearchFilmAdapter
-import com.drs.auralife.presentation.search.SearchViewModel
+import com.drs.auralife.presentation.search.SearchController
 import com.drs.auralife.presentation.explore.ExploreFragment
 import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
@@ -59,24 +53,24 @@ import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.presentation.start.ViewPagerAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val searchBar: EditText by lazy { findViewById(R.id.search_bar) }
-    private val searchLayout: LinearLayout by lazy { findViewById(R.id.search_layout) }
-    private val searchResults: RecyclerView by lazy { findViewById(R.id.search_results) }
+    companion object {
+        private const val PREF_NAME = "PREFERENCE"
+    }
     private val viewPager: ViewPager2 by lazy { findViewById(R.id.view_pager) }
     private val drawerLayout: DrawerLayout by lazy { findViewById(R.id.main_layout) }
     private val navigationView: NavigationView by lazy { findViewById(R.id.navigation_view) }
     private val bottomNavigationView: BottomNavigationView by lazy { findViewById(R.id.bottom_navigation_view) }
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
-    private var searchIsVisible = false
-    private val filmAdapter = SearchFilmAdapter(mutableListOf())
-    private val searchHandler = Handler(Looper.getMainLooper())
-    private var searchRunnable: Runnable? = null
+    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private var searchController: SearchController? = null
+
+    private val authViewModel: AuthViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +79,12 @@ class MainActivity : AppCompatActivity() {
         setupDrawer()
         setupBackPressed()
         setupViewPager()
-        setupSearchBar()
+        initSearchController()
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        actionBarDrawerToggle.syncState()
     }
 
     override fun onRequestPermissionsResult(
@@ -104,9 +103,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDrawerToggle() {
-        val actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
     }
 
     private fun setupDrawerHeader() {
@@ -136,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
         val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
         val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navPremiumStatus)
-        val sharedPreferences = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
 
         observePremiumStatus(navPremiumStatus, sharedPreferences)
         observeAvatarResult()
@@ -255,16 +253,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (searchIsVisible) {
-                    searchLayout.visibility = View.GONE
-                    bottomNavigationView.visibility = View.VISIBLE
-                    viewPager.visibility = View.VISIBLE
-                    searchIsVisible = false
-                    filmAdapter.clearItems()
-                    searchBar.text.clear()
-                } else {
-                    finish()
+                if (searchController?.handleBackPress() == true) {
+                    return
                 }
+                finish()
             }
         }
 
@@ -300,59 +292,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val searchViewModel: SearchViewModel by viewModels()
-    private val authViewModel: AuthViewModel by viewModels()
-    private val mainViewModel: MainViewModel by viewModels()
-
-    private fun setupSearchBar() {
-        searchResults.layoutManager = LinearLayoutManager(this)
-        searchResults.adapter = filmAdapter
-
-        observeSearchResults()
-
-        searchBar.addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    p0: CharSequence?,
-                    p1: Int,
-                    p2: Int,
-                    p3: Int,
-                ) {
-                }
-
-                override fun onTextChanged(
-                    p0: CharSequence?,
-                    p1: Int,
-                    p2: Int,
-                    p3: Int,
-                ) {
-                }
-
-                override fun afterTextChanged(s: Editable?) {
-                    searchRunnable?.let { searchHandler.removeCallbacks(it) }
-                    val query = s.toString().trim()
-                    if (query.isEmpty()) {
-                        filmAdapter.clearItems()
-                    } else {
-                        val runnable = Runnable {
-                            searchViewModel.searchFilms(query, 5)
-                        }
-                        searchRunnable = runnable
-                        searchHandler.postDelayed(runnable, 500)
-                    }
-                }
-            },
+    private fun initSearchController() {
+        val searchBar = findViewById<EditText>(R.id.search_bar)
+        val searchLayout = findViewById<LinearLayout>(R.id.search_layout)
+        val searchResults = findViewById<RecyclerView>(R.id.search_results)
+        searchController = SearchController(
+            activity = this,
+            searchBar = searchBar,
+            searchLayout = searchLayout,
+            searchResults = searchResults,
+            contentContainer = viewPager,
+            bottomNav = bottomNavigationView,
         )
+        searchController?.setup()
     }
 
-    private fun observeSearchResults() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                searchViewModel.searchResultsState.collect { results ->
-                    filmAdapter.replaceItems(results)
-                }
-            }
-        }
+    override fun onDestroy() {
+        searchController?.destroy()
+        super.onDestroy()
     }
 
     @SuppressLint("InflateParams")
@@ -383,11 +340,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         appBarSearch.setOnClickListener {
-            searchLayout.visibility = View.VISIBLE
-            bottomNavigationView.visibility = View.GONE
-            viewPager.visibility = View.GONE
-            searchBar.requestFocus()
-            searchIsVisible = true
+            searchController?.showSearch()
         }
 
         appBarNotifications.setOnClickListener {
