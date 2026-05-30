@@ -18,6 +18,7 @@ import com.drs.auralife.databinding.ActivityFilmDetailsBinding
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.presentation.auth.LoginActivity
+import com.drs.auralife.presentation.common.UiState
 import com.drs.auralife.presentation.library.AddToLibraryDialog
 import com.drs.auralife.presentation.library.LibraryViewModel
 import com.drs.auralife.presentation.playfilm.PlayFilmActivity
@@ -52,8 +53,18 @@ class FilmDetailsActivity : AppCompatActivity() {
     private fun observeFilmDetails() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filmDetailsViewModel.filmDetailsState.collect { film ->
-                    film?.let { updateUI(it) }
+                filmDetailsViewModel.filmDetailsState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> binding.root.visibility = View.GONE
+                        is UiState.Success -> {
+                            binding.root.visibility = View.VISIBLE
+                            updateUI(state.data)
+                        }
+                        is UiState.Error -> {
+                            binding.root.visibility = View.GONE
+                            Toast.makeText(this@FilmDetailsActivity, state.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }

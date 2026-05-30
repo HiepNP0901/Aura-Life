@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,46 +12,42 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class CategoryFilmsData(
+    val films: List<Film>,
+    val totalPages: Int,
+)
+
 @HiltViewModel
 class ExploreDetailViewModel @Inject constructor(
     private val getFilmsByCategoryUseCase: GetFilmsByCategoryUseCase,
 ) : ViewModel() {
 
-    private val _categoryFilmsState = MutableStateFlow<List<Film>>(emptyList())
-    val categoryFilmsState: StateFlow<List<Film>> = _categoryFilmsState.asStateFlow()
-
-    private val _categoryTotalPages = MutableStateFlow(0)
-    val categoryTotalPages: StateFlow<Int> = _categoryTotalPages.asStateFlow()
-
-    private val _isLoadingState = MutableStateFlow(false)
-    val isLoadingState: StateFlow<Boolean> = _isLoadingState.asStateFlow()
-
-    private val _errorState = MutableStateFlow<String?>(null)
-    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+    private val _categoryFilmsState = MutableStateFlow<UiState<CategoryFilmsData>>(UiState.Loading)
+    val categoryFilmsState: StateFlow<UiState<CategoryFilmsData>> = _categoryFilmsState.asStateFlow()
 
     fun getFilmsByCategory(slug: String, page: Int) {
         viewModelScope.launch {
+            _categoryFilmsState.value = UiState.Loading
             try {
-                _isLoadingState.value = true
-                _errorState.value = null
                 val result = getFilmsByCategoryUseCase(slug, page)
-                _categoryFilmsState.value = result.data
-                _categoryTotalPages.value = result.totalPages
+                _categoryFilmsState.value = UiState.Success(CategoryFilmsData(result.data, result.totalPages))
             } catch (e: Exception) {
-                _errorState.value = e.message
-            } finally {
-                _isLoadingState.value = false
+                _categoryFilmsState.value = UiState.Error(e.message ?: "Failed to load films")
             }
         }
     }
 
     fun loadMoreFilmsByCategory(slug: String, page: Int) {
         viewModelScope.launch {
-            try {
-                val result = getFilmsByCategoryUseCase(slug, page)
-                _categoryFilmsState.value = _categoryFilmsState.value + result.data
-            } catch (e: Exception) {
-                _errorState.value = e.message
+            val current = _categoryFilmsState.value
+            if (current is UiState.Success) {
+                try {
+                    val result = getFilmsByCategoryUseCase(slug, page)
+                    val appended = current.data.films + result.data
+                    _categoryFilmsState.value = UiState.Success(current.data.copy(films = appended))
+                } catch (e: Exception) {
+                    _categoryFilmsState.value = UiState.Error(e.message ?: "Failed to load more")
+                }
             }
         }
     }

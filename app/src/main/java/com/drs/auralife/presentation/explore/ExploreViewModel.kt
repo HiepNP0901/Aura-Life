@@ -7,6 +7,7 @@ import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetCategoriesUseCase
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,21 +21,17 @@ class ExploreViewModel @Inject constructor(
     private val getFilmsByCategoryUseCase: GetFilmsByCategoryUseCase,
 ) : ViewModel() {
 
-    private val _categoriesState = MutableStateFlow<List<Category>>(emptyList())
-    val categoriesState: StateFlow<List<Category>> = _categoriesState.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _categoriesState = MutableStateFlow<UiState<List<Category>>>(UiState.Loading)
+    val categoriesState: StateFlow<UiState<List<Category>>> = _categoriesState.asStateFlow()
 
     fun loadCategories() {
         viewModelScope.launch {
-            _isLoading.value = true
+            _categoriesState.value = UiState.Loading
             try {
-                _categoriesState.value = getCategoriesUseCase()
+                _categoriesState.value = UiState.Success(getCategoriesUseCase())
             } catch (e: Exception) {
                 Log.e("ExploreViewModel", "loadCategories failed", e)
-            } finally {
-                _isLoading.value = false
+                _categoriesState.value = UiState.Error(e.message ?: "Failed to load categories")
             }
         }
     }

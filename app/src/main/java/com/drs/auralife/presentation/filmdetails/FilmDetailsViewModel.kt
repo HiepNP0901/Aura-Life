@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,26 +17,21 @@ class FilmDetailsViewModel @Inject constructor(
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
 ) : ViewModel() {
 
-    private val _filmDetailsState = MutableStateFlow<FilmDetails?>(null)
-    val filmDetailsState: StateFlow<FilmDetails?> = _filmDetailsState.asStateFlow()
-
-    private val _isLoadingState = MutableStateFlow(false)
-    val isLoadingState: StateFlow<Boolean> = _isLoadingState.asStateFlow()
-
-    private val _errorState = MutableStateFlow<String?>(null)
-    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+    private val _filmDetailsState = MutableStateFlow<UiState<FilmDetails>>(UiState.Loading)
+    val filmDetailsState: StateFlow<UiState<FilmDetails>> = _filmDetailsState.asStateFlow()
 
     fun getFilmDetails(slug: String) {
         viewModelScope.launch {
+            _filmDetailsState.value = UiState.Loading
             try {
-                _isLoadingState.value = true
-                _errorState.value = null
                 val details = getFilmDetailsUseCase(slug)
-                _filmDetailsState.value = details
+                if (details != null) {
+                    _filmDetailsState.value = UiState.Success(details)
+                } else {
+                    _filmDetailsState.value = UiState.Error("Film not found")
+                }
             } catch (e: Exception) {
-                _errorState.value = e.message
-            } finally {
-                _isLoadingState.value = false
+                _filmDetailsState.value = UiState.Error(e.message ?: "Unknown error")
             }
         }
     }

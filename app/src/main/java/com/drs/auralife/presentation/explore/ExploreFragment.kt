@@ -7,11 +7,14 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.presentation.AppBarProvider
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,10 +41,14 @@ class ExploreFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-            exploreViewModel.categoriesState.collect { categories ->
-                if (_binding == null || categories.isEmpty()) return@collect
-                buildCategoryViews(categories)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                exploreViewModel.categoriesState.collect { state ->
+                    if (_binding == null) return@collect
+                    if (state is UiState.Success && state.data.isNotEmpty()) {
+                        buildCategoryViews(state.data)
+                    }
+                }
             }
         }
     }
