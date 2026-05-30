@@ -6,9 +6,17 @@ import com.drs.auralife.data.local.mapper.LocalMapper.toDomainLibrary
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryFilmCrossRefs
 import com.drs.auralife.data.remote.firebase.LibraryDataSource
+import com.drs.auralife.data.remote.firebase.model.library.Library as FirebaseLibrary
 import com.drs.auralife.domain.model.Library
+import com.drs.auralife.domain.model.LibraryFilm
 import com.drs.auralife.domain.repository.LibraryRepository
 import javax.inject.Inject
+
+private fun FirebaseLibrary.toDomainLibrary(): Library = Library(
+    name = name,
+    posterUrl = posterUrl,
+    films = listFilm.map { LibraryFilm(slug = it.slug, currentEpisode = it.episode) },
+)
 
 class LibraryRepositoryImpl @Inject constructor(
     private val libraryDao: LibraryDao,
@@ -16,7 +24,7 @@ class LibraryRepositoryImpl @Inject constructor(
 ) : LibraryRepository {
     override suspend fun getLibraries(): List<Library> {
         return try {
-            val libraries = LibraryDataSource.getLibrary()
+            val libraries = LibraryDataSource.getLibrary().map { it.toDomainLibrary() }
             libraryDao.clear()
             libraryFilmCrossRefDao.clear()
             libraries.forEach { lib ->
@@ -31,7 +39,7 @@ class LibraryRepositoryImpl @Inject constructor(
 
     override suspend fun getLibrary(name: String): Library? {
         return try {
-            val library = LibraryDataSource.getLibraryData(name)
+            val library = LibraryDataSource.getLibraryData(name)?.toDomainLibrary()
             if (library != null) {
                 libraryDao.insertLibrary(library.toLibraryEntity())
                 libraryFilmCrossRefDao.insertAll(library.toLibraryFilmCrossRefs())

@@ -4,15 +4,15 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 data class LibraryWithFilms(
-    @Embedded val library: LibraryEntity,
+    @Embedded var library: LibraryEntity,
     @Relation(
         parentColumn = "name",
-        entityColumn = "filmSlug",
+        entityColumn = "slug",
         associateBy = androidx.room.Junction(
             LibraryFilmCrossRef::class,
             parentColumn = "libraryName",
             entityColumn = "filmSlug",
         ),
     )
-    val films: List<FilmEntity>,
+    var films: List<FilmEntity>,
 )

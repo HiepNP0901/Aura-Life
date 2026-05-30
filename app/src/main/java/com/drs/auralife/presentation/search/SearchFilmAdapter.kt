@@ -20,9 +20,9 @@ class SearchFilmAdapter(
     class ViewHolder(
         itemView: View,
     ) : RecyclerView.ViewHolder(itemView) {
-        val ivPoster: ImageView = itemView.findViewById(R.id.ivPoster)
-        val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
-        val tvDetails: TextView = itemView.findViewById(R.id.tvDetails)
+        val posterView: ImageView = itemView.findViewById(R.id.posterView)
+        val tvTitle: TextView = itemView.findViewById(R.id.nameFilm)
+        val tvDetails: TextView = itemView.findViewById(R.id.details)
     }
 
     override fun onCreateViewHolder(
@@ -31,7 +31,7 @@ class SearchFilmAdapter(
     ): ViewHolder {
         val view = LayoutInflater
             .from(parent.context)
-            .inflate(R.layout.item_film, parent, false)
+            .inflate(R.layout.item_film_horizontal, parent, false)
         return ViewHolder(view)
     }
 
@@ -45,7 +45,7 @@ class SearchFilmAdapter(
         MyAppGlideModule.loadImage(
             holder.itemView.context,
             film.posterUrl,
-            holder.ivPoster,
+            holder.posterView,
         )
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, FilmDetailsActivity::class.java)
