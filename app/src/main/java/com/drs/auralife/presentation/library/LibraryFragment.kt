@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
     private var _binding: FragmentLibraryBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private val libraryViewModel: LibraryViewModel by viewModels()
     private lateinit var libraryAdapter: LibraryAdapter
 
