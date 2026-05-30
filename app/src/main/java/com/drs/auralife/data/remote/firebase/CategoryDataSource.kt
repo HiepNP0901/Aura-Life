@@ -13,9 +13,9 @@ object CategoryDataSource {
                 val categoryList = mutableListOf<Category>()
                 for (snapshot in it.children) {
                     val categoryData = Category(
-                        snapshot.key.toString(),
-                        snapshot.child("en").value.toString(),
-                        snapshot.child("vi").value.toString(),
+                        snapshot.key ?: continue,
+                        snapshot.child("en").value?.toString() ?: continue,
+                        snapshot.child("vi").value?.toString() ?: continue,
                     )
                     categoryData.let { categoryList.add(it) }
                 }

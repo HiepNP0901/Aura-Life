@@ -46,7 +46,9 @@ import com.drs.auralife.core.utils.PermissionPhotoHandler
 import com.drs.auralife.core.utils.UpdateLibraryWorker
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.auth.AuthViewModel
-import com.drs.auralife.presentation.NotificationAdapter
+import com.drs.auralife.presentation.common.NotificationAdapter
+import com.drs.auralife.presentation.search.SearchFilmAdapter
+import com.drs.auralife.presentation.search.SearchViewModel
 import com.drs.auralife.presentation.explore.ExploreFragment
 import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG

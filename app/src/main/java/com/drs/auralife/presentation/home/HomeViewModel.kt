@@ -2,21 +2,16 @@ package com.drs.auralife.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.model.Film
+import android.util.Log
 import com.drs.auralife.domain.usecase.GetBannersUseCase
 import com.drs.auralife.domain.usecase.GetLatestFilmsUseCase
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class HomeFilmsData(
-    val films: List<Film>,
-    val totalPages: Int,
-)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -61,7 +56,9 @@ class HomeViewModel @Inject constructor(
                 val result = getLatestFilmsUseCase(page)
                 val allFilms = current.data.films + result.data
                 _latestFilmsState.value = UiState.Success(HomeFilmsData(allFilms, result.totalPages))
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "loadMoreLatestFilms failed", e)
+                _latestFilmsState.value = UiState.Error(e.message ?: "Failed to load more films")
             }
         }
     }

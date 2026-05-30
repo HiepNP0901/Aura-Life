@@ -2,13 +2,14 @@ package com.drs.auralife.presentation.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.usecase.AddToHistoryUseCase
 import com.drs.auralife.domain.usecase.DeleteHistoryUseCase
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetHistoryUseCase
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -73,7 +74,8 @@ class HistoryViewModel @Inject constructor(
                 if (current is UiState.Success) {
                     _filmsState.value = UiState.Success(current.data.filter { it.slug != slug })
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("HistoryViewModel", "deleteHistory failed", e)
             }
         }
     }
@@ -87,7 +89,8 @@ class HistoryViewModel @Inject constructor(
     suspend fun getHistoryItem(slug: String): HistoryItem? {
         return try {
             getHistoryUseCase().find { it.slug == slug }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("HistoryViewModel", "getHistoryItem failed", e)
             null
         }
     }

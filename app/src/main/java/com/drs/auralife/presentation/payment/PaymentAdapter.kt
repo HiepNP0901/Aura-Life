@@ -48,8 +48,11 @@ class PaymentAdapter(
 
             // Handle item click
             itemView.setOnClickListener {
-                notifyItemChanged(selectedPosition)
+                val previousPosition = selectedPosition
                 selectedPosition = getBindingAdapterPosition()
+                if (previousPosition != RecyclerView.NO_POSITION) {
+                    notifyItemChanged(previousPosition)
+                }
                 notifyItemChanged(selectedPosition)
             }
         }

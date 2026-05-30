@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation
+package com.drs.auralife.presentation.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
