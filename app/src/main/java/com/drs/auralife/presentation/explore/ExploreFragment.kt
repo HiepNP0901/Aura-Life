@@ -57,7 +57,7 @@ class ExploreFragment : Fragment() {
                     startActivity(ExploreDetailsActivity.newInstance(currentContext, category))
                 }
 
-            val filmAdapter = CategoryFilmAdapter(mutableListOf())
+            val filmAdapter = CategoryFilmAdapter()
             item.findViewById<RecyclerView>(R.id.recyclerView).adapter = filmAdapter
             binding.exploreFragmentBody.addView(item)
 

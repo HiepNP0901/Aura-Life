@@ -24,7 +24,7 @@ private const val CATEGORY_NAME = "NAME_CATEGORY"
 class ExploreDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityExploreDetailsBinding.inflate(layoutInflater) }
     private val viewModel: ExploreDetailViewModel by viewModels()
-    private val filmAdapter by lazy { ExploreFilmAdapter(mutableListOf()) }
+    private val filmAdapter by lazy { ExploreFilmAdapter() }
     private var isLoading = false
     private var currentPage = 1
     private var totalPages = 0

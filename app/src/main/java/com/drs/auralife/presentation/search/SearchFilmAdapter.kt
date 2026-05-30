@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.Film
@@ -13,9 +15,12 @@ import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.core.utils.MyAppGlideModule
 
-class SearchFilmAdapter(
-    private val filmList: MutableList<Film>,
-) : RecyclerView.Adapter<SearchFilmAdapter.ViewHolder>() {
+class SearchFilmAdapter : RecyclerView.Adapter<SearchFilmAdapter.ViewHolder>() {
+
+    private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Film>() {
+        override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
+        override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem == newItem
+    })
 
     class ViewHolder(
         itemView: View,
@@ -39,7 +44,7 @@ class SearchFilmAdapter(
         holder: ViewHolder,
         position: Int,
     ) {
-        val film = filmList[position]
+        val film = differ.currentList[position]
         holder.tvTitle.text = film.title
         holder.tvDetails.text = film.description
         MyAppGlideModule.loadImage(
@@ -54,11 +59,9 @@ class SearchFilmAdapter(
         }
     }
 
-    override fun getItemCount(): Int = filmList.size
+    override fun getItemCount(): Int = differ.currentList.size
 
     fun replaceItems(newItems: List<Film>) {
-        filmList.clear()
-        filmList.addAll(newItems)
-        notifyDataSetChanged()
+        differ.submitList(newItems)
     }
 }

@@ -19,7 +19,7 @@ class LibraryDetailsActivity :
     LibraryFilmAdapter.Listener {
     private val binding by lazy { ActivityLibraryDetailsBinding.inflate(layoutInflater) }
     private val libraryViewModel: LibraryViewModel by viewModels()
-    private val filmAdapter = LibraryFilmAdapter(mutableListOf())
+    private val filmAdapter = LibraryFilmAdapter()
     private var libraryName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
