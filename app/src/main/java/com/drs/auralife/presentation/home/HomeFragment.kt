@@ -18,7 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
-import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.AppBarProvider
 import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -45,7 +45,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        (requireActivity() as MainActivity).setupAppBar(binding.appBar)
+        (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
         return binding.root
     }
 
