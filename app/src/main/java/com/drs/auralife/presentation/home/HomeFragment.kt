@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.MainActivity
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -124,7 +124,7 @@ class HomeFragment : Fragment() {
         if (context?.isConnectedToInternet() == true) {
             binding.recyclerView.apply {
                 val displayMetrics = resources.displayMetrics
-                var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
+                var numberFilmInLine = (displayMetrics.widthPixels / 180).coerceIn(2, 5)
                 layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
                 adapter = filmAdapter
             }

@@ -13,7 +13,7 @@ import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.presentation.MainActivity
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch

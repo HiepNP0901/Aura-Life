@@ -139,7 +139,7 @@ class PlayFilmActivity : AppCompatActivity() {
         toggleFullscreen()
         currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
         playEpisode(currentEpisode)
-        currentPosition = savedInstanceState.getLong("exoPlayerPosition", 0) - POSITION_OFFSET_MS
+        currentPosition = (savedInstanceState.getLong("exoPlayerPosition", 0) - POSITION_OFFSET_MS).coerceAtLeast(0L)
     }
 
     override fun onStop() {
@@ -221,7 +221,6 @@ class PlayFilmActivity : AppCompatActivity() {
             fullscreenButton?.setOnClickListener {
                 if (isFullscreen) {
                     isFullscreen = false
-                    fullscreenButton!!.isSelected
                     recreate()
                 } else {
                     isFullscreen = true
@@ -284,7 +283,7 @@ class PlayFilmActivity : AppCompatActivity() {
     }
 
     private fun showPremiumDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.diglog_confirm, null)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_confirm, null)
         val title = dialogView.findViewById<TextView>(R.id.title)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
         val btnCreate = dialogView.findViewById<Button>(R.id.btnConfirm)

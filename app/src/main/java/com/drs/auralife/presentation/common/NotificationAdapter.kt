@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation
+package com.drs.auralife.presentation.common
 
 import android.view.LayoutInflater
 import android.view.View

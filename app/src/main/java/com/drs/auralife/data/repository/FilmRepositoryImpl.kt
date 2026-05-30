@@ -45,9 +45,10 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
             val response = api.getFilmsByCategory(slug, page)
             val cdn = response.data.appDomainCdnImage
             val films = response.data.items.map { movie ->
-                movie.posterUrl = cdn + "/" + movie.posterUrl
-                movie.thumbUrl = cdn + "/" + movie.thumbUrl
-                movie.apiToDomainFilm()
+                movie.apiToDomainFilm().copy(
+                    posterUrl = "$cdn/${movie.posterUrl}",
+                    thumbUrl = "$cdn/${movie.thumbUrl}",
+                )
             }
             filmDao.clearFilms()
             filmDao.insertFilms(films.map { it.toFilmEntity() })
@@ -70,9 +71,10 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
         val response = api.searchFilms(keyword, limit)
         val cdn = response.data.appDomainCdnImage
         return response.data.items.map { movie ->
-            movie.posterUrl = cdn + "/" + movie.posterUrl
-            movie.thumbUrl = cdn + "/" + movie.thumbUrl
-            movie.apiToDomainFilm()
+            movie.apiToDomainFilm().copy(
+                posterUrl = "$cdn/${movie.posterUrl}",
+                thumbUrl = "$cdn/${movie.thumbUrl}",
+            )
         }
     }
 

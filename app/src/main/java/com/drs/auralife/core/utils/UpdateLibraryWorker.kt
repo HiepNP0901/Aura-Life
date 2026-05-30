@@ -2,6 +2,7 @@ package com.drs.auralife.core.utils
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
+import android.util.Log
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -87,7 +88,8 @@ class UpdateLibraryWorker(
                                 )
                                 Notification.addNotification(applicationContext, filmItem.slug, message)
                             }
-                        } catch (_: Exception) {
+                        } catch (e: Exception) {
+                            Log.e("UpdateLibraryWorker", "checkForNewEpisode failed", e)
                         }
                     }
                 }

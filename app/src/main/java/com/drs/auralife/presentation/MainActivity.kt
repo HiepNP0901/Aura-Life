@@ -46,7 +46,9 @@ import com.drs.auralife.core.utils.PermissionPhotoHandler
 import com.drs.auralife.core.utils.UpdateLibraryWorker
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.auth.AuthViewModel
-import com.drs.auralife.presentation.NotificationAdapter
+import com.drs.auralife.presentation.common.NotificationAdapter
+import com.drs.auralife.presentation.search.SearchFilmAdapter
+import com.drs.auralife.presentation.search.SearchViewModel
 import com.drs.auralife.presentation.explore.ExploreFragment
 import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
@@ -133,10 +135,10 @@ class MainActivity : AppCompatActivity() {
         val navigationHeader = navigationView.getHeaderView(0)
         val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
         val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
-        val navFreemium = navigationHeader.findViewById<TextView>(R.id.navFreemium)
+        val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navPremiumStatus)
         val sharedPreferences = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
 
-        observePremiumStatus(navFreemium, sharedPreferences)
+        observePremiumStatus(navPremiumStatus, sharedPreferences)
         observeAvatarResult()
 
         lifecycleScope.launch {
@@ -147,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                         navLogout.isVisible = true
                         navEmail.text = mainViewModel.userEmail
                         mainViewModel.loadAvatar()
-                        navFreemium.visibility = View.VISIBLE
+                        navPremiumStatus.visibility = View.VISIBLE
                         mainViewModel.loadPremiumStatus()
 
                         WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
@@ -165,7 +167,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         navLogin.isVisible = true
                         navLogout.isVisible = false
-                        navFreemium.visibility = View.GONE
+                        navPremiumStatus.visibility = View.GONE
                         navEmail.text = getString(R.string.example_email)
                         navPic.setImageResource(R.drawable.ic_profile)
                         sharedPreferences.edit { putString("ExpireDate", "") }
@@ -186,15 +188,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observePremiumStatus(
-        navFreemium: TextView,
+        navPremiumStatus: TextView,
         sharedPreferences: android.content.SharedPreferences,
     ) {
         lifecycleScope.launch {
             mainViewModel.premiumStatus.collect { status ->
                 if (status == null) return@collect
                 sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
-                navFreemium.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
-                navFreemium.setOnClickListener {
+                navPremiumStatus.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
+                navPremiumStatus.setOnClickListener {
                     startActivity(Intent(this@MainActivity, PaymentActivity::class.java))
                 }
             }
