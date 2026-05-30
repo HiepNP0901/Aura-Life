@@ -8,47 +8,28 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
 import com.drs.auralife.data.remote.api.FilmAPI
 import com.drs.auralife.data.remote.firebase.LibraryDataSource
-import com.drs.auralife.data.remote.firebase.model.library.Library
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import okhttp3.Cache
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
 
 const val CHANNEL_ID = "episode_update_channel"
 
-class UpdateLibraryWorker(
-    appContext: Context,
-    workerParams: WorkerParameters,
+@HiltWorker
+class UpdateLibraryWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParams: WorkerParameters,
+    private val api: FilmAPI,
 ) : CoroutineWorker(appContext, workerParams) {
-    private val api: FilmAPI = run {
-        val cacheSize = (5 * 1024 * 1024).toLong()
-        val cache = Cache(applicationContext.cacheDir, cacheSize)
-        val client = OkHttpClient.Builder()
-            .cache(cache)
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .header("Cache-Control", "public, max-age=${86400}")
-                    .header("Accept", "application/json")
-                    .build()
-                chain.proceed(request)
-            }.build()
-        Retrofit.Builder()
-            .baseUrl("https://phimapi.com")
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(FilmAPI::class.java)
-    }
 
     override suspend fun doWork(): Result {
         val updates = checkForNewEpisode()
@@ -99,7 +80,7 @@ class UpdateLibraryWorker(
         return updates
     }
 
-    private suspend fun getLibrary(): List<Library> = LibraryDataSource.getLibrary()
+    private suspend fun getLibrary() = LibraryDataSource.getLibrary()
 
     @SuppressLint("ObsoleteSdkInt")
     private fun sendNotification(
