@@ -1,6 +1,7 @@
 package com.drs.auralife.data.remote.firebase
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.drs.auralife.R
 import com.google.firebase.Firebase
@@ -46,8 +47,9 @@ object Authentication {
             currentUser?.sendEmailVerification()?.await() // Gửi email xác minh
             logout()
             Result.success(context.getString(R.string.please_verify_account))
-        } catch (_: Exception) {
-            Result.failure(IOException(context.getString(R.string.email_already_exist)))
+        } catch (e: Exception) {
+            Log.e("Authentication", "register failed", e)
+            Result.failure(IOException(e.message ?: context.getString(R.string.email_already_exist)))
         }
 
     fun logout() {

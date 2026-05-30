@@ -124,7 +124,7 @@ class HomeFragment : Fragment() {
         if (context?.isConnectedToInternet() == true) {
             binding.recyclerView.apply {
                 val displayMetrics = resources.displayMetrics
-                var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
+                var numberFilmInLine = (displayMetrics.widthPixels / 180).coerceIn(2, 5)
                 layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
                 adapter = filmAdapter
             }
