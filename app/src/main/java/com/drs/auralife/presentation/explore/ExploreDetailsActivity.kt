@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -29,20 +30,9 @@ class ExploreDetailsActivity : AppCompatActivity() {
     private var currentPage = 1
     private var totalPages = 0
     private var currentSlug: String? = null
+    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-
-        binding.recyclerView.apply {
-            val displayMetrics = resources.displayMetrics
-            var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
-            layoutManager = GridLayoutManager(this@ExploreDetailsActivity, ++numberFilmInLine)
-            adapter = filmAdapter
-        }
-
-        intent.getStringExtra(CATEGORY_NAME)?.let {
-            @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n")
             binding.tvNameApp.text = "${binding.tvNameApp.text} - $it"
         }
 
@@ -73,7 +63,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupPagination() {
-        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
+        scrollListener = ViewTreeObserver.OnScrollChangedListener {
             val lastVisibleItemPosition =
                 (binding.recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
             if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
@@ -84,6 +74,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener)
     }
 
     override fun onRestart() {
@@ -97,6 +88,11 @@ class ExploreDetailsActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         binding.root.isSelected = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scrollListener?.let { binding.recyclerView.viewTreeObserver.removeOnScrollChangedListener(it) }
     }
 
     companion object {
