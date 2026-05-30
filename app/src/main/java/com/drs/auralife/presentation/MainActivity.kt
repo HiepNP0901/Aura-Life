@@ -53,8 +53,10 @@ import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.presentation.start.ViewPagerAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import androidx.core.view.get
 
 @dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -133,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         val navigationHeader = navigationView.getHeaderView(0)
         val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
         val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
-        val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navPremiumStatus)
+        val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navFreemium)
         val sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
 
         observePremiumStatus(navPremiumStatus, sharedPreferences)

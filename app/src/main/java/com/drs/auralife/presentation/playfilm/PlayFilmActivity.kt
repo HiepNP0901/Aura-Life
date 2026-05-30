@@ -318,6 +318,6 @@ class PlayFilmActivity : AppCompatActivity() {
         private const val REWIND_MS = 5000L
         private const val FORWARD_MS = 15000L
         private const val PLAYER_HEIGHT_DP = 250f
-        private const val FREE_PREVIEW_LIMIT_MS = 5 * 60 * 1000
+        private const val FREE_PREVIEW_LIMIT_MS = 5L * 60 * 1000
     }
 }
