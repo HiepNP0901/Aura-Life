@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity() {
     private val filmAdapter = SearchFilmAdapter(mutableListOf())
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
+    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +87,11 @@ class MainActivity : AppCompatActivity() {
         setupBackPressed()
         setupViewPager()
         setupSearchBar()
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        actionBarDrawerToggle.syncState()
     }
 
     override fun onRequestPermissionsResult(
@@ -104,9 +110,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDrawerToggle() {
-        val actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
     }
 
     private fun setupDrawerHeader() {
