@@ -9,4 +9,8 @@ class GetFilmDetailsUseCase @javax.inject.Inject constructor(
     suspend operator fun invoke(slug: String): FilmDetails {
         return filmRepository.getFilmDetails(slug)
     }
+
+    suspend fun batch(slugs: List<String>): Map<String, FilmDetails> {
+        return filmRepository.getFilmDetailsBatch(slugs)
+    }
 }

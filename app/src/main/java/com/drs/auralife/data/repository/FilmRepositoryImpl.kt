@@ -13,6 +13,8 @@ import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.model.PagedResult
 import com.drs.auralife.domain.repository.FilmRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class FilmRepositoryImpl @javax.inject.Inject constructor(
     private val api: FilmAPI,
@@ -68,13 +70,19 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
     }
 
     override suspend fun searchFilms(keyword: String, limit: Int): List<Film> {
-        val response = api.searchFilms(keyword, limit)
-        val cdn = response.data.appDomainCdnImage
-        return response.data.items.map { movie ->
-            movie.apiToDomainFilm().copy(
-                posterUrl = "$cdn/${movie.posterUrl}",
-                thumbUrl = "$cdn/${movie.thumbUrl}",
-            )
+        return try {
+            val response = api.searchFilms(keyword, limit)
+            val cdn = response.data.appDomainCdnImage
+            val films = response.data.items.map { movie ->
+                movie.apiToDomainFilm().copy(
+                    posterUrl = "$cdn/${movie.posterUrl}",
+                    thumbUrl = "$cdn/${movie.thumbUrl}",
+                )
+            }
+            filmDao.insertFilms(films.map { it.toFilmEntity() })
+            films
+        } catch (e: Exception) {
+            filmDao.getAllFilms().map { it.toDomainFilm() }
         }
     }
 
@@ -87,5 +95,32 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
             val cached = filmDetailsDao.getFilmDetails(slug)
             cached?.toDomainFilmDetails() ?: throw e
         }
+    }
+
+    override suspend fun getFilmDetailsBatch(slugs: List<String>): Map<String, FilmDetails> {
+        val cached = filmDetailsDao.getFilmDetailsBatch(slugs)
+        val cachedMap = cached.associateBy { it.slug }
+        val uncachedSlugs = slugs.filter { it !in cachedMap }
+
+        val uncachedMap = if (uncachedSlugs.isNotEmpty()) {
+            coroutineScope {
+                uncachedSlugs.map { slug ->
+                    async {
+                        try {
+                            val details = api.getFilmDetails(slug).apiToDomainFilmDetails()
+                            filmDetailsDao.insertFilmDetails(details.toFilmDetailsEntity())
+                            slug to details
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+                }.mapNotNull { it.await() }.toMap()
+            }
+        } else {
+            emptyMap()
+        }
+
+        val all = cachedMap.mapValues { it.value.toDomainFilmDetails() } + uncachedMap
+        return slugs.mapNotNull { slug -> all[slug]?.let { slug to it } }.toMap()
     }
 }
