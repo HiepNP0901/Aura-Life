@@ -4,8 +4,6 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -33,15 +31,13 @@ import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.core.utils.SystemUiController
 import javax.inject.Inject
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlinx.coroutines.launch
 
 @dagger.hilt.android.AndroidEntryPoint
 class PlayFilmActivity : AppCompatActivity() {
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
+    private val playFilmViewModel: PlayFilmViewModel by viewModels()
     private var recyclerView: RecyclerView? = null
 
     @Inject
@@ -104,7 +100,7 @@ class PlayFilmActivity : AppCompatActivity() {
             }
         }
 
-        handler.postDelayed(checkPlaybackRunnable, PLAYBACK_INITIAL_DELAY_MS)
+        startPlaybackMonitor()
 
         settingExoPlayer()
     }
@@ -123,6 +119,9 @@ class PlayFilmActivity : AppCompatActivity() {
                 }
             }
         }
+
+        playFilmViewModel.loadPremiumStatus()
+        observePlaybackThrottle()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -155,7 +154,6 @@ class PlayFilmActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         exoPlayer?.release()
-        handler.removeCallbacks(checkPlaybackRunnable)
     }
 
     private fun playEpisode(episodeIndex: Int) {
@@ -255,28 +253,32 @@ class PlayFilmActivity : AppCompatActivity() {
         }
     }
 
-    private val handler = Handler(Looper.getMainLooper())
+    private fun startPlaybackMonitor() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    exoPlayer?.let { player ->
+                        playFilmViewModel.checkPlaybackThrottle(
+                            position = player.currentPosition,
+                            maxPreviewDurationMs = FREE_PREVIEW_LIMIT_MS,
+                        )
+                    }
+                    kotlinx.coroutines.delay(PLAYBACK_CHECK_INTERVAL_MS)
+                }
+            }
+        }
+    }
 
-    private val checkPlaybackRunnable = object : Runnable {
-        override fun run() {
-            exoPlayer?.apply {
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val isPremium = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getString(
-                    "ExpireDate",
-                    "",
-                )!! < dateFormat.format(Date())
-
-                val maxDurationMs = FREE_PREVIEW_LIMIT_MS
-
-                if (isPremium && currentPosition >= maxDurationMs) {
-                    pause()
+    private fun observePlaybackThrottle() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                playFilmViewModel.throttleEvent.collect {
+                    exoPlayer?.pause()
                     btnPlayPause?.isSelected = false
-                    seekTo(maxDurationMs.toLong() - POSITION_OFFSET_MS)
+                    exoPlayer?.seekTo(FREE_PREVIEW_LIMIT_MS - POSITION_OFFSET_MS)
                     showPremiumDialog()
                 }
             }
-
-            handler.postDelayed(this, PLAYBACK_CHECK_INTERVAL_MS)
         }
     }
 
