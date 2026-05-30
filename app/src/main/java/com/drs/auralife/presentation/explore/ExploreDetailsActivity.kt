@@ -32,7 +32,19 @@ class ExploreDetailsActivity : AppCompatActivity() {
     private var currentSlug: String? = null
     private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
 
-    @SuppressLint("SetTextI18n")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+
+        binding.recyclerView.apply {
+            val displayMetrics = resources.displayMetrics
+            var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
+            layoutManager = GridLayoutManager(this@ExploreDetailsActivity, ++numberFilmInLine)
+            adapter = filmAdapter
+        }
+
+        intent.getStringExtra(CATEGORY_NAME)?.let {
+            @SuppressLint("SetTextI18n")
             binding.tvNameApp.text = "${binding.tvNameApp.text} - $it"
         }
 
@@ -74,7 +86,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener)
+        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener!!)
     }
 
     override fun onRestart() {
