@@ -151,19 +151,6 @@ class MainActivity : AppCompatActivity() {
                         mainViewModel.loadAvatar()
                         navPremiumStatus.visibility = View.VISIBLE
                         mainViewModel.loadPremiumStatus()
-
-                        WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
-                            "UpdateEpisodeWork",
-                            ExistingPeriodicWorkPolicy.KEEP,
-                            PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
-                                6,
-                                TimeUnit.HOURS,
-                            ).build(),
-                        )
-
-                        WorkManager
-                            .getInstance(this@MainActivity)
-                            .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
                     } else {
                         navLogin.isVisible = true
                         navLogout.isVisible = false
@@ -173,6 +160,24 @@ class MainActivity : AppCompatActivity() {
                         sharedPreferences.edit { putString("ExpireDate", "") }
                     }
                 }
+            }
+        }
+
+        lifecycleScope.launch {
+            val isLoggedIn = mainViewModel.authState.first()
+            if (isLoggedIn) {
+                WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
+                    "UpdateEpisodeWork",
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
+                        6,
+                        TimeUnit.HOURS,
+                    ).build(),
+                )
+
+                WorkManager
+                    .getInstance(this@MainActivity)
+                    .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
             }
         }
 
