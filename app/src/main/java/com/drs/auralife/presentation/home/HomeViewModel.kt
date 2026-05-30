@@ -2,7 +2,6 @@ package com.drs.auralife.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetBannersUseCase
 import com.drs.auralife.domain.usecase.GetLatestFilmsUseCase
 import com.drs.auralife.presentation.UiState
@@ -12,11 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class HomeFilmsData(
-    val films: List<Film>,
-    val totalPages: Int,
-)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
