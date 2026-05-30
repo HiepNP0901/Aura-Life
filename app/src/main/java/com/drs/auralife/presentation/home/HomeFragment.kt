@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.MainActivity
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

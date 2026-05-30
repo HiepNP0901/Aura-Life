@@ -12,7 +12,7 @@ import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetLibraryUseCase
 import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase
 import com.drs.auralife.domain.usecase.RenameLibraryUseCase
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

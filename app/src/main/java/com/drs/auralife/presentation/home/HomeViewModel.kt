@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import android.util.Log
 import com.drs.auralife.domain.usecase.GetBannersUseCase
 import com.drs.auralife.domain.usecase.GetLatestFilmsUseCase
-import com.drs.auralife.presentation.UiState
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
