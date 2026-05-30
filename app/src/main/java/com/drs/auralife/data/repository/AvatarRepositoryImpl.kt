@@ -24,7 +24,8 @@ class AvatarRepositoryImpl @Inject constructor() : AvatarRepository {
                 .child("avatar")
                 .get()
                 .addOnSuccessListener {
-                    val bitmap = ImageEncoderDecoder.decodeFromBase64(it.value.toString())
+                    val value = it.value?.toString()
+                    val bitmap = if (value != null) ImageEncoderDecoder.decodeFromBase64(value) else null
                     continuation.resume(bitmap)
                 }
                 .addOnFailureListener {
