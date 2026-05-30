@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit
 import androidx.core.view.get
 
 @dagger.hilt.android.AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AppBarProvider {
     companion object {
         private const val PREF_NAME = "PREFERENCE"
     }
@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private var searchController: SearchController? = null
+    private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
 
     private val authViewModel: AuthViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
@@ -275,13 +276,12 @@ class MainActivity : AppCompatActivity() {
 
         viewPager.isUserInputEnabled = false
         viewPager.adapter = ViewPagerAdapter(this, fragments)
-        viewPager.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    bottomNavigationView.menu[position].isChecked = true
-                }
-            },
-        )
+        pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                bottomNavigationView.menu[position].isChecked = true
+            }
+        }
+        viewPager.registerOnPageChangeCallback(pageChangeCallback!!)
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -311,11 +311,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         searchController?.destroy()
+        pageChangeCallback?.let { viewPager.unregisterOnPageChangeCallback(it) }
+        drawerLayout.removeDrawerListener(actionBarDrawerToggle)
         super.onDestroy()
     }
 
     @SuppressLint("InflateParams")
-    fun setupAppBar(view: FrameLayout) {
+    override fun setupAppBar(view: FrameLayout) {
         view.addView(layoutInflater.inflate(R.layout.app_bar, null), 0)
         val appBarProfile = view.findViewById<ImageFilterButton>(R.id.app_bar_profile)
         val appBarSearch = view.findViewById<ImageButton>(R.id.app_bar_search)

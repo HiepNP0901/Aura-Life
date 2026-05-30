@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,7 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
-import com.drs.auralife.presentation.MainActivity
+import com.drs.auralife.presentation.AppBarProvider
 import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -32,12 +33,13 @@ class HomeFragment : Fragment() {
     private val filmAdapter = HomeFilmAdapter(mutableListOf())
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     private val homeViewModel: HomeViewModel by viewModels()
 
     private val bannerHandler = Handler(Looper.getMainLooper())
     private var bannerRunnable: Runnable? = null
+    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,7 +47,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        (requireActivity() as MainActivity).setupAppBar(binding.appBar)
+        (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
         return binding.root
     }
 
@@ -81,7 +83,8 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
+        scrollListener?.let { binding.recyclerView.viewTreeObserver.removeOnScrollChangedListener(it) }
+        scrollListener = null
         _binding = null
     }
 
@@ -135,8 +138,8 @@ class HomeFragment : Fragment() {
             homeViewModel.getLatestFilms(currentPage)
 
             val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
-                if (_binding == null) return@addOnScrollChangedListener
+            scrollListener = ViewTreeObserver.OnScrollChangedListener {
+                if (_binding == null) return@OnScrollChangedListener
                 if (currentPage < totalPages) {
                     val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                     if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
@@ -153,6 +156,7 @@ class HomeFragment : Fragment() {
                     binding.scrollToTopButton.visibility = View.GONE
                 }
             }
+            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener)
 
             binding.scrollToTopButton.setOnClickListener {
                 binding.recyclerView.smoothScrollToPosition(0)

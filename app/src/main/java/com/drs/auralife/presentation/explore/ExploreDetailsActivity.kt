@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
+import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -29,6 +29,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
     private var currentPage = 1
     private var totalPages = 0
     private var currentSlug: String? = null
+    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +74,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupPagination() {
-        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener {
+        scrollListener = ViewTreeObserver.OnScrollChangedListener {
             val lastVisibleItemPosition =
                 (binding.recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
             if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
@@ -84,19 +85,26 @@ class ExploreDetailsActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener!!)
     }
 
     override fun onRestart() {
         super.onRestart()
-        @Suppress("DEPRECATION")
-        Handler().postDelayed({
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(3000)
+            if (isDestroyed) return@launch
             binding.root.isSelected = true
-        }, 3000)
+        }
     }
 
     override fun onPause() {
         super.onPause()
         binding.root.isSelected = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scrollListener?.let { binding.recyclerView.viewTreeObserver.removeOnScrollChangedListener(it) }
     }
 
     companion object {
