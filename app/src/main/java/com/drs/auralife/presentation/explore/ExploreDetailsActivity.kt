@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -91,10 +90,11 @@ class ExploreDetailsActivity : AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
-        @Suppress("DEPRECATION")
-        Handler().postDelayed({
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(3000)
+            if (isDestroyed) return@launch
             binding.root.isSelected = true
-        }, 3000)
+        }
     }
 
     override fun onPause() {

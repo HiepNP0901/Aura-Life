@@ -33,7 +33,7 @@ class HomeFragment : Fragment() {
     private val filmAdapter = HomeFilmAdapter(mutableListOf())
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     private val homeViewModel: HomeViewModel by viewModels()
 

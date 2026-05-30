@@ -21,7 +21,7 @@ import java.util.Locale
 class ExploreFragment : Fragment() {
     private val exploreViewModel: ExploreViewModel by viewModels()
     private var _binding: FragmentExploreBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(
         inflater: LayoutInflater,
