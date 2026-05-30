@@ -4,8 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +19,7 @@ import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.MainActivity
 import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -35,9 +34,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val homeViewModel: HomeViewModel by viewModels()
-
-    private val bannerHandler = Handler(Looper.getMainLooper())
-    private var bannerRunnable: Runnable? = null
+    private var autoScrollJob: kotlinx.coroutines.Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,23 +62,8 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        bannerRunnable?.let {
-            bannerHandler.removeCallbacks(it)
-            bannerHandler.postDelayed(it, BANNER_SCROLL_INTERVAL_MS)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        view?.isSelected = false
-        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
         _binding = null
     }
 
@@ -95,21 +77,7 @@ class HomeFragment : Fragment() {
                         if (bannerData.isEmpty()) return@collect
                         val bannerViewPager = binding.bannerViewPager
                         bannerViewPager.adapter = BannerAdapter(bannerData)
-
-                        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
-
-                        val runnable = object : Runnable {
-                            override fun run() {
-                                if (_binding == null) return
-                                val currentItem = bannerViewPager.currentItem
-                                val nextItem = if (currentItem == bannerData.size - 1) 0 else currentItem + 1
-                                bannerViewPager.setCurrentItem(nextItem, true)
-                                bannerHandler.postDelayed(this, BANNER_SCROLL_INTERVAL_MS)
-                            }
-                        }
-
-                        bannerRunnable = runnable
-                        bannerHandler.postDelayed(runnable, BANNER_SCROLL_INTERVAL_MS)
+                        startAutoScroll(bannerViewPager, bannerData.size)
                     }
                     is UiState.Error -> {
                         Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
@@ -192,6 +160,21 @@ class HomeFragment : Fragment() {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun startAutoScroll(bannerViewPager: androidx.viewpager2.widget.ViewPager2, count: Int) {
+        autoScrollJob?.cancel()
+        autoScrollJob = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    delay(BANNER_SCROLL_INTERVAL_MS)
+                    if (_binding == null) break
+                    val currentItem = bannerViewPager.currentItem
+                    val nextItem = if (currentItem == count - 1) 0 else currentItem + 1
+                    bannerViewPager.setCurrentItem(nextItem, true)
+                }
+            }
+        }
     }
 
     companion object {
