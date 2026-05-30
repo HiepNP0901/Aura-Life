@@ -22,7 +22,6 @@ import com.drs.auralife.presentation.library.AddToLibraryDialog
 import com.drs.auralife.presentation.library.LibraryViewModel
 import com.drs.auralife.presentation.playfilm.PlayFilmActivity
 import com.drs.auralife.core.utils.MyAppGlideModule
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
@@ -34,9 +33,6 @@ class FilmDetailsActivity : AppCompatActivity() {
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val libraryViewModel: LibraryViewModel by viewModels()
     private var slug: String? = null
-
-    @Inject
-    lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,7 +85,7 @@ class FilmDetailsActivity : AppCompatActivity() {
         }
 
         binding.addToLibrary.setOnClickListener {
-            if (authRepository.isLoggedIn()) {
+            if (libraryViewModel.isLoggedIn()) {
                 lifecycleScope.launch {
                     libraryViewModel.getLibraries()
                     val libraries = libraryViewModel.librariesLoaded.first()

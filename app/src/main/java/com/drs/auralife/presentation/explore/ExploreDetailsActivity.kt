@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.ViewTreeObserver
+import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -29,7 +29,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
     private var currentPage = 1
     private var totalPages = 0
     private var currentSlug: String? = null
-    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
+    private var scrollListener: RecyclerView.OnScrollListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,18 +74,24 @@ class ExploreDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupPagination() {
-        scrollListener = ViewTreeObserver.OnScrollChangedListener {
-            val lastVisibleItemPosition =
-                (binding.recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
-            if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
-                isLoading = true
-                currentPage++
-                currentSlug?.let { slug ->
-                    viewModel.loadMoreFilmsByCategory(slug, currentPage)
+        scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val lastVisibleItemPosition =
+                    (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
+                    isLoading = true
+                    currentPage++
+                    currentSlug?.let { slug ->
+                        viewModel.loadMoreFilmsByCategory(slug, currentPage)
+                    }
                 }
             }
         }
+<<<<<<< Updated upstream
         binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener!!)
+=======
+        scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
+>>>>>>> Stashed changes
     }
 
     override fun onRestart() {
@@ -104,7 +110,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        scrollListener?.let { binding.recyclerView.viewTreeObserver.removeOnScrollChangedListener(it) }
+        scrollListener?.let { binding.recyclerView.removeOnScrollListener(it) }
     }
 
     companion object {
