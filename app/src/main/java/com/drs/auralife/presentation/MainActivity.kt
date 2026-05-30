@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
     private val navigationView: NavigationView by lazy { findViewById(R.id.navigation_view) }
     private val bottomNavigationView: BottomNavigationView by lazy { findViewById(R.id.bottom_navigation_view) }
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
+    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private var searchController: SearchController? = null
 
     private val authViewModel: AuthViewModel by viewModels()
@@ -79,6 +80,11 @@ class MainActivity : AppCompatActivity() {
         setupBackPressed()
         setupViewPager()
         initSearchController()
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        actionBarDrawerToggle.syncState()
     }
 
     override fun onRequestPermissionsResult(
@@ -97,9 +103,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDrawerToggle() {
-        val actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
     }
 
     private fun setupDrawerHeader() {
