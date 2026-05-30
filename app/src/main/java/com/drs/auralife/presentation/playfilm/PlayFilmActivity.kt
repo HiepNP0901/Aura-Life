@@ -223,7 +223,6 @@ class PlayFilmActivity : AppCompatActivity() {
             fullscreenButton?.setOnClickListener {
                 if (isFullscreen) {
                     isFullscreen = false
-                    fullscreenButton!!.isSelected
                     recreate()
                 } else {
                     isFullscreen = true

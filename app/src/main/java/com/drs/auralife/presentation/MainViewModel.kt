@@ -1,6 +1,7 @@
 package com.drs.auralife.presentation
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.PremiumStatus
@@ -44,7 +45,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _premiumStatus.value = getPremiumStatusUseCase()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "loadPremiumStatus failed", e)
             }
         }
     }
@@ -53,7 +55,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _avatarState.value = avatarRepository.getAvatar()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "loadAvatar failed", e)
                 _avatarState.value = null
             }
         }
