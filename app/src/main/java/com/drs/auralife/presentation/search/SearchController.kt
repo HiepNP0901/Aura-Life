@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.drs.auralife.presentation.common.UiState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -76,8 +77,10 @@ class SearchController(
     private fun observeSearchResults() {
         activity.lifecycleScope.launch {
             activity.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                searchViewModel.searchResultsState.collect { results ->
-                    filmAdapter.replaceItems(results)
+                searchViewModel.searchResultsState.collect { state ->
+                    if (state is UiState.Success) {
+                        filmAdapter.replaceItems(state.data)
+                    }
                 }
             }
         }

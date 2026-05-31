@@ -26,6 +26,7 @@ import com.drs.auralife.presentation.filmdetails.FilmDetailsViewModel
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.auth.LoginActivity
+import com.drs.auralife.presentation.common.UiState
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.core.utils.SystemUiController
@@ -103,11 +104,11 @@ class PlayFilmActivity : AppCompatActivity() {
     private fun observeFilmDetails() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                filmDetailsViewModel.filmDetailsState.collect { details ->
-                    details?.let {
-                        film = it
+                filmDetailsViewModel.filmDetailsState.collect { state ->
+                    if (state is UiState.Success) {
+                        film = state.data
                         playEpisode(currentEpisode)
-                        recyclerView?.adapter = EpisodeAdapter(it.episodes) { ep ->
+                        recyclerView?.adapter = EpisodeAdapter(state.data.episodes) { ep ->
                             playEpisode(ep)
                         }
                     }

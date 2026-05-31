@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.presentation.AppBarProvider
+import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -42,9 +43,11 @@ class ExploreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                exploreViewModel.categoriesState.collect { categories ->
-                    if (_binding == null || categories.isEmpty()) return@collect
-                    buildCategoryViews(categories)
+                exploreViewModel.categoriesState.collect { state ->
+                    if (_binding == null) return@collect
+                    if (state is UiState.Success && state.data.isNotEmpty()) {
+                        buildCategoryViews(state.data)
+                    }
                 }
             }
         }

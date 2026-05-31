@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.databinding.ActivityExploreDetailsBinding
-import com.drs.auralife.domain.model.Film
+import com.drs.auralife.presentation.common.UiState
 import java.util.Locale
 import kotlinx.coroutines.launch
 
@@ -58,16 +59,19 @@ class ExploreDetailsActivity : AppCompatActivity() {
     private fun observeCategoryFilms() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.categoryFilmsState.collect { films ->
-                    filmAdapter.replaceItems(films)
-                    isLoading = false
-                }
-            }
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.categoryTotalPages.collect { pages ->
-                    totalPages = pages
+                viewModel.categoryFilmsState.collect { state ->
+                    when (state) {
+                        is UiState.Success -> {
+                            filmAdapter.replaceItems(state.data.films)
+                            totalPages = state.data.totalPages
+                            isLoading = false
+                        }
+                        is UiState.Error -> {
+                            Toast.makeText(this@ExploreDetailsActivity, state.message, Toast.LENGTH_SHORT).show()
+                            isLoading = false
+                        }
+                        is UiState.Loading -> isLoading = true
+                    }
                 }
             }
         }
