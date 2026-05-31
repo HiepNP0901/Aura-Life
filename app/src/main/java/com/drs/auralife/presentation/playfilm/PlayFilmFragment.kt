@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.FilmDetails
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.presentation.filmdetails.FilmDetailsViewModel
 import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.playfilm.adapter.EpisodeAdapter
@@ -160,10 +161,10 @@ class PlayFilmFragment : Fragment() {
                             showPremiumDialog()
                         }
                         is PlayFilmUiEffect.NavigateToPayment -> {
-                            findNavController().navigate(R.id.action_play_film_to_payment)
+                            findNavController().navigate(NavRoutes.PAYMENT)
                         }
                         is PlayFilmUiEffect.NavigateToLogin -> {
-                            findNavController().navigate(R.id.action_play_film_to_login)
+                            findNavController().navigate(NavRoutes.LOGIN)
                         }
                     }
                 }

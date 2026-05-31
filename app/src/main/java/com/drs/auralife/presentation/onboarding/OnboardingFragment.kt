@@ -8,10 +8,12 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.OnboardingItem
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.presentation.onboarding.adapter.OnboardingAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,7 +74,10 @@ class OnboardingFragment : Fragment() {
                 onboardingViewModel.effect.collect { effect ->
                     when (effect) {
                         is OnboardingUiEffect.NavigateToMain -> {
-                            findNavController().navigate(R.id.action_onboarding_to_home)
+                            findNavController().navigate(
+                                NavRoutes.HOME,
+                                NavOptions.Builder().setPopUpTo(R.id.splash, true).build(),
+                            )
                         }
                     }
                 }
