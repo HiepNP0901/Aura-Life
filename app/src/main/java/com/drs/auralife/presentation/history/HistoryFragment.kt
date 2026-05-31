@@ -24,7 +24,7 @@ class HistoryFragment :
     private val historyViewModel: HistoryViewModel by viewModels()
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
-    private val filmAdapter = HistoryFilmAdapter(mutableListOf())
+    private val filmAdapter = HistoryFilmAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,

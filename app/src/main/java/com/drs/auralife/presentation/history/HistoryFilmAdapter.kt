@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.Film
@@ -13,9 +15,12 @@ import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.core.utils.MyAppGlideModule
 
-class HistoryFilmAdapter(
-    private val films: MutableList<Film>,
-) : RecyclerView.Adapter<HistoryFilmAdapter.ViewHolder>() {
+class HistoryFilmAdapter : RecyclerView.Adapter<HistoryFilmAdapter.ViewHolder>() {
+
+    private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Film>() {
+        override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
+        override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem == newItem
+    })
 
     interface Listener {
         fun onLongClick(slug: String)
@@ -40,7 +45,7 @@ class HistoryFilmAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val film = films[position]
+        val film = differ.currentList[position]
         holder.apply {
             tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -59,16 +64,13 @@ class HistoryFilmAdapter(
         }
     }
 
-    override fun getItemCount(): Int = films.size
+    override fun getItemCount(): Int = differ.currentList.size
 
     fun replaceItems(newItems: List<Film>) {
-        films.clear()
-        films.addAll(newItems)
-        notifyDataSetChanged()
+        differ.submitList(newItems)
     }
 
     fun clearItems() {
-        films.clear()
-        notifyDataSetChanged()
+        differ.submitList(emptyList())
     }
 }

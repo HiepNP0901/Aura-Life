@@ -30,7 +30,7 @@ class SearchController(
     private val bottomNav: View,
 ) {
     private val searchViewModel: SearchViewModel by activity.viewModels()
-    private val filmAdapter = SearchFilmAdapter(mutableListOf())
+    private val filmAdapter = SearchFilmAdapter()
     private val queryFlow = MutableStateFlow("")
     private var searchIsVisible = false
     private lateinit var textWatcher: TextWatcher

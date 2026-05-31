@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.Film
@@ -13,9 +15,12 @@ import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.core.utils.MyAppGlideModule
 
-class HomeFilmAdapter(
-    private val films: MutableList<Film>,
-) : RecyclerView.Adapter<HomeFilmAdapter.ViewHolder>() {
+class HomeFilmAdapter : RecyclerView.Adapter<HomeFilmAdapter.ViewHolder>() {
+
+    private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Film>() {
+        override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
+        override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem == newItem
+    })
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivPoster: ImageView = itemView.findViewById(R.id.posterView)
@@ -30,7 +35,7 @@ class HomeFilmAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val film = films[position]
+        val film = differ.currentList[position]
         holder.apply {
             tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -45,11 +50,9 @@ class HomeFilmAdapter(
         }
     }
 
-    override fun getItemCount(): Int = films.size
+    override fun getItemCount(): Int = differ.currentList.size
 
     fun replaceItems(newItems: List<Film>) {
-        films.clear()
-        films.addAll(newItems)
-        notifyDataSetChanged()
+        differ.submitList(newItems)
     }
 }

@@ -41,7 +41,6 @@ class LibraryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         libraryAdapter = LibraryAdapter(
-            library = mutableListOf(),
             onRename = { oldName, newName ->
                 libraryViewModel.renameLibrary(oldName, newName)
             },

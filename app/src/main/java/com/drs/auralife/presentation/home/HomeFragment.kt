@@ -30,7 +30,7 @@ class HomeFragment : Fragment() {
     private var isLoading = false
     private var currentPage = 1
     private var totalPages = 0
-    private val filmAdapter = HomeFilmAdapter(mutableListOf())
+    private val filmAdapter = HomeFilmAdapter()
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
