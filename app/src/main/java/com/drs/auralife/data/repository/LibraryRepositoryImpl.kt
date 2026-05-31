@@ -68,4 +68,8 @@ class LibraryRepositoryImpl @Inject constructor(
     override suspend fun deleteLibrary(name: String): Boolean {
         return libraryDataSource.deleteLibrary(name)
     }
+
+    override suspend fun updatePosterUrl(name: String, posterUrl: String) {
+        libraryDataSource.updatePosterUrl(name, posterUrl)
+    }
 }

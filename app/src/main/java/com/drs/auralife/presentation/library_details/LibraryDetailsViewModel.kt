@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.Library
+import com.drs.auralife.domain.repository.LibraryRepository
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetLibraryUseCase
 import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase
@@ -22,6 +23,7 @@ class LibraryDetailsViewModel @Inject constructor(
     private val getLibraryUseCase: GetLibraryUseCase,
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
     private val removeFilmFromLibraryUseCase: RemoveFilmFromLibraryUseCase,
+    private val libraryRepository: LibraryRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LibraryDetailUiState())
@@ -66,6 +68,17 @@ class LibraryDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 removeFilmFromLibraryUseCase(libraryName, slug)
+
+                val lib = getLibraryUseCase().find { it.name == libraryName }
+                if (lib != null && lib.films.isNotEmpty()) {
+                    val slugs = lib.films.map { it.slug }
+                    val detailsMap = getFilmDetailsUseCase.batch(slugs)
+                    val firstFilmDetail = detailsMap[slugs.first()]
+                    if (firstFilmDetail != null) {
+                        libraryRepository.updatePosterUrl(libraryName, firstFilmDetail.posterUrl)
+                    }
+                }
+
                 loadLibraryFilms(libraryName)
                 _effect.emit(LibraryDetailUiEffect.ShowToast("Removed from library"))
             } catch (e: Exception) {
