@@ -2,20 +2,16 @@ package com.drs.auralife.presentation.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.model.LibraryFilm
 import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.usecase.AddToLibraryUseCase
 import com.drs.auralife.domain.usecase.CreateLibraryUseCase
 import com.drs.auralife.domain.usecase.DeleteLibraryUseCase
-import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetLibraryUseCase
 import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase
 import com.drs.auralife.domain.usecase.RenameLibraryUseCase
-import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,17 +29,13 @@ class LibraryViewModel @Inject constructor(
     private val removeFilmFromLibraryUseCase: RemoveFilmFromLibraryUseCase,
     private val renameLibraryUseCase: RenameLibraryUseCase,
     private val deleteLibraryUseCase: DeleteLibraryUseCase,
-    private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     fun isLoggedIn() = authRepository.isLoggedIn()
 
-    private val _librariesState = MutableStateFlow<UiState<List<Library>>>(UiState.Loading)
-    val librariesState: StateFlow<UiState<List<Library>>> = _librariesState.asStateFlow()
-
-    private val _libraryFilmsState = MutableStateFlow<UiState<List<Film>>>(UiState.Loading)
-    val libraryFilmsState: StateFlow<UiState<List<Film>>> = _libraryFilmsState.asStateFlow()
+    private val _librariesState = MutableStateFlow(LibraryUiState())
+    val librariesState: StateFlow<LibraryUiState> = _librariesState.asStateFlow()
 
     private val _operationResult = MutableSharedFlow<Result<Boolean>>()
     val operationResult: SharedFlow<Result<Boolean>> = _operationResult.asSharedFlow()
@@ -53,101 +45,38 @@ class LibraryViewModel @Inject constructor(
 
     fun getLibraries() {
         viewModelScope.launch {
-            _librariesState.value = UiState.Loading
-            _librariesState.value = try {
+            _librariesState.value = _librariesState.value.copy(isLoading = true)
+            try {
                 val libs = getLibraryUseCase()
                 _librariesLoaded.emit(libs)
-                UiState.Success(libs)
+                _librariesState.value = _librariesState.value.copy(libraries = libs, isLoading = false)
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Failed to load libraries")
+                _librariesState.value = _librariesState.value.copy(isLoading = false, errorMessage = e.message)
             }
         }
     }
 
-    fun loadLibraryFilms(name: String) {
-        viewModelScope.launch {
-            _libraryFilmsState.value = UiState.Loading
-            _libraryFilmsState.value = try {
-                val lib = getLibraryUseCase().find { it.name == name } ?: return@launch
-                val films = buildFilmsFromLibrary(lib)
-                UiState.Success(films)
-            } catch (e: Exception) {
-                UiState.Error(e.message ?: "Failed to load library films")
-            }
-        }
-    }
-
-    private suspend fun buildFilmsFromLibrary(lib: Library): List<Film> {
-        val slugs = lib.films.map { it.slug }
-        val detailsMap = getFilmDetailsUseCase.batch(slugs)
-        return lib.films.mapNotNull { filmLib ->
-            detailsMap[filmLib.slug]?.let { fd ->
-                Film(
-                    id = fd.slug,
-                    slug = fd.slug,
-                    title = fd.title,
-                    posterUrl = fd.posterUrl,
-                    thumbUrl = fd.thumbUrl,
-                    description = fd.description,
-                    category = fd.categories?.firstOrNull() ?: "",
-                    episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
-                )
-            }
-        }
-    }
-
-    fun addToLibrary(
-        name: String,
-        slug: String,
-        posterUrl: String,
-        episodeCurrent: String,
-    ) {
+    fun addToLibrary(name: String, slug: String, posterUrl: String, episodeCurrent: String) {
         viewModelScope.launch {
             val library = Library(
                 name = name,
                 posterUrl = posterUrl,
-                films = listOf(
-                    LibraryFilm(
-                        slug = slug,
-                        currentEpisode = episodeCurrent,
-                    )
-                ),
+                films = listOf(LibraryFilm(slug = slug, currentEpisode = episodeCurrent)),
             )
             val result = addToLibraryUseCase(library)
             _operationResult.emit(Result.success(result))
         }
     }
 
-    fun createLibrary(
-        name: String,
-        posterUrl: String,
-        slug: String,
-        episodeCurrent: String,
-    ) {
+    fun createLibrary(name: String, posterUrl: String, slug: String, episodeCurrent: String) {
         viewModelScope.launch {
             val library = Library(
                 name = name,
                 posterUrl = posterUrl,
-                films = listOf(
-                    LibraryFilm(
-                        slug = slug,
-                        currentEpisode = episodeCurrent,
-                    )
-                ),
+                films = listOf(LibraryFilm(slug = slug, currentEpisode = episodeCurrent)),
             )
             val result = createLibraryUseCase(library)
             _operationResult.emit(Result.success(result))
-        }
-    }
-
-    fun removeFilm(libraryName: String, slug: String) {
-        viewModelScope.launch {
-            try {
-                val result = removeFilmFromLibraryUseCase(libraryName, slug)
-                _operationResult.emit(Result.success(result))
-            } catch (e: Exception) {
-                _operationResult.emit(Result.failure(e))
-            }
         }
     }
 

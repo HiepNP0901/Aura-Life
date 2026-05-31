@@ -7,10 +7,12 @@ import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetCategoriesUseCase
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
-import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,17 +23,20 @@ class ExploreViewModel @Inject constructor(
     private val getFilmsByCategoryUseCase: GetFilmsByCategoryUseCase,
 ) : ViewModel() {
 
-    private val _categoriesState = MutableStateFlow<UiState<List<Category>>>(UiState.Loading)
-    val categoriesState: StateFlow<UiState<List<Category>>> = _categoriesState.asStateFlow()
+    private val _state = MutableStateFlow(ExploreUiState())
+    val state: StateFlow<ExploreUiState> = _state.asStateFlow()
+
+    private val _effect = MutableSharedFlow<ExploreUiEffect>()
+    val effect: SharedFlow<ExploreUiEffect> = _effect.asSharedFlow()
 
     fun loadCategories() {
         viewModelScope.launch {
-            _categoriesState.value = UiState.Loading
+            _state.value = _state.value.copy(isLoading = true)
             try {
-                _categoriesState.value = UiState.Success(getCategoriesUseCase())
+                _state.value = _state.value.copy(categories = getCategoriesUseCase(), isLoading = false)
             } catch (e: Exception) {
                 Log.e("ExploreViewModel", "loadCategories failed", e)
-                _categoriesState.value = UiState.Error(e.message ?: "Failed to load categories")
+                _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
             }
         }
     }
@@ -45,6 +50,18 @@ class ExploreViewModel @Inject constructor(
                 Log.e("ExploreViewModel", "getFilmsByCategoryList failed", e)
                 onResult(null)
             }
+        }
+    }
+
+    fun onCategoryClicked(slug: String, name: String) {
+        viewModelScope.launch {
+            _effect.emit(ExploreUiEffect.NavigateToCategory(slug, name))
+        }
+    }
+
+    fun onFilmClicked(slug: String) {
+        viewModelScope.launch {
+            _effect.emit(ExploreUiEffect.NavigateToFilm(slug))
         }
     }
 }

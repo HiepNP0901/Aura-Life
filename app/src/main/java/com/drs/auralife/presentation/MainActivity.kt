@@ -1,7 +1,6 @@
 package com.drs.auralife.presentation
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -27,9 +26,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
@@ -39,50 +40,68 @@ import com.drs.auralife.core.utils.MyAppGlideModule
 import com.drs.auralife.core.utils.Notification
 import com.drs.auralife.core.utils.PermissionPhotoHandler
 import com.drs.auralife.core.utils.UpdateLibraryWorker
-import com.drs.auralife.presentation.auth.LoginActivity
-import com.drs.auralife.presentation.auth.AuthViewModel
 import com.drs.auralife.presentation.common.NotificationAdapter
-import com.drs.auralife.presentation.search.SearchController
-import com.drs.auralife.presentation.explore.ExploreFragment
-import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
-import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
-import com.drs.auralife.presentation.history.HistoryFragment
-import com.drs.auralife.presentation.home.HomeFragment
-import com.drs.auralife.presentation.library.LibraryFragment
-import com.drs.auralife.presentation.payment.PaymentActivity
-import com.drs.auralife.presentation.start.ViewPagerAdapter
+import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.presentation.search.SearchFilmAdapter
+import com.drs.auralife.presentation.search.SearchUiEffect
+import com.drs.auralife.presentation.search.SearchUiState
+import com.drs.auralife.presentation.search.SearchViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
-import androidx.core.view.get
 
-@dagger.hilt.android.AndroidEntryPoint
+    @dagger.hilt.android.AndroidEntryPoint
+@OptIn(FlowPreview::class)
 class MainActivity : AppCompatActivity(), AppBarProvider {
     companion object {
         private const val PREF_NAME = "PREFERENCE"
     }
-    private val viewPager: ViewPager2 by lazy { findViewById(R.id.view_pager) }
-    private val drawerLayout: DrawerLayout by lazy { findViewById(R.id.main_layout) }
-    private val navigationView: NavigationView by lazy { findViewById(R.id.navigation_view) }
-    private val bottomNavigationView: BottomNavigationView by lazy { findViewById(R.id.bottom_navigation_view) }
+
+    private lateinit var navController: NavController
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var bottomNavigationView: BottomNavigationView
+
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-    private var searchController: SearchController? = null
-    private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
+    private var pageChangeCallback: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback? = null
 
-    private val authViewModel: AuthViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
+
+    private var searchBar: EditText? = null
+    private var searchLayout: LinearLayout? = null
+    private var searchResults: RecyclerView? = null
+    private var searchAdapter: SearchFilmAdapter? = null
+    private val searchQueryFlow = kotlinx.coroutines.flow.MutableStateFlow("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
+        drawerLayout = findViewById(R.id.main_layout)
+        navigationView = findViewById(R.id.navigation_view)
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        searchLayout = findViewById(R.id.search_layout)
+        searchBar = findViewById(R.id.search_bar)
+        searchResults = findViewById(R.id.search_results)
+
+        setupBottomNav()
         setupDrawer()
         setupBackPressed()
-        setupViewPager()
-        initSearchController()
+        hideBottomNavOnDetailScreens()
+        setupSearch()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -97,6 +116,10 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionPhotoHandler?.handlePermissionsResult(requestCode, grantResults)
+    }
+
+    private fun setupBottomNav() {
+        bottomNavigationView.setupWithNavController(navController)
     }
 
     private fun setupDrawer() {
@@ -127,7 +150,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 if (mainViewModel.authState.value) {
                     permissionPhotoHandler?.checkAndRequestPermissions()
                 } else {
-                    startActivity(Intent(this, LoginActivity::class.java))
+                    navController.navigate(R.id.login)
                 }
             }
 
@@ -200,12 +223,12 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.premiumStatus.collect { status ->
-                if (status == null) return@collect
-                sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
-                navPremiumStatus.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
-                navPremiumStatus.setOnClickListener {
-                    startActivity(Intent(this@MainActivity, PaymentActivity::class.java))
-                }
+                    if (status == null) return@collect
+                    sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
+                    navPremiumStatus.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
+                    navPremiumStatus.setOnClickListener {
+                        navController.navigate(R.id.payment)
+                    }
                 }
             }
         }
@@ -214,12 +237,11 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun handleDrawerItemSelection() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navLogin -> startActivity(Intent(this, LoginActivity::class.java))
+                R.id.navLogin -> navController.navigate(R.id.login)
                 R.id.navLogout -> {
-                    authViewModel.logout()
+                    mainViewModel.logout()
                     Notification.removeAllNotification(this)
                 }
-
                 R.id.navExit -> finish()
             }
             true
@@ -237,21 +259,11 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.avatarResult.collect { result ->
-                result.onSuccess {
-                    Toast
-                        .makeText(
-                            this@MainActivity,
-                            getString(R.string.upload_avatar_successfully),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                }.onFailure {
-                    Toast
-                        .makeText(
-                            this@MainActivity,
-                            getString(R.string.upload_avatar_failed),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                }
+                    result.onSuccess {
+                        Toast.makeText(this@MainActivity, getString(R.string.upload_avatar_successfully), Toast.LENGTH_SHORT).show()
+                    }.onFailure {
+                        Toast.makeText(this@MainActivity, getString(R.string.upload_avatar_failed), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -260,64 +272,27 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (searchController?.handleBackPress() == true) {
+                if (searchLayout?.visibility == View.VISIBLE) {
+                    hideSearch()
                     return
                 }
-                finish()
+                if (!navController.popBackStack()) {
+                    finish()
+                }
             }
         }
-
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
-    private fun setupViewPager() {
-        val fragments = listOf(
-            HomeFragment(),
-            ExploreFragment(),
-            LibraryFragment(),
-            HistoryFragment(),
-        )
-
-        viewPager.isUserInputEnabled = false
-        viewPager.adapter = ViewPagerAdapter(this, fragments)
-        pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                bottomNavigationView.menu[position].isChecked = true
-            }
+    private fun hideBottomNavOnDetailScreens() {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val detailDestinations = setOf(
+                R.id.film_details, R.id.library_details, R.id.payment,
+                R.id.play_film, R.id.explore_details, R.id.login, R.id.register,
+            )
+            bottomNavigationView.visibility =
+                if (destination.id in detailDestinations) View.GONE else View.VISIBLE
         }
-        pageChangeCallback?.let { viewPager.registerOnPageChangeCallback(it) }
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.navHome -> viewPager.currentItem = 0
-                R.id.navExplore -> viewPager.currentItem = 1
-                R.id.navLibrary -> viewPager.currentItem = 2
-                R.id.navHistory -> viewPager.currentItem = 3
-            }
-            true
-        }
-    }
-
-    private fun initSearchController() {
-        val searchBar = findViewById<EditText>(R.id.search_bar)
-        val searchLayout = findViewById<LinearLayout>(R.id.search_layout)
-        val searchResults = findViewById<RecyclerView>(R.id.search_results)
-        searchController = SearchController(
-            activity = this,
-            searchBar = searchBar,
-            searchLayout = searchLayout,
-            searchResults = searchResults,
-            contentContainer = viewPager,
-            bottomNav = bottomNavigationView,
-        )
-        searchController?.setup()
-    }
-
-    override fun onDestroy() {
-        searchController?.destroy()
-        pageChangeCallback?.let { viewPager.unregisterOnPageChangeCallback(it) }
-        drawerLayout.removeDrawerListener(actionBarDrawerToggle)
-        super.onDestroy()
     }
 
     @SuppressLint("InflateParams")
@@ -331,11 +306,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.avatarState.collect { bitmap ->
                     if (bitmap != null) {
-                        MyAppGlideModule.loadImage(
-                            this@MainActivity,
-                            bitmap,
-                            appBarProfile,
-                        )
+                        MyAppGlideModule.loadImage(this@MainActivity, bitmap, appBarProfile)
                     } else {
                         appBarProfile.setImageResource(R.drawable.ic_profile)
                     }
@@ -348,12 +319,96 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         }
 
         appBarSearch.setOnClickListener {
-            searchController?.showSearch()
+            showSearch()
         }
 
         appBarNotifications.setOnClickListener {
             showNotificationList(it)
         }
+    }
+
+    private fun setupSearch() {
+        searchAdapter = SearchFilmAdapter { slug ->
+            hideSearch()
+            val bundle = Bundle().apply { putString("slug", slug) }
+            navController.navigate(R.id.film_details, bundle)
+        }
+        searchResults?.layoutManager = LinearLayoutManager(this)
+        searchResults?.adapter = searchAdapter
+
+        val textWatcher = object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                searchQueryFlow.value = s.toString().trim()
+                if (s.toString().trim().isEmpty()) {
+                    searchViewModel.clearResults()
+                    searchAdapter?.replaceItems(emptyList())
+                }
+            }
+        }
+        searchBar?.addTextChangedListener(textWatcher)
+
+        observeSearchState()
+        observeSearchEffect()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                searchQueryFlow
+                    .debounce(500)
+                    .distinctUntilChanged()
+                    .filter { it.isNotEmpty() }
+                    .collectLatest { query ->
+                        searchViewModel.searchFilms(query, 5)
+                    }
+            }
+        }
+    }
+
+    private fun observeSearchState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                searchViewModel.state.collect { state ->
+                    when (state) {
+                        is SearchUiState.Success -> {
+                            searchAdapter?.replaceItems(state.films)
+                        }
+                        else -> { /* idle, loading, error handled implicitly */ }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeSearchEffect() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                searchViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is SearchUiEffect.NavigateToFilmDetails -> {
+                            hideSearch()
+                            val bundle = Bundle().apply { putString("slug", effect.slug) }
+                            navController.navigate(R.id.film_details, bundle)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showSearch() {
+        searchLayout?.visibility = View.VISIBLE
+        bottomNavigationView.visibility = View.GONE
+        searchBar?.requestFocus()
+        searchResults?.adapter = searchAdapter
+    }
+
+    private fun hideSearch() {
+        searchLayout?.visibility = View.GONE
+        bottomNavigationView.visibility = View.VISIBLE
+        searchBar?.text?.clear()
+        searchViewModel.clearResults()
+        searchAdapter?.replaceItems(emptyList())
     }
 
     @SuppressLint("InflateParams")
@@ -375,9 +430,10 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         val adapter = NotificationAdapter(
             notifications,
             {
-                val intent = Intent(this, FilmDetailsActivity::class.java)
-                intent.putExtra(EXTRA_SLUG, it.first)
-                startActivity(intent)
+                val bundle = Bundle().apply {
+                    putString("slug", it.first)
+                }
+                navController.navigate(R.id.film_details, bundle)
             },
             { Notification.removeNotification(this, it) },
         )

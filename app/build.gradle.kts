@@ -105,6 +105,10 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
 
+    // --- Navigation ---
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+
     // --- Other ---
     implementation(libs.glide.core)
     implementation(libs.glide.transformations)

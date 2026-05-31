@@ -1,0 +1,112 @@
+package com.drs.auralife.presentation.explore_details
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import com.drs.auralife.R
+import com.drs.auralife.databinding.ActivityExploreDetailsBinding
+import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+
+@AndroidEntryPoint
+class ExploreDetailsFragment : Fragment() {
+
+    private val viewModel: ExploreDetailViewModel by viewModels()
+    private var _binding: ActivityExploreDetailsBinding? = null
+    private val binding get() = _binding!!
+    private var slug: String = ""
+    private var name: String = ""
+
+    private val filmAdapter = ExploreFilmAdapter { slug ->
+        viewModel.onFilmClicked(slug)
+    }
+
+    private var isLoading = false
+    private var currentPage = 1
+    private var totalPages = 0
+    private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = ActivityExploreDetailsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        slug = requireArguments().getString("slug") ?: return
+        name = requireArguments().getString("name") ?: return
+        binding.tvNameApp.text = "${binding.tvNameApp.text} - $name"
+
+        binding.recyclerView.apply {
+            val displayMetrics = resources.displayMetrics
+            var numberFilmInLine = displayMetrics.widthPixels / displayMetrics.densityDpi
+            layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
+            adapter = filmAdapter
+        }
+
+        observeState()
+        observeEffect()
+        viewModel.getFilmsByCategory(slug, 1)
+        setupPagination()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scrollListener?.let { binding.recyclerView.removeOnScrollListener(it) }
+    }
+
+    private fun observeState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    filmAdapter.submitList(state.films)
+                    totalPages = state.totalPages
+                    isLoading = state.isLoadingMore
+                }
+            }
+        }
+    }
+
+    private fun observeEffect() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.effect.collect { effect ->
+                    when (effect) {
+                        is ExploreDetailUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is ExploreDetailUiEffect.NavigateToFilm -> {
+                            val bundle = Bundle().apply { putString("slug", effect.slug) }
+                            findNavController().navigate(R.id.film_details, bundle)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupPagination() {
+        scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val lastVisibleItemPosition = (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
+                    isLoading = true
+                    currentPage++
+                    viewModel.loadMoreFilmsByCategory(slug, currentPage)
+                }
+            }
+        }
+        scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
+    }
+}

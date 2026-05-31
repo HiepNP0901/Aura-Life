@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.presentation.AppBarProvider
-import com.drs.auralife.presentation.common.UiState
+import com.drs.auralife.presentation.explore.adapter.CategoryFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -26,62 +28,17 @@ class ExploreFragment : Fragment() {
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentExploreBinding.inflate(inflater, container, false)
         (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
-
         exploreViewModel.loadCategories()
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                exploreViewModel.categoriesState.collect { state ->
-                    if (_binding == null) return@collect
-                    if (state is UiState.Success && state.data.isNotEmpty()) {
-                        buildCategoryViews(state.data)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun buildCategoryViews(categories: List<com.drs.auralife.domain.model.Category>) {
-        categories.forEach { category ->
-            val currentContext = context ?: return@forEach
-            val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
-
-            item
-                .findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList)
-                .setOnClickListener {
-                    startActivity(ExploreDetailsActivity.newInstance(currentContext, category))
-                }
-
-            val filmAdapter = CategoryFilmAdapter()
-            item.findViewById<RecyclerView>(R.id.recyclerView).adapter = filmAdapter
-            binding.exploreFragmentBody.addView(item)
-
-            val buttonText = if (Locale.getDefault().language == "en") {
-                category.localizedName
-            } else {
-                category.name
-            }
-            item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).text = buttonText
-
-            exploreViewModel.getFilmsByCategoryList(category.slug, 1) { films ->
-                if (_binding == null) return@getFilmsByCategoryList
-                films?.let { list ->
-                    filmAdapter.addItem(list)
-                }
-            }
-        }
+        observeState()
+        observeEffect()
     }
 
     override fun onResume() {
@@ -100,5 +57,68 @@ class ExploreFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun observeState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                exploreViewModel.state.collect { state ->
+                    if (_binding == null) return@collect
+                    if (state.categories.isNotEmpty()) {
+                        buildCategoryViews(state.categories)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeEffect() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                exploreViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is ExploreUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is ExploreUiEffect.NavigateToCategory -> {
+                            val bundle = Bundle().apply {
+                                putString("slug", effect.slug)
+                                putString("name", effect.name)
+                            }
+                            findNavController().navigate(R.id.explore_details, bundle)
+                        }
+                        is ExploreUiEffect.NavigateToFilm -> {
+                            val bundle = Bundle().apply { putString("slug", effect.slug) }
+                            findNavController().navigate(R.id.film_details, bundle)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun buildCategoryViews(categories: List<com.drs.auralife.domain.model.Category>) {
+        categories.forEach { category ->
+            val currentContext = context ?: return@forEach
+            val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
+
+            item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).setOnClickListener {
+                exploreViewModel.onCategoryClicked(category.slug, category.name)
+            }
+
+            val filmAdapter = CategoryFilmAdapter { slug ->
+                exploreViewModel.onFilmClicked(slug)
+            }
+            item.findViewById<RecyclerView>(R.id.recyclerView).adapter = filmAdapter
+            binding.exploreFragmentBody.addView(item)
+
+            val buttonText = if (Locale.getDefault().language == "en") category.localizedName else category.name
+            item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).text = buttonText
+
+            exploreViewModel.getFilmsByCategoryList(category.slug, 1) { films ->
+                if (_binding == null) return@getFilmsByCategoryList
+                films?.let { list -> filmAdapter.addItem(list) }
+            }
+        }
     }
 }

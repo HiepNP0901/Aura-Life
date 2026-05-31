@@ -22,8 +22,8 @@ class PlayFilmViewModel @Inject constructor(
 
     fun isLoggedIn() = authRepository.isLoggedIn()
 
-    private val _throttleEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    val throttleEvent: SharedFlow<Unit> = _throttleEvent.asSharedFlow()
+    private val _effect = MutableSharedFlow<PlayFilmUiEffect>(extraBufferCapacity = 1)
+    val effect: SharedFlow<PlayFilmUiEffect> = _effect.asSharedFlow()
 
     private val _isPremium = MutableStateFlow(true)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
@@ -41,7 +41,17 @@ class PlayFilmViewModel @Inject constructor(
 
     fun checkPlaybackThrottle(position: Long, maxPreviewDurationMs: Long) {
         if (!_isPremium.value && position >= maxPreviewDurationMs) {
-            _throttleEvent.tryEmit(Unit)
+            _effect.tryEmit(PlayFilmUiEffect.ShowPremiumDialog)
+        }
+    }
+
+    fun onUpgradeClicked() {
+        viewModelScope.launch {
+            if (isLoggedIn()) {
+                _effect.emit(PlayFilmUiEffect.NavigateToPayment("Upgrade now"))
+            } else {
+                _effect.emit(PlayFilmUiEffect.NavigateToLogin)
+            }
         }
     }
 }
