@@ -11,8 +11,6 @@ import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetHistoryUseCase
 import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,25 +42,21 @@ class HistoryViewModel @Inject constructor(
     }
 
     private suspend fun buildFilmsFromHistory(historyItems: List<HistoryItem>): List<Film> {
-        return coroutineScope {
-            historyItems.map { item ->
-                async {
-                    val details = getFilmDetailsUseCase(item.slug)
-                    details?.let { fd ->
-                        Film(
-                            id = fd.slug,
-                            slug = fd.slug,
-                            title = fd.title,
-                            posterUrl = fd.posterUrl,
-                            thumbUrl = fd.thumbUrl,
-                            description = fd.description,
-                            category = fd.categories?.firstOrNull() ?: "",
-                            episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
-                        )
-                    }
-                }
-            }.mapNotNull { it.await() }
-                .sortedByDescending { historyItems.indexOfFirst { h -> h.slug == it.slug } }
+        val slugs = historyItems.map { it.slug }
+        val detailsMap = getFilmDetailsUseCase.batch(slugs)
+        return historyItems.mapNotNull { item ->
+            detailsMap[item.slug]?.let { fd ->
+                Film(
+                    id = fd.slug,
+                    slug = fd.slug,
+                    title = fd.title,
+                    posterUrl = fd.posterUrl,
+                    thumbUrl = fd.thumbUrl,
+                    description = fd.description,
+                    category = fd.categories?.firstOrNull() ?: "",
+                    episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                )
+            }
         }
     }
 

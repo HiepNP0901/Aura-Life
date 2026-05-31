@@ -8,7 +8,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.core.utils.Validator
 import com.drs.auralife.databinding.ActivityRegisterBinding
@@ -50,7 +52,8 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun observeAuthState() {
         lifecycleScope.launch {
-            authViewModel.authState.collect { state ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authViewModel.authState.collect { state ->
                 when (state) {
                     is AuthUiState.Loading -> {
                         binding.createAccount.isEnabled = false
@@ -72,6 +75,7 @@ class RegisterActivity : AppCompatActivity() {
                         authViewModel.resetState()
                     }
                     else -> {}
+                }
                 }
             }
         }

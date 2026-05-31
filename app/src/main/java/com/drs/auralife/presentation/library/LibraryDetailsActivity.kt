@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
 import com.drs.auralife.presentation.common.UiState
@@ -40,7 +42,8 @@ class LibraryDetailsActivity :
 
     private fun observeLibraryFilms() {
         lifecycleScope.launch {
-            libraryViewModel.libraryFilmsState.collect { state ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                libraryViewModel.libraryFilmsState.collect { state ->
                 when (state) {
                     is UiState.Success -> {
                         filmAdapter.replaceItems(state.data)
@@ -49,6 +52,7 @@ class LibraryDetailsActivity :
                         Toast.makeText(this@LibraryDetailsActivity, state.message, Toast.LENGTH_SHORT).show()
                     }
                     is UiState.Loading -> {}
+                }
                 }
             }
         }
