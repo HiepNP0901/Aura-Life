@@ -6,7 +6,7 @@ import com.google.firebase.database.FirebaseDatabase
 import javax.inject.Inject
 
 class AvatarDataSource @Inject constructor(
-    private val database: FirebaseDatabase,
+    database: FirebaseDatabase,
 ) {
     private val userRef = database.getReference("users")
 

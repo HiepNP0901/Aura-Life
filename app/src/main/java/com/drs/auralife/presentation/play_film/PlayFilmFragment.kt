@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.playfilm
+package com.drs.auralife.presentation.play_film
 
 import android.app.AlertDialog
 import android.content.pm.ActivityInfo
@@ -12,7 +12,6 @@ import android.widget.TextView
 import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.media3.common.MediaItem
@@ -24,9 +23,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.presentation.navigation.NavRoutes
-import com.drs.auralife.presentation.filmdetails.FilmDetailsViewModel
+import com.drs.auralife.presentation.film_details.FilmDetailsViewModel
 import com.drs.auralife.presentation.history.HistoryViewModel
-import com.drs.auralife.presentation.playfilm.adapter.EpisodeAdapter
+import com.drs.auralife.presentation.play_film.adapter.EpisodeAdapter
 import com.drs.auralife.presentation.common.SystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay

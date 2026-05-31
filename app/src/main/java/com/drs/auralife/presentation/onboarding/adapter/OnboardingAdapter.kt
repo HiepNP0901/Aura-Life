@@ -13,7 +13,7 @@ class OnboardingAdapter(
     private val items: List<OnboardingItem>,
 ) : RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {
 
-    inner class OnboardingViewHolder(
+    class OnboardingViewHolder(
         itemView: View,
     ) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.onboardingLogo)

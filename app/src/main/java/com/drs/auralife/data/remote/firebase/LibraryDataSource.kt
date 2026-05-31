@@ -8,7 +8,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class LibraryDataSource @Inject constructor(
-    private val database: FirebaseDatabase,
+    database: FirebaseDatabase,
 ) {
 
     private fun userIdOrThrow(): String {

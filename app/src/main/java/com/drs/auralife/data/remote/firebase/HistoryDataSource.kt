@@ -6,7 +6,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class HistoryDataSource @Inject constructor(
-    private val database: FirebaseDatabase,
+    database: FirebaseDatabase,
 ) {
     private val userRef = database.getReference("users")
 

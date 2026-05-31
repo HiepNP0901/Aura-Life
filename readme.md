@@ -53,19 +53,19 @@ com.drs.auralife
 - **RepositoryModule** — binds all 7+ repository interfaces to their implementations
 
 ### Per-screen ViewModels
-| Screen | ViewModel | Responsibility |
-|--------|-----------|---------------|
-| Home | `HomeViewModel` | Banners + latest films with pagination |
-| Explore | `ExploreViewModel` | Categories + category film rows |
-| Explore Detail | `ExploreDetailViewModel` | Category film grid with pagination |
-| Search (MainActivity) | `SearchViewModel` | Debounced search results |
-| Film Details | `FilmDetailsViewModel` | Film detail + episode data |
-| Play Film | (via FilmDetailsViewModel) | Playback + episode navigation |
-| Login | `AuthViewModel` | Login/register |
-| Library | `LibraryViewModel` | Library CRUD |
-| History | `HistoryViewModel` | Watch history |
-| Premium | `PremiumViewModel` | Premium status + purchase |
-| Main | `MainViewModel` | Auth state, avatar, premium status |
+| Screen                | ViewModel                  | Responsibility                         |
+|-----------------------|----------------------------|----------------------------------------|
+| Home                  | `HomeViewModel`            | Banners + latest films with pagination |
+| Explore               | `ExploreViewModel`         | Categories + category film rows        |
+| Explore Detail        | `ExploreDetailViewModel`   | Category film grid with pagination     |
+| Search (MainActivity) | `SearchViewModel`          | Debounced search results               |
+| Film Details          | `FilmDetailsViewModel`     | Film detail + episode data             |
+| Play Film             | (via FilmDetailsViewModel) | Playback + episode navigation          |
+| Login                 | `AuthViewModel`            | Login/register                         |
+| Library               | `LibraryViewModel`         | Library CRUD                           |
+| History               | `HistoryViewModel`         | Watch history                          |
+| Premium               | `PremiumViewModel`         | Premium status + purchase              |
+| Main                  | `MainViewModel`            | Auth state, avatar, premium status     |
 
 ### Per-screen Adapters
 Shared `FilmAdapter` replaced with dedicated adapters:

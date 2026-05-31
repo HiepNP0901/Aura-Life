@@ -26,7 +26,6 @@ class LibraryViewModel @Inject constructor(
     private val getLibraryUseCase: GetLibraryUseCase,
     private val addToLibraryUseCase: AddToLibraryUseCase,
     private val createLibraryUseCase: CreateLibraryUseCase,
-    private val removeFilmFromLibraryUseCase: RemoveFilmFromLibraryUseCase,
     private val renameLibraryUseCase: RenameLibraryUseCase,
     private val deleteLibraryUseCase: DeleteLibraryUseCase,
     private val authRepository: AuthRepository,
