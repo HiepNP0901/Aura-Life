@@ -9,6 +9,7 @@
         android:id="@+id/splash"
         android:name="com.drs.auralife.presentation.splash.SplashFragment"
         android:label="Splash"
+        app:route="splash"
         tools:layout="@layout/activity_splash_screen">
         <action
             android:id="@+id/action_splash_to_onboarding"
@@ -26,6 +27,7 @@
         android:id="@+id/onboarding"
         android:name="com.drs.auralife.presentation.onboarding.OnboardingFragment"
         android:label="Onboarding"
+        app:route="onboarding"
         tools:layout="@layout/activity_onboarding">
         <action
             android:id="@+id/action_onboarding_to_home"
@@ -38,42 +40,49 @@
         android:id="@+id/home"
         android:name="com.drs.auralife.presentation.home.HomeFragment"
         android:label="Home"
+        app:route="home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/explore"
         android:name="com.drs.auralife.presentation.explore.ExploreFragment"
         android:label="Explore"
+        app:route="explore"
         tools:layout="@layout/fragment_explore" />
 
     <fragment
         android:id="@+id/library"
         android:name="com.drs.auralife.presentation.library.LibraryFragment"
         android:label="Library"
+        app:route="library"
         tools:layout="@layout/fragment_library" />
 
     <fragment
         android:id="@+id/history"
         android:name="com.drs.auralife.presentation.history.HistoryFragment"
         android:label="History"
+        app:route="history"
         tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/login"
         android:name="com.drs.auralife.presentation.login.LoginFragment"
         android:label="Login"
+        app:route="login"
         tools:layout="@layout/activity_login" />
 
     <fragment
         android:id="@+id/register"
         android:name="com.drs.auralife.presentation.register.RegisterFragment"
         android:label="Register"
+        app:route="register"
         tools:layout="@layout/activity_register" />
 
     <fragment
         android:id="@+id/film_details"
         android:name="com.drs.auralife.presentation.filmdetails.FilmDetailsFragment"
         android:label="FilmDetails"
+        app:route="film_details/{slug}"
         tools:layout="@layout/activity_film_details">
         <argument
             android:name="slug"
@@ -90,6 +99,7 @@
         android:id="@+id/library_details"
         android:name="com.drs.auralife.presentation.library_details.LibraryDetailsFragment"
         android:label="LibraryDetails"
+        app:route="library_details/{name}"
         tools:layout="@layout/activity_library_details">
         <argument
             android:name="name"
@@ -100,12 +110,14 @@
         android:id="@+id/payment"
         android:name="com.drs.auralife.presentation.payment.PaymentFragment"
         android:label="Payment"
+        app:route="payment"
         tools:layout="@layout/activity_payment" />
 
     <fragment
         android:id="@+id/play_film"
         android:name="com.drs.auralife.presentation.playfilm.PlayFilmFragment"
         android:label="PlayFilm"
+        app:route="play_film/{slug}"
         tools:layout="@layout/activity_play_film">
         <argument
             android:name="slug"
@@ -121,12 +133,14 @@
     <fragment
         android:id="@+id/search"
         android:name="com.drs.auralife.presentation.search.SearchFragment"
-        android:label="Search" />
+        android:label="Search"
+        app:route="search" />
 
     <fragment
         android:id="@+id/explore_details"
         android:name="com.drs.auralife.presentation.explore_details.ExploreDetailsFragment"
         android:label="ExploreDetails"
+        app:route="explore_details/{slug}/{name}"
         tools:layout="@layout/activity_explore_details">
         <argument
             android:name="slug"

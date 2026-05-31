@@ -40,6 +40,7 @@ import com.drs.auralife.core.util.Notification
 import com.drs.auralife.presentation.common.PermissionPhotoHandler
 import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.presentation.common.NotificationAdapter
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.flow.first
@@ -127,7 +128,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 if (mainViewModel.authState.value) {
                     permissionPhotoHandler?.checkAndRequestPermissions()
                 } else {
-                    navController.navigate(R.id.login)
+                    navController.navigate(NavRoutes.LOGIN)
                 }
             }
 
@@ -204,7 +205,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
                     navPremiumStatus.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
                     navPremiumStatus.setOnClickListener {
-                        navController.navigate(R.id.payment)
+                        navController.navigate(NavRoutes.PAYMENT)
                     }
                 }
             }
@@ -214,7 +215,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun handleDrawerItemSelection() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navLogin -> navController.navigate(R.id.login)
+                R.id.navLogin -> navController.navigate(NavRoutes.LOGIN)
                 R.id.navLogout -> {
                     mainViewModel.logout()
                     Notification.removeAllNotification(this)
@@ -293,7 +294,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         }
 
         appBarSearch.setOnClickListener {
-            navController.navigate(R.id.search)
+            navController.navigate(NavRoutes.SEARCH)
         }
 
         appBarNotifications.setOnClickListener {
@@ -320,10 +321,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         val adapter = NotificationAdapter(
             notifications,
             {
-                val bundle = Bundle().apply {
-                    putString("slug", it.first)
-                }
-                navController.navigate(R.id.film_details, bundle)
+                navController.navigate(NavRoutes.filmDetails(it.first))
             },
             { Notification.removeNotification(this, it) },
         )

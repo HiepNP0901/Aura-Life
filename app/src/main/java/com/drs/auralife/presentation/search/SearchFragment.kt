@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentSearchBinding
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.presentation.navigation.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,11 +58,10 @@ class SearchFragment : Fragment() {
 
     private fun setupSearch() {
         searchAdapter = SearchFilmAdapter { slug ->
-            val bundle = Bundle().apply { putString("slug", slug) }
             val navOptions = NavOptions.Builder()
                 .setPopUpTo(R.id.search, true)
                 .build()
-            findNavController().navigate(R.id.film_details, bundle, navOptions)
+            findNavController().navigate(NavRoutes.filmDetails(slug), navOptions)
         }
         binding.searchResults.layoutManager = LinearLayoutManager(requireContext())
         binding.searchResults.adapter = searchAdapter
@@ -93,11 +93,10 @@ class SearchFragment : Fragment() {
             searchViewModel.effect.collect { effect ->
                 when (effect) {
                     is SearchUiEffect.NavigateToFilmDetails -> {
-                        val bundle = Bundle().apply { putString("slug", effect.slug) }
                         val navOptions = NavOptions.Builder()
                             .setPopUpTo(R.id.search, true)
                             .build()
-                        findNavController().navigate(R.id.film_details, bundle, navOptions)
+                        findNavController().navigate(NavRoutes.filmDetails(effect.slug), navOptions)
                     }
                 }
             }

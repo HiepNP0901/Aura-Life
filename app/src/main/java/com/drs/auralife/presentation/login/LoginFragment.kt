@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.core.validation.Validator
 import com.drs.auralife.databinding.ActivityLoginBinding
 import com.drs.auralife.presentation.common.LogoFragment
@@ -79,7 +80,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.dontHaveAccountButton.setOnClickListener {
-            findNavController().navigate(R.id.register)
+            findNavController().navigate(NavRoutes.REGISTER)
         }
     }
 
