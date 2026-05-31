@@ -16,7 +16,7 @@ import com.drs.auralife.R
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.databinding.FragmentExploreBinding
 import com.drs.auralife.presentation.AppBarProvider
-import com.drs.auralife.presentation.explore.adapter.CategoryFilmAdapter
+import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -84,7 +84,7 @@ class ExploreFragment : Fragment() {
                         if (index >= 0) {
                             val child = binding.exploreFragmentBody.getChildAt(index)
                             val rv = child?.findViewById<RecyclerView>(R.id.recyclerView)
-                            (rv?.adapter as? CategoryFilmAdapter)?.addItem(films)
+                            (rv?.adapter as? ExploreFilmAdapter)?.addItem(films)
                         }
                     }
                 }
@@ -118,7 +118,7 @@ class ExploreFragment : Fragment() {
                 exploreViewModel.onCategoryClicked(category.slug, category.name)
             }
 
-            val filmAdapter = CategoryFilmAdapter { slug ->
+            val filmAdapter = ExploreFilmAdapter { slug ->
                 exploreViewModel.onFilmClicked(slug)
             }
             item.findViewById<RecyclerView>(R.id.recyclerView).adapter = filmAdapter

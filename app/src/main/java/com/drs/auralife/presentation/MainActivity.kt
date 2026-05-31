@@ -22,7 +22,6 @@ import androidx.core.content.edit
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -183,7 +182,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     navLogout?.isVisible = false
                     navPremiumStatus?.visibility = View.GONE
                     navEmail?.text = getString(R.string.example_email)
-                    navPic?.setImageResource(R.drawable.ic_profile)
+                    navPic?.setImageResource(R.drawable.ic_profile_24)
                     getSharedPreferences(PREF_NAME, MODE_PRIVATE)
                         .edit { putString("ExpireDate", "") }
                 }
@@ -294,7 +293,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 if (bitmap != null) {
                     MyAppGlideModule.loadImage(this@MainActivity, bitmap, appBarProfile)
                 } else {
-                    appBarProfile.setImageResource(R.drawable.ic_profile)
+                    appBarProfile.setImageResource(R.drawable.ic_profile_24)
                 }
             }
         }

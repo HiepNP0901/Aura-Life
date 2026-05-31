@@ -40,7 +40,12 @@ class LibraryDetailsFragment : Fragment() {
 
         binding.recyclerView.adapter = filmAdapter
         libraryName = requireArguments().getString("name") ?: return
-        binding.tvNameApp.text = "${binding.tvNameApp.text} - $libraryName"
+
+        binding.backButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.tvCategoryName.text = libraryName
 
         observeLibraryFilms()
         observeEffect()
