@@ -28,8 +28,8 @@ class LibraryDetailsViewModel @Inject constructor(
     private val _state = MutableStateFlow(LibraryDetailUiState())
     val state: StateFlow<LibraryDetailUiState> = _state.asStateFlow()
 
-    private val _operationResult = MutableSharedFlow<Result<Boolean>>()
-    val operationResult: SharedFlow<Result<Boolean>> = _operationResult.asSharedFlow()
+    private val _effect = MutableSharedFlow<LibraryDetailUiEffect>()
+    val effect: SharedFlow<LibraryDetailUiEffect> = _effect.asSharedFlow()
 
     fun loadLibraryFilms(name: String) {
         viewModelScope.launch {
@@ -66,11 +66,18 @@ class LibraryDetailsViewModel @Inject constructor(
     fun removeFilm(libraryName: String, slug: String) {
         viewModelScope.launch {
             try {
-                val result = removeFilmFromLibraryUseCase(libraryName, slug)
-                _operationResult.emit(Result.success(result))
+                removeFilmFromLibraryUseCase(libraryName, slug)
+                loadLibraryFilms(libraryName)
+                _effect.emit(LibraryDetailUiEffect.ShowToast("Removed from library"))
             } catch (e: Exception) {
-                _operationResult.emit(Result.failure(e))
+                _effect.emit(LibraryDetailUiEffect.ShowToast(e.message ?: "Remove failed"))
             }
+        }
+    }
+
+    fun onFilmClicked(slug: String) {
+        viewModelScope.launch {
+            _effect.emit(LibraryDetailUiEffect.NavigateToFilm(slug))
         }
     }
 }

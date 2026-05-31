@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.core.utils.Validator
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 class LoginFragment : Fragment() {
     private val loginViewModel: LoginViewModel by viewModels()
     private var _binding: ActivityLoginBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = ActivityLoginBinding.inflate(inflater, container, false)
@@ -97,8 +97,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 loginViewModel.state.collect { state ->
                     when (state) {
                         is LoginUiState.Loading -> {
@@ -117,13 +116,11 @@ class LoginFragment : Fragment() {
                         else -> {}
                     }
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 loginViewModel.effect.collect { effect ->
                     when (effect) {
                         is LoginUiEffect.ShowToast -> { /* snackbar if needed */ }
@@ -132,7 +129,7 @@ class LoginFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 }
+

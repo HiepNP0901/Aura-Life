@@ -258,11 +258,11 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun observeAvatarResult() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.avatarResult.collect { result ->
-                    result.onSuccess {
-                        Toast.makeText(this@MainActivity, getString(R.string.upload_avatar_successfully), Toast.LENGTH_SHORT).show()
-                    }.onFailure {
-                        Toast.makeText(this@MainActivity, getString(R.string.upload_avatar_failed), Toast.LENGTH_SHORT).show()
+                mainViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is MainUiEffect.ShowToast -> {
+                            Toast.makeText(this@MainActivity, effect.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

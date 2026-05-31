@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.core.utils.Validator
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class RegisterFragment : Fragment() {
     private val registerViewModel: RegisterViewModel by viewModels()
     private var _binding: ActivityRegisterBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = ActivityRegisterBinding.inflate(inflater, container, false)
@@ -93,8 +93,7 @@ class RegisterFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 registerViewModel.state.collect { state ->
                     when (state) {
                         is RegisterUiState.Loading -> {
@@ -113,13 +112,11 @@ class RegisterFragment : Fragment() {
                         else -> {}
                     }
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 registerViewModel.effect.collect { effect ->
                     when (effect) {
                         is RegisterUiEffect.ShowToast -> { /* snackbar if needed */ }
@@ -128,7 +125,7 @@ class RegisterFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 }
+

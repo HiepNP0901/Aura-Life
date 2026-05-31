@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -133,8 +133,7 @@ class PlayFilmFragment : Fragment() {
     }
 
     private fun observeFilmDetails() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 filmDetailsViewModel.state.collect { state ->
                     if (state.film != null) {
                         film = state.film
@@ -145,15 +144,13 @@ class PlayFilmFragment : Fragment() {
                             }
                     }
                 }
-            }
         }
 
         playFilmViewModel.loadPremiumStatus()
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 playFilmViewModel.effect.collect { effect ->
                     when (effect) {
                         is PlayFilmUiEffect.ShowPremiumDialog -> {
@@ -170,7 +167,6 @@ class PlayFilmFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -256,8 +252,7 @@ class PlayFilmFragment : Fragment() {
     }
 
     private fun startPlaybackMonitor() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 while (true) {
                     exoPlayer?.let { player ->
                         playFilmViewModel.checkPlaybackThrottle(
@@ -267,7 +262,6 @@ class PlayFilmFragment : Fragment() {
                     }
                     delay(1000)
                 }
-            }
         }
     }
 
@@ -291,3 +285,4 @@ class PlayFilmFragment : Fragment() {
         dialog.show()
     }
 }
+

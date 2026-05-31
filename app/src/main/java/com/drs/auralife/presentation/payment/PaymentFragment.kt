@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityPaymentBinding
 import com.drs.auralife.domain.model.PaymentItem
@@ -31,7 +31,7 @@ class PaymentFragment : Fragment() {
 
     private val premiumViewModel: PremiumViewModel by viewModels()
     private var _binding: ActivityPaymentBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private lateinit var paymentAdapter: PaymentAdapter
 
     @SuppressLint("InflateParams")
@@ -74,8 +74,7 @@ class PaymentFragment : Fragment() {
     }
 
     private fun observePremiumStatus() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 premiumViewModel.state.collect { state ->
                     val status = state.premiumStatus ?: return@collect
                     binding.apply {
@@ -95,22 +94,21 @@ class PaymentFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                premiumViewModel.purchaseResult.collect { result ->
-                    result.onSuccess { success ->
-                        Toast.makeText(
-                            context,
-                            if (success) R.string.purchase_success else R.string.payment_unavailable,
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    }.onFailure {
-                        Toast.makeText(context, R.string.payment_unavailable, Toast.LENGTH_LONG).show()
+        launchAndRepeatWithViewLifecycle {
+                premiumViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is PaymentUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is PaymentUiEffect.PurchaseSuccess -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is PaymentUiEffect.PurchaseError -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
-            }
         }
     }
 
@@ -124,3 +122,4 @@ class PaymentFragment : Fragment() {
         binding.rvPayment.adapter = paymentAdapter
     }
 }
+

@@ -13,26 +13,25 @@ import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.core.utils.MyAppGlideModule
 import com.drs.auralife.databinding.ActivityFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
+import com.drs.auralife.presentation.library.LibraryUiEffect
 import com.drs.auralife.presentation.library.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FilmDetailsFragment : Fragment() {
 
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
-    private val libraryViewModel: LibraryViewModel by viewModels()
+    private val libraryViewModel: LibraryViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: ActivityFilmDetailsBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = ActivityFilmDetailsBinding.inflate(inflater, container, false)
@@ -43,6 +42,7 @@ class FilmDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         observeState()
         observeEffect()
+        observeOperationResult()
         val slug = requireArguments().getString("slug") ?: return
         filmDetailsViewModel.getFilmDetails(slug)
     }
@@ -53,8 +53,7 @@ class FilmDetailsFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 filmDetailsViewModel.state.collect { state ->
                     when {
                         state.isLoading -> binding.root.visibility = View.GONE
@@ -68,13 +67,11 @@ class FilmDetailsFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 filmDetailsViewModel.effect.collect { effect ->
                     when (effect) {
                         is FilmDetailsUiEffect.ShowToast -> {
@@ -89,7 +86,6 @@ class FilmDetailsFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -121,13 +117,12 @@ class FilmDetailsFragment : Fragment() {
             if (libraryViewModel.isLoggedIn()) {
                 viewLifecycleOwner.lifecycleScope.launch {
                     libraryViewModel.getLibraries()
-                    val libraries = libraryViewModel.librariesLoaded.first()
                     AddToLibraryDialog.showAddLibraryDialog(
                         context = requireContext(),
                         slug = film.slug,
                         posterUrl = film.posterUrl,
                         episodeCurrent = film.episodeCurrent,
-                        libraries = libraries,
+                        libraries = libraryViewModel.librariesState.value.libraries,
                         onAddToLibrary = { libraryName ->
                             libraryViewModel.addToLibrary(libraryName, film.slug, film.posterUrl, film.episodeCurrent ?: "")
                         },
@@ -143,20 +138,15 @@ class FilmDetailsFragment : Fragment() {
     }
 
     private fun observeOperationResult() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                libraryViewModel.operationResult.collect { result ->
-                    result.onSuccess { success ->
-                        Toast.makeText(
-                            context,
-                            if (success) R.string.added_to_library_successfully else R.string.library_already_exists,
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    }.onFailure { e ->
-                        Toast.makeText(context, e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+        launchAndRepeatWithViewLifecycle {
+                libraryViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is LibraryUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {}
                     }
                 }
-            }
         }
     }
 
@@ -180,3 +170,4 @@ class FilmDetailsFragment : Fragment() {
         return itemDetail
     }
 }
+

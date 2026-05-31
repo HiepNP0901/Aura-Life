@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentLibraryBinding
@@ -40,15 +40,12 @@ class LibraryFragment : Fragment() {
         libraryAdapter = LibraryAdapter(
             onRename = { oldName, newName -> libraryViewModel.renameLibrary(oldName, newName) },
             onDelete = { name -> libraryViewModel.deleteLibrary(name) },
-            onItemClick = { name ->
-                val bundle = Bundle().apply { putString("name", name) }
-                findNavController().navigate(R.id.library_details, bundle)
-            },
+            onItemClick = { name -> libraryViewModel.onLibraryClicked(name) },
         )
         binding.recyclerView.adapter = libraryAdapter
 
         observeLibraries()
-        observeOperationResult()
+        observeEffect()
     }
 
     override fun onResume() {
@@ -62,8 +59,7 @@ class LibraryFragment : Fragment() {
     }
 
     private fun observeLibraries() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 libraryViewModel.librariesState.collect { state ->
                     if (_binding == null) return@collect
                     libraryAdapter.submitList(state.libraries)
@@ -82,20 +78,22 @@ class LibraryFragment : Fragment() {
                         binding.text.text = state.errorMessage
                     }
                 }
-            }
         }
     }
 
-    private fun observeOperationResult() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                libraryViewModel.operationResult.collect { result ->
-                    result.onSuccess { refreshLibrary() }
-                        .onFailure { e ->
-                            Toast.makeText(requireContext(), e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+    private fun observeEffect() {
+        launchAndRepeatWithViewLifecycle {
+                libraryViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is LibraryUiEffect.ShowToast -> {
+                            Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
                         }
+                        is LibraryUiEffect.NavigateToDetails -> {
+                            val bundle = Bundle().apply { putString("name", effect.name) }
+                            findNavController().navigate(R.id.library_details, bundle)
+                        }
+                    }
                 }
-            }
         }
     }
 
@@ -103,3 +101,4 @@ class LibraryFragment : Fragment() {
         libraryViewModel.getLibraries()
     }
 }
+

@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
@@ -23,7 +23,7 @@ class ExploreDetailsFragment : Fragment() {
 
     private val viewModel: ExploreDetailViewModel by viewModels()
     private var _binding: ActivityExploreDetailsBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private var slug: String = ""
     private var name: String = ""
 
@@ -31,9 +31,6 @@ class ExploreDetailsFragment : Fragment() {
         viewModel.onFilmClicked(slug)
     }
 
-    private var isLoading = false
-    private var currentPage = 1
-    private var totalPages = 0
     private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -57,7 +54,7 @@ class ExploreDetailsFragment : Fragment() {
 
         observeState()
         observeEffect()
-        viewModel.getFilmsByCategory(slug, 1)
+        viewModel.getFilmsByCategory(slug)
         setupPagination()
     }
 
@@ -67,20 +64,15 @@ class ExploreDetailsFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 viewModel.state.collect { state ->
                     filmAdapter.submitList(state.films)
-                    totalPages = state.totalPages
-                    isLoading = state.isLoadingMore
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 viewModel.effect.collect { effect ->
                     when (effect) {
                         is ExploreDetailUiEffect.ShowToast -> {
@@ -92,7 +84,6 @@ class ExploreDetailsFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -100,13 +91,12 @@ class ExploreDetailsFragment : Fragment() {
         scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
                 val lastVisibleItemPosition = (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
-                if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
-                    isLoading = true
-                    currentPage++
-                    viewModel.loadMoreFilmsByCategory(slug, currentPage)
+                if (lastVisibleItemPosition >= filmAdapter.itemCount - 1) {
+                    viewModel.onScrolledToBottom(slug)
                 }
             }
         }
         scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
     }
 }
+

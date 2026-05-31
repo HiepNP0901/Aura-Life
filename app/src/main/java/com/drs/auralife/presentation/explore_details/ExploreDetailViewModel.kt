@@ -24,14 +24,15 @@ class ExploreDetailViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<ExploreDetailUiEffect>()
     val effect: SharedFlow<ExploreDetailUiEffect> = _effect.asSharedFlow()
 
-    fun getFilmsByCategory(slug: String, page: Int) {
+    fun getFilmsByCategory(slug: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.value = _state.value.copy(isLoading = true, currentPage = 1)
             try {
-                val result = getFilmsByCategoryUseCase(slug, page)
+                val result = getFilmsByCategoryUseCase(slug, 1)
                 _state.value = ExploreDetailUiState(
                     films = result.data,
                     totalPages = result.totalPages,
+                    currentPage = 1,
                 )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
@@ -39,13 +40,16 @@ class ExploreDetailViewModel @Inject constructor(
         }
     }
 
-    fun loadMoreFilmsByCategory(slug: String, page: Int) {
+    fun onScrolledToBottom(slug: String) {
+        val current = _state.value
+        if (current.isLoadingMore || current.currentPage >= current.totalPages) return
+        val nextPage = current.currentPage + 1
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingMore = true)
             try {
-                val result = getFilmsByCategoryUseCase(slug, page)
+                val result = getFilmsByCategoryUseCase(slug, nextPage)
                 val appended = _state.value.films + result.data
-                _state.value = _state.value.copy(films = appended, totalPages = result.totalPages, isLoadingMore = false)
+                _state.value = _state.value.copy(films = appended, totalPages = result.totalPages, currentPage = nextPage, isLoadingMore = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoadingMore = false, errorMessage = e.message)
             }
