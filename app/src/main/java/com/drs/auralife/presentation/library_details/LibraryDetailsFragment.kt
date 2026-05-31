@@ -1,5 +1,6 @@
 package com.drs.auralife.presentation.library_details
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,7 @@ class LibraryDetailsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -79,7 +81,7 @@ class LibraryDetailsFragment : Fragment() {
     }
 
     private fun onLongClick(slug: String) {
-        EditLibraryDialog.showDeleteFilmFromLibrary(requireContext(), libraryName, slug) {
+        EditLibraryDialog.showDeleteFilmFromLibrary(requireContext()) {
             viewModel.removeFilm(libraryName, slug)
         }
     }

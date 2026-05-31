@@ -118,9 +118,6 @@ class FilmDetailsFragment : Fragment() {
                     libraryViewModel.getLibraries()
                     AddToLibraryDialog.showAddLibraryDialog(
                         context = requireContext(),
-                        slug = film.slug,
-                        posterUrl = film.posterUrl,
-                        episodeCurrent = film.episodeCurrent,
                         libraries = libraryViewModel.librariesState.value.libraries,
                         onAddToLibrary = { libraryName ->
                             libraryViewModel.addToLibrary(libraryName, film.slug, film.posterUrl, film.episodeCurrent ?: "")

@@ -86,7 +86,7 @@ class HistoryFragment : Fragment() {
 
     private fun onLongClick(slug: String) {
         context?.let { ctx ->
-            DeleteHistoryDialog.showDeleteFilmFromHistory(ctx, slug) {
+            DeleteHistoryDialog.showDeleteFilmFromHistory(ctx) {
                 historyViewModel.deleteHistory(slug)
             }
         }

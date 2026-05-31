@@ -25,7 +25,7 @@ object EditLibraryDialog {
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnDelete).setOnClickListener {
             dialog.dismiss()
-            showDeleteLibraryDialog(context, nameLibrary, onDelete)
+            showDeleteLibraryDialog(context, onDelete)
         }
         dialog.show()
     }
@@ -63,7 +63,7 @@ object EditLibraryDialog {
 
     fun showDeleteLibraryDialog(
         context: Context,
-        onConfirm: () -> Unit,
+        onDelete: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
         val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
@@ -74,7 +74,7 @@ object EditLibraryDialog {
             dialog.dismiss()
         }
         dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
-            onConfirm()
+            onDelete()
             dialog.dismiss()
         }
         dialog.show()
