@@ -13,9 +13,8 @@ private const val TITLE = "@string/name"
 @AndroidEntryPoint
 class LogoFragment : Fragment() {
     private var title: String? = null
-    private val binding: FragmentLogoBinding by lazy {
-        FragmentLogoBinding.inflate(layoutInflater)
-    }
+    private var _binding: FragmentLogoBinding? = null
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +28,14 @@ class LogoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        _binding = FragmentLogoBinding.inflate(inflater, container, false)
         binding.textTitle.text = title
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

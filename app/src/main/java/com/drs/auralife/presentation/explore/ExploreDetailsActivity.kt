@@ -87,6 +87,7 @@ class ExploreDetailsActivity : AppCompatActivity() {
                 }
             }
         }
+
         scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
     }
 

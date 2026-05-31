@@ -112,7 +112,8 @@ class FilmDetailsActivity : AppCompatActivity() {
 
     private fun observeOperationResult() {
         lifecycleScope.launch {
-            libraryViewModel.operationResult.collect { result ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                libraryViewModel.operationResult.collect { result ->
                 result.onSuccess { success ->
                     Toast.makeText(
                         this@FilmDetailsActivity,
@@ -121,6 +122,7 @@ class FilmDetailsActivity : AppCompatActivity() {
                     ).show()
                 }.onFailure { e ->
                     Toast.makeText(this@FilmDetailsActivity, e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+                }
                 }
             }
         }
