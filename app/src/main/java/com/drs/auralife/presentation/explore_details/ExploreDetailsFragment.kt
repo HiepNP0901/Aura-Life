@@ -11,7 +11,7 @@ import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.presentation.navigation.NavRoutes
-import com.drs.auralife.databinding.FragmentExploreDetailsBinding
+import com.drs.auralife.databinding.ActivityExploreDetailsBinding
 import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class ExploreDetailsFragment : Fragment() {
 
     private val viewModel: ExploreDetailViewModel by viewModels()
-    private var _binding: FragmentExploreDetailsBinding? = null
+    private var _binding: ActivityExploreDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private var slug: String = ""
     private var name: String = ""
@@ -31,7 +31,7 @@ class ExploreDetailsFragment : Fragment() {
     private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentExploreDetailsBinding.inflate(inflater, container, false)
+        _binding = ActivityExploreDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 

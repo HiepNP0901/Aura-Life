@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:paddingHorizontal="30dp"
     tools:ignore="UselessParent"
-    tools:context=".presentation.logo.LogoFragment">
+    tools:context=".ui.auth.LogoFragment">
 
         <ImageView
             android:id="@+id/logo"

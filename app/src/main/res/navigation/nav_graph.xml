@@ -10,7 +10,7 @@
         android:name="com.drs.auralife.presentation.splash.SplashFragment"
         android:label="Splash"
         app:route="splash"
-        tools:layout="@layout/fragment_splash_screen">
+        tools:layout="@layout/activity_splash_screen">
     </fragment>
 
     <fragment
@@ -18,7 +18,7 @@
         android:name="com.drs.auralife.presentation.onboarding.OnboardingFragment"
         android:label="Onboarding"
         app:route="onboarding"
-        tools:layout="@layout/fragment_onboarding">
+        tools:layout="@layout/activity_onboarding">
     </fragment>
 
     <fragment
@@ -54,21 +54,21 @@
         android:name="com.drs.auralife.presentation.login.LoginFragment"
         android:label="Login"
         app:route="login"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/activity_login" />
 
     <fragment
         android:id="@+id/register"
         android:name="com.drs.auralife.presentation.register.RegisterFragment"
         android:label="Register"
         app:route="register"
-        tools:layout="@layout/fragment_register" />
+        tools:layout="@layout/activity_register" />
 
     <fragment
         android:id="@+id/film_details"
         android:name="com.drs.auralife.presentation.film_details.FilmDetailsFragment"
         android:label="FilmDetails"
         app:route="film_details/{slug}"
-        tools:layout="@layout/fragment_film_details">
+        tools:layout="@layout/activity_film_details">
         <argument
             android:name="slug"
             app:argType="string" />
@@ -79,7 +79,7 @@
         android:name="com.drs.auralife.presentation.library_details.LibraryDetailsFragment"
         android:label="LibraryDetails"
         app:route="library_details/{name}"
-        tools:layout="@layout/fragment_library_details">
+        tools:layout="@layout/activity_library_details">
         <argument
             android:name="name"
             app:argType="string" />
@@ -90,14 +90,14 @@
         android:name="com.drs.auralife.presentation.payment.PaymentFragment"
         android:label="Payment"
         app:route="payment"
-        tools:layout="@layout/fragment_payment" />
+        tools:layout="@layout/activity_payment" />
 
     <fragment
         android:id="@+id/play_film"
         android:name="com.drs.auralife.presentation.play_film.PlayFilmFragment"
         android:label="PlayFilm"
         app:route="play_film/{slug}"
-        tools:layout="@layout/fragment_play_film">
+        tools:layout="@layout/activity_play_film">
         <argument
             android:name="slug"
             app:argType="string" />
@@ -114,7 +114,7 @@
         android:name="com.drs.auralife.presentation.explore_details.ExploreDetailsFragment"
         android:label="ExploreDetails"
         app:route="explore_details/{slug}/{name}"
-        tools:layout="@layout/fragment_explore_details">
+        tools:layout="@layout/activity_explore_details">
         <argument
             android:name="slug"
             app:argType="string" />

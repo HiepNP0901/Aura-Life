@@ -15,18 +15,18 @@ import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.core.validation.Validator
-import com.drs.auralife.databinding.FragmentLoginBinding
+import com.drs.auralife.databinding.ActivityLoginBinding
 import com.drs.auralife.presentation.common.LogoFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
     private val loginViewModel: LoginViewModel by viewModels()
-    private var _binding: FragmentLoginBinding? = null
+    private var _binding: ActivityLoginBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        _binding = ActivityLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
 

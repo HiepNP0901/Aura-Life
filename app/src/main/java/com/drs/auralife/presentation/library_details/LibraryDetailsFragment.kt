@@ -11,7 +11,7 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.presentation.navigation.NavRoutes
-import com.drs.auralife.databinding.FragmentLibraryDetailsBinding
+import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
 import com.drs.auralife.presentation.library.EditLibraryDialog
 import com.drs.auralife.presentation.library_details.adapter.LibraryFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,7 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class LibraryDetailsFragment : Fragment() {
 
     private val viewModel: LibraryDetailsViewModel by viewModels()
-    private var _binding: FragmentLibraryDetailsBinding? = null
+    private var _binding: ActivityLibraryDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private var libraryName: String = ""
 
@@ -30,7 +30,7 @@ class LibraryDetailsFragment : Fragment() {
     )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentLibraryDetailsBinding.inflate(inflater, container, false)
+        _binding = ActivityLibraryDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 

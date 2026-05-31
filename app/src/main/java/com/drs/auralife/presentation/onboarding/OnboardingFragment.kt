@@ -27,7 +27,7 @@ class OnboardingFragment : Fragment() {
     private lateinit var btnNext: Button
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_onboarding, container, false)
+        return inflater.inflate(R.layout.activity_onboarding, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

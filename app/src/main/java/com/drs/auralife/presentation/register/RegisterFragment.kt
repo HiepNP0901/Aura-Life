@@ -12,18 +12,18 @@ import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.core.validation.Validator
-import com.drs.auralife.databinding.FragmentRegisterBinding
+import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.presentation.common.LogoFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class RegisterFragment : Fragment() {
     private val registerViewModel: RegisterViewModel by viewModels()
-    private var _binding: FragmentRegisterBinding? = null
+    private var _binding: ActivityRegisterBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        _binding = ActivityRegisterBinding.inflate(inflater, container, false)
         return binding.root
     }
 

@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.R
-import com.drs.auralife.databinding.FragmentPaymentBinding
+import com.drs.auralife.databinding.ActivityPaymentBinding
 import com.drs.auralife.domain.model.PaymentItem
 import com.drs.auralife.presentation.payment.adapter.PaymentAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -27,13 +27,13 @@ import java.util.Locale
 class PaymentFragment : Fragment() {
 
     private val premiumViewModel: PremiumViewModel by viewModels()
-    private var _binding: FragmentPaymentBinding? = null
+    private var _binding: ActivityPaymentBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private lateinit var paymentAdapter: PaymentAdapter
 
     @SuppressLint("InflateParams")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentPaymentBinding.inflate(inflater, container, false)
+        _binding = ActivityPaymentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
