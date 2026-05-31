@@ -59,6 +59,10 @@ android {
 }
 
 dependencies {
+    // --- Internal Modules ---
+    implementation(project(":core:common"))
+    implementation(project(":domain"))
+
     // --- Testing ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
