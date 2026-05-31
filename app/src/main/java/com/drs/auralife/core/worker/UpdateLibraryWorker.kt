@@ -30,6 +30,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val api: FilmAPI,
+    private val libraryDataSource: LibraryDataSource,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -63,7 +64,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
                                     }
                                 }
 
-                                LibraryDataSource.updateEpisode(
+                                libraryDataSource.updateEpisode(
                                     libraryItem.name,
                                     filmItem.slug,
                                     filmDetails.movie.episodeCurrent.toString(),
@@ -81,7 +82,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
         return updates
     }
 
-    private suspend fun getLibrary() = LibraryDataSource.getLibrary()
+    private suspend fun getLibrary() = libraryDataSource.getLibrary()
 
     @SuppressLint("ObsoleteSdkInt")
     private fun sendNotification(

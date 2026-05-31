@@ -3,9 +3,12 @@ package com.drs.auralife.data.remote.firebase
 import com.drs.auralife.data.remote.firebase.model.history.History
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-object HistoryDataSource {
-    private val userRef = FirebaseDatabase.getInstance().getReference("users")
+class HistoryDataSource @Inject constructor(
+    private val database: FirebaseDatabase,
+) {
+    private val userRef = database.getReference("users")
 
     suspend fun getHistoryData(): List<History> {
         val userId = Authentication.getUserId() ?: return emptyList()

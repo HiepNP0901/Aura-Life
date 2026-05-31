@@ -2,9 +2,12 @@ package com.drs.auralife.data.remote.firebase
 
 import com.drs.auralife.data.remote.firebase.model.banner.Banner
 import com.google.firebase.database.FirebaseDatabase
+import javax.inject.Inject
 
-object BannerDataSource {
-    val bannerRef = FirebaseDatabase.getInstance().getReference("banners")
+class BannerDataSource @Inject constructor(
+    private val database: FirebaseDatabase,
+) {
+    private val bannerRef = database.getReference("banners")
 
     fun getBannerData(onDataReceived: (List<Banner>) -> Unit) {
         bannerRef.get().addOnSuccessListener { data ->
