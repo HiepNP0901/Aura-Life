@@ -25,10 +25,10 @@ object DatabaseModule {
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "aura_life.db",
-        ).fallbackToDestructiveMigration().build()
+                context,
+                AppDatabase::class.java,
+                "aura_life.db",
+            ).fallbackToDestructiveMigration(false).build()
     }
 
     @Provides
