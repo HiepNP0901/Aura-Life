@@ -57,7 +57,7 @@ class PlayFilmFragment : Fragment() {
     private var film: FilmDetails? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.activity_play_film, container, false)
+        return inflater.inflate(R.layout.fragment_play_film, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

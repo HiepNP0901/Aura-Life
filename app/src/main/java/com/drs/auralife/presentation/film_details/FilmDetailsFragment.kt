@@ -18,7 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.presentation.common.MyAppGlideModule
 import com.drs.auralife.presentation.navigation.NavRoutes
-import com.drs.auralife.databinding.ActivityFilmDetailsBinding
+import com.drs.auralife.databinding.FragmentFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
 import com.drs.auralife.presentation.library.LibraryUiEffect
 import com.drs.auralife.presentation.library.LibraryViewModel
@@ -30,11 +30,11 @@ class FilmDetailsFragment : Fragment() {
 
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val libraryViewModel: LibraryViewModel by viewModels(ownerProducer = { requireActivity() })
-    private var _binding: ActivityFilmDetailsBinding? = null
+    private var _binding: FragmentFilmDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = ActivityFilmDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentFilmDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
