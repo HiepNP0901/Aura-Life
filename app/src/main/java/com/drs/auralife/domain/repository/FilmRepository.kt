@@ -9,4 +9,5 @@ interface FilmRepository {
     suspend fun getFilmsByCategory(slug: String, page: Int): PagedResult<Film>
     suspend fun searchFilms(keyword: String, limit: Int): List<Film>
     suspend fun getFilmDetails(slug: String): FilmDetails
+    suspend fun getFilmDetailsBatch(slugs: List<String>): Map<String, FilmDetails>
 }
