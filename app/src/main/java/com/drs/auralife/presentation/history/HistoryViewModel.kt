@@ -1,18 +1,20 @@
 package com.drs.auralife.presentation.history
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.util.Log
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.usecase.AddToHistoryUseCase
 import com.drs.auralife.domain.usecase.DeleteHistoryUseCase
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetHistoryUseCase
-import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,18 +27,21 @@ class HistoryViewModel @Inject constructor(
     private val addToHistoryUseCase: AddToHistoryUseCase,
 ) : ViewModel() {
 
-    private val _filmsState = MutableStateFlow<UiState<List<Film>>>(UiState.Loading)
-    val filmsState: StateFlow<UiState<List<Film>>> = _filmsState.asStateFlow()
+    private val _state = MutableStateFlow(HistoryUiState())
+    val state: StateFlow<HistoryUiState> = _state.asStateFlow()
+
+    private val _effect = MutableSharedFlow<HistoryUiEffect>()
+    val effect: SharedFlow<HistoryUiEffect> = _effect.asSharedFlow()
 
     fun loadHistory() {
         viewModelScope.launch {
-            _filmsState.value = UiState.Loading
-            _filmsState.value = try {
+            _state.value = _state.value.copy(isLoading = true)
+            try {
                 val historyItems = getHistoryUseCase()
                 val films = buildFilmsFromHistory(historyItems)
-                UiState.Success(films)
+                _state.value = _state.value.copy(films = films, isLoading = false)
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Failed to load history")
+                _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
             }
         }
     }
@@ -64,10 +69,8 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 deleteHistoryUseCase(slug)
-                val current = _filmsState.value
-                if (current is UiState.Success) {
-                    _filmsState.value = UiState.Success(current.data.filter { it.slug != slug })
-                }
+                val updated = _state.value.films.filter { it.slug != slug }
+                _state.value = _state.value.copy(films = updated)
             } catch (e: Exception) {
                 Log.e("HistoryViewModel", "deleteHistory failed", e)
             }
@@ -86,6 +89,12 @@ class HistoryViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.e("HistoryViewModel", "getHistoryItem failed", e)
             null
+        }
+    }
+
+    fun onFilmClicked(slug: String) {
+        viewModelScope.launch {
+            _effect.emit(HistoryUiEffect.NavigateToFilm(slug))
         }
     }
 }

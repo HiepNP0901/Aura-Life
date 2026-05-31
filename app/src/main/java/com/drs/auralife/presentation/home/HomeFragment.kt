@@ -7,19 +7,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.AppBarProvider
-import com.drs.auralife.presentation.common.UiState
+import com.drs.auralife.presentation.home.adapter.HomeFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -27,70 +26,79 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
-    private var isLoading = false
-    private var currentPage = 1
-    private var totalPages = 0
-    private val filmAdapter = HomeFilmAdapter()
-
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     private val homeViewModel: HomeViewModel by viewModels()
-    
-    private var autoScrollJob: kotlinx.coroutines.Job? = null
-    private var scrollListener: RecyclerView.OnScrollListener? = null
+    private val filmAdapter = HomeFilmAdapter { slug ->
+        homeViewModel.onFilmClicked(slug)
+    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    private var isLoading = false
+    private var currentPage = 1
+    private var totalPages = 0
+    private var autoScrollJob: Job? = null
+    private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
         return binding.root
     }
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeBanners()
+        observeState()
+        observeEffect()
         homeViewModel.loadBanners()
         setupRecyclerView()
         viewLifecycleOwner.lifecycleScope.launch {
-            delay(FOCUS_DELAY_MS)
-            if (_binding != null) {
-                view.isSelected = true
-            }
+            delay(3000)
+            if (_binding != null) view.isSelected = true
         }
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        autoScrollJob?.cancel()
         scrollListener?.let { binding.recyclerView.removeOnScrollListener(it) }
         scrollListener = null
         _binding = null
+        super.onDestroyView()
     }
 
-    private fun observeBanners() {
+    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.bannersState.collect { state ->
+                homeViewModel.state.collect { state ->
                     if (_binding == null) return@collect
-                    when (state) {
-                    is UiState.Success -> {
-                        val bannerData = state.data
-                        if (bannerData.isEmpty()) return@collect
+
+                    if (state.banners.isNotEmpty()) {
                         val bannerViewPager = binding.bannerViewPager
-                        bannerViewPager.adapter = BannerAdapter(bannerData)
-                        startAutoScroll(bannerViewPager, bannerData.size)
+                        bannerViewPager.adapter = com.drs.auralife.presentation.home.adapter.BannerAdapter(state.banners) { slug ->
+                            homeViewModel.onFilmClicked(slug)
+                        }
+                        startAutoScroll(bannerViewPager, state.banners.size)
                     }
-                    is UiState.Error -> {
-                        Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                    }
-                    is UiState.Loading -> {}
+
+                    filmAdapter.submitList(state.films)
                 }
+            }
+        }
+    }
+
+    private fun observeEffect() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is HomeUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is HomeUiEffect.NavigateToFilm -> {
+                            val bundle = Bundle().apply { putString("slug", effect.slug) }
+                            findNavController().navigate(R.id.film_details, bundle)
+                        }
+                    }
                 }
             }
         }
@@ -110,8 +118,8 @@ class HomeFragment : Fragment() {
             currentPage = 1
             homeViewModel.getLatestFilms(currentPage)
 
-            scrollListener = object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
                     if (_binding == null) return
                     val layoutManager = recyclerView.layoutManager as GridLayoutManager
                     if (currentPage < totalPages) {
@@ -123,11 +131,8 @@ class HomeFragment : Fragment() {
                         }
                     }
                     val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                    if (firstVisibleItemPosition > 0) {
-                        binding.scrollToTopButton.visibility = View.VISIBLE
-                    } else {
-                        binding.scrollToTopButton.visibility = View.GONE
-                    }
+                    binding.scrollToTopButton.visibility =
+                        if (firstVisibleItemPosition > 0) View.VISIBLE else View.GONE
                 }
             }
             scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
@@ -136,59 +141,38 @@ class HomeFragment : Fragment() {
                 binding.recyclerView.smoothScrollToPosition(0)
             }
         } else {
-            Toast
-                .makeText(
-                    context,
-                    getString(R.string.no_internet_retry),
-                    Toast.LENGTH_LONG,
-                ).show()
+            Toast.makeText(context, getString(R.string.no_internet_retry), Toast.LENGTH_LONG).show()
         }
     }
 
     private fun observeLatestFilms() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.latestFilmsState.collect { state ->
-                    when (state) {
-                        is UiState.Success -> {
-                            filmAdapter.replaceItems(state.data.films)
-                            totalPages = state.data.totalPages
-                        }
-                        is UiState.Error -> {
-                            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is UiState.Loading -> {}
-                    }
-                    isLoading = false
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.state.collect { state ->
+                    totalPages = state.totalPages
+                    isLoading = state.isLoadingMore
                 }
             }
         }
-    }
-
-    fun Context.isConnectedToInternet(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun startAutoScroll(bannerViewPager: androidx.viewpager2.widget.ViewPager2, count: Int) {
         autoScrollJob?.cancel()
         autoScrollJob = viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                while (true) {
-                    delay(BANNER_SCROLL_INTERVAL_MS)
-                    if (_binding == null) break
-                    val currentItem = bannerViewPager.currentItem
-                    val nextItem = if (currentItem == count - 1) 0 else currentItem + 1
-                    bannerViewPager.setCurrentItem(nextItem, true)
-                }
+            while (true) {
+                delay(3000)
+                if (_binding == null) break
+                val currentItem = bannerViewPager.currentItem
+                val nextItem = if (currentItem == count - 1) 0 else currentItem + 1
+                bannerViewPager.setCurrentItem(nextItem, true)
             }
         }
     }
 
-    companion object {
-        private const val FOCUS_DELAY_MS = 3000L
-        private const val BANNER_SCROLL_INTERVAL_MS = 3000L
+    private fun Context.isConnectedToInternet(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }

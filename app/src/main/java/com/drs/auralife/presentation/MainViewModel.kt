@@ -62,6 +62,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun logout() {
+        authRepository.logout()
+    }
+
     fun uploadAvatar(bitmap: Bitmap) {
         viewModelScope.launch {
             try {

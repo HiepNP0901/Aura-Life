@@ -5,42 +5,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHistoryBinding
 import com.drs.auralife.presentation.AppBarProvider
-import com.drs.auralife.presentation.common.UiState
+import com.drs.auralife.presentation.history.adapter.HistoryFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class HistoryFragment :
-    Fragment(),
-    HistoryFilmAdapter.Listener {
+class HistoryFragment : Fragment() {
     private val historyViewModel: HistoryViewModel by viewModels()
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
-    private val filmAdapter = HistoryFilmAdapter()
+    private val filmAdapter = HistoryFilmAdapter(
+        onItemClick = { slug -> historyViewModel.onFilmClicked(slug) },
+        onLongClick = { slug -> onLongClick(slug) },
+    )
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
-        filmAdapter.setCallback(this)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeFilms()
+        observeState()
+        observeEffect()
     }
 
     override fun onResume() {
@@ -53,35 +52,46 @@ class HistoryFragment :
         _binding = null
     }
 
-    private fun observeFilms() {
+    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                historyViewModel.filmsState.collect { state ->
-                if (_binding == null) return@collect
-                when (state) {
-                    is UiState.Success -> {
-                        val films = state.data
-                        if (films.isEmpty()) {
-                            binding.text.visibility = View.VISIBLE
-                            filmAdapter.clearItems()
-                        } else {
-                            binding.text.visibility = View.GONE
-                            binding.recyclerView.adapter = filmAdapter
-                            filmAdapter.replaceItems(films)
-                        }
-                    }
-                    is UiState.Error -> {
+                historyViewModel.state.collect { state ->
+                    if (_binding == null) return@collect
+                    if (state.films.isEmpty()) {
                         binding.text.visibility = View.VISIBLE
-                        binding.text.text = state.message
+                    } else {
+                        binding.text.visibility = View.GONE
+                        binding.recyclerView.adapter = filmAdapter
+                        filmAdapter.submitList(state.films)
                     }
-                    is UiState.Loading -> {}
-                }
+                    if (state.errorMessage != null) {
+                        binding.text.visibility = View.VISIBLE
+                        binding.text.text = state.errorMessage
+                    }
                 }
             }
         }
     }
 
-    override fun onLongClick(slug: String) {
+    private fun observeEffect() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                historyViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is HistoryUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is HistoryUiEffect.NavigateToFilm -> {
+                            val bundle = Bundle().apply { putString("slug", effect.slug) }
+                            findNavController().navigate(R.id.film_details, bundle)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onLongClick(slug: String) {
         context?.let { ctx ->
             DeleteHistoryDialog.showDeleteFilmFromHistory(ctx, slug) {
                 historyViewModel.deleteHistory(slug)

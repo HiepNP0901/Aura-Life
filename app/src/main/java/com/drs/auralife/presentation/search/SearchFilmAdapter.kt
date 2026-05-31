@@ -1,6 +1,5 @@
 package com.drs.auralife.presentation.search
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,11 +10,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.Film
-import com.drs.auralife.presentation.filmdetails.FilmDetailsActivity
-import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.core.utils.MyAppGlideModule
 
-class SearchFilmAdapter : RecyclerView.Adapter<SearchFilmAdapter.ViewHolder>() {
+class SearchFilmAdapter(
+    private val onItemClick: (String) -> Unit,
+) : RecyclerView.Adapter<SearchFilmAdapter.ViewHolder>() {
 
     private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Film>() {
         override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
@@ -53,9 +52,7 @@ class SearchFilmAdapter : RecyclerView.Adapter<SearchFilmAdapter.ViewHolder>() {
             holder.posterView,
         )
         holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, FilmDetailsActivity::class.java)
-            intent.putExtra(EXTRA_SLUG, film.slug)
-            holder.itemView.context.startActivity(intent)
+            onItemClick(film.slug)
         }
     }
 

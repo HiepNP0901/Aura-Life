@@ -11,10 +11,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.presentation.AppBarProvider
-import com.drs.auralife.presentation.common.UiState
+import com.drs.auralife.presentation.library.adapter.LibraryAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -25,11 +26,7 @@ class LibraryFragment : Fragment() {
     private val libraryViewModel: LibraryViewModel by viewModels()
     private lateinit var libraryAdapter: LibraryAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
         binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
@@ -41,11 +38,11 @@ class LibraryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         libraryAdapter = LibraryAdapter(
-            onRename = { oldName, newName ->
-                libraryViewModel.renameLibrary(oldName, newName)
-            },
-            onDelete = { name ->
-                libraryViewModel.deleteLibrary(name)
+            onRename = { oldName, newName -> libraryViewModel.renameLibrary(oldName, newName) },
+            onDelete = { name -> libraryViewModel.deleteLibrary(name) },
+            onItemClick = { name ->
+                val bundle = Bundle().apply { putString("name", name) }
+                findNavController().navigate(R.id.library_details, bundle)
             },
         )
         binding.recyclerView.adapter = libraryAdapter
@@ -68,28 +65,22 @@ class LibraryFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 libraryViewModel.librariesState.collect { state ->
-                if (_binding == null) return@collect
-                when (state) {
-                    is UiState.Success -> {
-                        val libraries = state.data
-                        libraryAdapter.refreshLibrary(libraries.toMutableList())
+                    if (_binding == null) return@collect
+                    libraryAdapter.submitList(state.libraries)
 
-                        if (!libraryViewModel.isLoggedIn()) {
-                            binding.text.visibility = View.VISIBLE
-                            binding.text.text = getString(R.string.function_must_login)
-                        } else if (libraries.isEmpty()) {
-                            binding.text.visibility = View.VISIBLE
-                            binding.text.text = getString(R.string.empty)
-                        } else {
-                            binding.text.visibility = View.GONE
-                        }
-                    }
-                    is UiState.Error -> {
+                    if (!libraryViewModel.isLoggedIn()) {
                         binding.text.visibility = View.VISIBLE
-                        binding.text.text = state.message
+                        binding.text.text = getString(R.string.function_must_login)
+                    } else if (state.libraries.isEmpty()) {
+                        binding.text.visibility = View.VISIBLE
+                        binding.text.text = getString(R.string.empty)
+                    } else {
+                        binding.text.visibility = View.GONE
                     }
-                    is UiState.Loading -> {}
-                }
+                    if (state.errorMessage != null) {
+                        binding.text.visibility = View.VISIBLE
+                        binding.text.text = state.errorMessage
+                    }
                 }
             }
         }
@@ -99,17 +90,16 @@ class LibraryFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 libraryViewModel.operationResult.collect { result ->
-                result.onSuccess {
-                    refreshLibrary()
-                }.onFailure { e ->
-                    Toast.makeText(requireContext(), e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
-                }
+                    result.onSuccess { refreshLibrary() }
+                        .onFailure { e ->
+                            Toast.makeText(requireContext(), e.message ?: getString(R.string.error), Toast.LENGTH_SHORT).show()
+                        }
                 }
             }
         }
     }
 
-    fun refreshLibrary() {
+    private fun refreshLibrary() {
         libraryViewModel.getLibraries()
     }
 }
