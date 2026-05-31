@@ -1,6 +1,6 @@
 package com.drs.auralife.data.remote.firebase
 
-import com.drs.auralife.domain.model.Banner
+import com.drs.auralife.data.remote.firebase.model.banner.Banner
 import com.google.firebase.database.FirebaseDatabase
 
 object BannerDataSource {
@@ -11,7 +11,9 @@ object BannerDataSource {
             val bannerList = mutableListOf<Banner>()
             for (snapshot in data.children) {
                 val bannerData = snapshot.getValue(String::class.java)
-                bannerData?.let { bannerList.add(Banner(imageUrl = snapshot.key.toString(), filmSlug = it)) }
+                bannerData?.let {
+                    bannerList.add(Banner(imageUrl = snapshot.key.toString(), filmSlug = it))
+                }
             }
             onDataReceived(bannerList)
         }
