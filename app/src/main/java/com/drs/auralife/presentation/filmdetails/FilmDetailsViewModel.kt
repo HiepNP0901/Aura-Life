@@ -29,12 +29,7 @@ class FilmDetailsViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true)
             try {
                 val details = getFilmDetailsUseCase(slug)
-                if (details != null) {
-                    _state.value = _state.value.copy(film = details, isLoading = false)
-                } else {
-                    _state.value = _state.value.copy(isLoading = false, errorMessage = "Film not found")
-                    _effect.emit(FilmDetailsUiEffect.ShowToast("Film not found"))
-                }
+                _state.value = _state.value.copy(film = details, isLoading = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
                 _effect.emit(FilmDetailsUiEffect.ShowToast(e.message ?: "Unknown error"))

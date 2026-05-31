@@ -1,5 +1,6 @@
 package com.drs.auralife.di
 
+import com.drs.auralife.BuildConfig
 import com.drs.auralife.data.remote.api.FilmAPI
 import dagger.Module
 import dagger.Provides
@@ -11,14 +12,11 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
-import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    private const val BASE_URL = "https://phimapi.com"
 
     @Provides
     @Singleton
@@ -42,7 +40,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
