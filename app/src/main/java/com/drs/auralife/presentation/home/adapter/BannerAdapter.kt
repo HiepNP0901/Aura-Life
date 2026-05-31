@@ -6,17 +6,18 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
+import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.presentation.common.MyAppGlideModule
 
 class BannerAdapter(
-    private val banners: List<Pair<String, String>>,
+    private val banners: List<Banner>,
     private val onBannerClick: (String) -> Unit,
 ) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
     inner class BannerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val bannerImage: ImageView = itemView.findViewById(R.id.bannerImage)
 
-        fun bind(banner: Pair<String, String>) {
-            MyAppGlideModule.loadImage(bannerImage.context, banner.second, bannerImage)
+        fun bind(banner: Banner) {
+            MyAppGlideModule.loadImage(bannerImage.context, banner.filmSlug, bannerImage)
         }
     }
 
@@ -28,7 +29,7 @@ class BannerAdapter(
     override fun onBindViewHolder(holder: BannerViewHolder, position: Int) {
         holder.bind(banners[position])
         holder.itemView.setOnClickListener {
-            onBannerClick(banners[position].first)
+            onBannerClick(banners[position].filmSlug)
         }
     }
 

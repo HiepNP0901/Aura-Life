@@ -8,6 +8,7 @@ import com.drs.auralife.data.local.entity.HistoryEntity
 import com.drs.auralife.data.local.entity.LibraryEntity
 import com.drs.auralife.data.local.entity.LibraryFilmCrossRef
 import com.drs.auralife.data.local.entity.LibraryWithFilms
+import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
@@ -88,12 +89,15 @@ object LocalMapper {
 
     // --- BannerCache ---
 
-    fun Pair<String, String>.toBannerCacheEntity() = BannerCacheEntity(
-        imageUrl = first,
-        filmSlug = second,
+    fun Banner.toBannerCacheEntity() = BannerCacheEntity(
+        imageUrl = imageUrl,
+        filmSlug = filmSlug,
     )
 
-    fun BannerCacheEntity.toBannerPair() = imageUrl to filmSlug
+    fun BannerCacheEntity.toDomainBanner() = Banner(
+        imageUrl = imageUrl,
+        filmSlug = filmSlug,
+    )
 
     // --- CategoryCache ---
 

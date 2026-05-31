@@ -1,9 +1,10 @@
 package com.drs.auralife.presentation.home
 
+import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.domain.model.Film
 
 data class HomeUiState(
-    val banners: List<Pair<String, String>> = emptyList(),
+    val banners: List<Banner> = emptyList(),
     val films: List<Film> = emptyList(),
     val currentPage: Int = 1,
     val totalPages: Int = 0,
