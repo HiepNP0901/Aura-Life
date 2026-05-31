@@ -9,4 +9,6 @@ data class Film(
     val description: String,
     val category: String,
     val episodeCount: Int,
+    val watchedAt: Long = 0,
+    val modifiedAt: Long = 0,
 )

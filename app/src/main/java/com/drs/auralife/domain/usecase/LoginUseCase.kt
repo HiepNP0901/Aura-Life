@@ -7,6 +7,10 @@ class LoginUseCase @Inject constructor(
     private val authRepository: AuthRepository,
 ) {
     suspend operator fun invoke(username: String, password: String): Result<String> {
-        return authRepository.login(username, password)
+        val result = authRepository.login(username, password)
+        if (result.isFailure) {
+            authRepository.logout()
+        }
+        return result
     }
 }

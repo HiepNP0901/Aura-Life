@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:contentDescription="@string/explore"
     tools:context=".ui.explore.ExploreFragment">
 
-    <LinearLayout
-        android:id="@+id/exploreFragmentBody"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/appBar"
+        <LinearLayout
+            android:id="@+id/exploreFragmentBody"
             android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <FrameLayout
+                android:id="@+id/appBar"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="60dp"
+        android:padding="20dp"
+        android:textColor="@android:color/darker_gray"
+        android:visibility="gone"
+        tools:text="Error message" />
+
+</FrameLayout>

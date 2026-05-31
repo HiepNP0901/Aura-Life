@@ -10,4 +10,5 @@ interface LibraryRepository {
     suspend fun removeFilmFromLibrary(libraryName: String, slug: String): Boolean
     suspend fun renameLibrary(oldName: String, newName: String): Boolean
     suspend fun deleteLibrary(name: String): Boolean
+    suspend fun updatePosterUrl(name: String, posterUrl: String)
 }

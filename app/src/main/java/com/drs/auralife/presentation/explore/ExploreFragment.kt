@@ -63,6 +63,19 @@ class ExploreFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
                 exploreViewModel.state.collect { state ->
                     if (_binding == null) return@collect
+                    if (state.isLoading) {
+                        binding.loadingIndicator.visibility = View.VISIBLE
+                    } else {
+                        binding.loadingIndicator.visibility = View.GONE
+                    }
+                    if (state.errorMessage != null) {
+                        binding.errorText.apply {
+                            visibility = View.VISIBLE
+                            text = state.errorMessage
+                        }
+                    } else {
+                        binding.errorText.visibility = View.GONE
+                    }
                     if (state.categories.isNotEmpty()) {
                         buildCategoryViews(state.categories)
                     }

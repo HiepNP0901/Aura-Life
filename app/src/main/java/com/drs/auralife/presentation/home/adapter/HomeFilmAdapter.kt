@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
+import com.drs.auralife.core.util.Time
 import com.drs.auralife.presentation.common.MyAppGlideModule
 import com.drs.auralife.domain.model.Film
+import java.time.Instant
 
 class HomeFilmAdapter(
     private val onItemClick: (String) -> Unit,
@@ -34,7 +36,9 @@ class HomeFilmAdapter(
             tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvTitle.text = film.title
-            tvDetails.text = film.category
+            if (film.modifiedAt > 0) {
+                tvDetails.text = Time.calculateTimeDifference(Instant.ofEpochMilli(film.modifiedAt), itemView.context)
+            }
             MyAppGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
             itemView.setOnClickListener { onItemClick(film.slug) }
         }

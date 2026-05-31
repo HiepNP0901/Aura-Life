@@ -60,6 +60,7 @@ class LibraryFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
                 libraryViewModel.librariesState.collect { state ->
                     if (_binding == null) return@collect
+                    binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                     libraryAdapter.submitList(state.libraries)
 
                     if (!libraryViewModel.isLoggedIn()) {

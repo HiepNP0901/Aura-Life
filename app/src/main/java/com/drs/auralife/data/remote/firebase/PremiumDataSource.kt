@@ -66,7 +66,7 @@ class PremiumDataSource @Inject constructor(
                     val currentDate = Date()
                     val calendar = Calendar.getInstance()
 
-                    snapshot.getValue(Premium::class.java)?.let { it ->
+                    snapshot.getValue(Premium::class.java)?.let {
                         val expireDate = dateFormat.parse(it.expireDate)
                         calendar.time = if (expireDate != null && expireDate.after(currentDate)) {
                             expireDate

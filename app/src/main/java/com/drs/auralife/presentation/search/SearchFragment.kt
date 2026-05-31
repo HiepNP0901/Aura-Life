@@ -81,10 +81,26 @@ class SearchFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
             searchViewModel.state.collect { state ->
                 when (state) {
+                    is SearchUiState.Idle -> {
+                        binding.loadingIndicator.visibility = View.GONE
+                        binding.errorText.visibility = View.GONE
+                    }
+                    is SearchUiState.Loading -> {
+                        binding.loadingIndicator.visibility = View.VISIBLE
+                        binding.errorText.visibility = View.GONE
+                    }
                     is SearchUiState.Success -> {
+                        binding.loadingIndicator.visibility = View.GONE
+                        binding.errorText.visibility = View.GONE
                         searchAdapter?.replaceItems(state.films)
                     }
-                    else -> {}
+                    is SearchUiState.Error -> {
+                        binding.loadingIndicator.visibility = View.GONE
+                        binding.errorText.apply {
+                            visibility = View.VISIBLE
+                            text = state.message
+                        }
+                    }
                 }
             }
         }

@@ -22,8 +22,8 @@ import androidx.core.content.edit
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
@@ -49,13 +49,12 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         private const val PREF_NAME = "PREFERENCE"
     }
 
-    private lateinit var navController: NavController
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
-    private lateinit var bottomNavigationView: BottomNavigationView
-
+    private var navController: NavController? = null
+    private var drawerLayout: DrawerLayout? = null
+    private var navigationView: NavigationView? = null
+    private var bottomNavigationView: BottomNavigationView? = null
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
-    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private var actionBarDrawerToggle: ActionBarDrawerToggle? = null
 
     private val mainViewModel: MainViewModel by viewModels()
 
@@ -74,12 +73,11 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         setupBottomNav()
         setupDrawer()
         setupBackPressed()
-        setupBottomNavVisibility()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        actionBarDrawerToggle.syncState()
+        actionBarDrawerToggle?.syncState()
     }
 
     override fun onRequestPermissionsResult(
@@ -92,7 +90,37 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     }
 
     private fun setupBottomNav() {
-        bottomNavigationView.setupWithNavController(navController)
+        bottomNavigationView?.setOnItemSelectedListener { item ->
+            val route = when (item.itemId) {
+                R.id.home -> NavRoutes.HOME
+                R.id.explore -> NavRoutes.EXPLORE
+                R.id.library -> NavRoutes.LIBRARY
+                R.id.history -> NavRoutes.HISTORY
+                else -> null
+            }
+            if (route != null) {
+                navController?.navigate(route) {
+                    popUpTo(NavRoutes.HOME) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+                true
+            } else {
+                false
+            }
+        }
+
+        val navHeight = (75 * resources.displayMetrics.density).toInt()
+
+        navController?.addOnDestinationChangedListener { _, destination, _ ->
+            val show = destination.route in setOf(
+                NavRoutes.HOME, NavRoutes.EXPLORE, NavRoutes.LIBRARY, NavRoutes.HISTORY,
+            )
+            bottomNavigationView?.visibility = if (show) View.VISIBLE else View.GONE
+            val navHost = findViewById<View>(R.id.nav_host_fragment)
+            (navHost.layoutParams as CoordinatorLayout.LayoutParams)
+                .bottomMargin = if (show) navHeight else 0
+        }
     }
 
     private fun setupDrawer() {
@@ -108,7 +136,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
     private fun setupDrawerToggle() {
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
-        drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle?.let { drawerLayout?.addDrawerListener(it) }
     }
 
     private fun setupNavProfileClick() {
@@ -122,13 +150,13 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         permissionPhotoHandler = PermissionPhotoHandler(this, activityResultLauncher)
 
         navigationView
-            .getHeaderView(0)
-            .findViewById<ImageFilterView>(R.id.navProfilePic)
-            .setOnClickListener {
+            ?.getHeaderView(0)
+            ?.findViewById<ImageFilterView>(R.id.navProfilePic)
+            ?.setOnClickListener {
                 if (mainViewModel.authState.value) {
                     permissionPhotoHandler?.checkAndRequestPermissions()
                 } else {
-                    navController.navigate(NavRoutes.LOGIN)
+                    navController?.navigate(NavRoutes.LOGIN)
                 }
             }
     }
@@ -136,26 +164,26 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun observeAuthState() {
         launchAndRepeatOnStarted {
             mainViewModel.authState.collect { isLoggedIn ->
-                val navLogin = navigationView.menu.findItem(R.id.navLogin)
-                val navLogout = navigationView.menu.findItem(R.id.navLogout)
-                val navigationHeader = navigationView.getHeaderView(0)
-                val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
-                val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
-                val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navFreemium)
+                val navLogin = navigationView?.menu?.findItem(R.id.navLogin)
+                val navLogout = navigationView?.menu?.findItem(R.id.navLogout)
+                val navigationHeader = navigationView?.getHeaderView(0)
+                val navEmail = navigationHeader?.findViewById<TextView>(R.id.navEmail)
+                val navPic = navigationHeader?.findViewById<ImageView>(R.id.navProfilePic)
+                val navPremiumStatus = navigationHeader?.findViewById<TextView>(R.id.navFreemium)
 
                 if (isLoggedIn) {
-                    navLogin.isVisible = false
-                    navLogout.isVisible = true
-                    navEmail.text = mainViewModel.userEmail
+                    navLogin?.isVisible = false
+                    navLogout?.isVisible = true
+                    navEmail?.text = mainViewModel.userEmail
                     mainViewModel.loadAvatar()
-                    navPremiumStatus.visibility = View.VISIBLE
+                    navPremiumStatus?.visibility = View.VISIBLE
                     mainViewModel.loadPremiumStatus()
                 } else {
-                    navLogin.isVisible = true
-                    navLogout.isVisible = false
-                    navPremiumStatus.visibility = View.GONE
-                    navEmail.text = getString(R.string.example_email)
-                    navPic.setImageResource(R.drawable.ic_profile)
+                    navLogin?.isVisible = true
+                    navLogout?.isVisible = false
+                    navPremiumStatus?.visibility = View.GONE
+                    navEmail?.text = getString(R.string.example_email)
+                    navPic?.setImageResource(R.drawable.ic_profile)
                     getSharedPreferences(PREF_NAME, MODE_PRIVATE)
                         .edit { putString("ExpireDate", "") }
                 }
@@ -168,14 +196,14 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
             mainViewModel.premiumStatus.collect { status ->
                 if (status == null) return@collect
                 val navPremiumStatus = navigationView
-                    .getHeaderView(0)
-                    .findViewById<TextView>(R.id.navFreemium)
+                    ?.getHeaderView(0)
+                    ?.findViewById<TextView>(R.id.navFreemium)
                 getSharedPreferences(PREF_NAME, MODE_PRIVATE)
                     .edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
-                navPremiumStatus.text =
+                navPremiumStatus?.text =
                     if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
-                navPremiumStatus.setOnClickListener {
-                    navController.navigate(NavRoutes.PAYMENT)
+                navPremiumStatus?.setOnClickListener {
+                    navController?.navigate(NavRoutes.PAYMENT)
                 }
             }
         }
@@ -185,10 +213,10 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         launchAndRepeatOnStarted {
             mainViewModel.avatarState.collect { bitmap ->
                 val navPic = navigationView
-                    .getHeaderView(0)
-                    .findViewById<ImageView>(R.id.navProfilePic)
+                    ?.getHeaderView(0)
+                    ?.findViewById<ImageView>(R.id.navProfilePic)
                 if (bitmap != null) {
-                    MyAppGlideModule.loadImage(this@MainActivity, bitmap, navPic)
+                    navPic?.let { MyAppGlideModule.loadImage(this@MainActivity, bitmap, it) }
                 }
             }
         }
@@ -220,13 +248,14 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     }
 
     private fun handleDrawerItemSelection() {
-        navigationView.setNavigationItemSelectedListener { menuItem ->
+        navigationView?.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navLogin -> navController.navigate(NavRoutes.LOGIN)
+                R.id.navLogin -> navController?.navigate(NavRoutes.LOGIN)
                 R.id.navLogout -> {
                     mainViewModel.logout()
                     Notification.removeAllNotification(this)
                 }
+
                 R.id.navExit -> finish()
             }
             true
@@ -243,25 +272,14 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!navController.popBackStack()) {
-                    finish()
+                navController?.popBackStack()?.let {
+                    if (!it) {
+                        finish()
+                    }
                 }
             }
         }
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-    }
-
-    private fun setupBottomNavVisibility() {
-        val navHeight = (75 * resources.displayMetrics.density).toInt()
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            val show = destination.route in setOf(
-                NavRoutes.HOME, NavRoutes.EXPLORE, NavRoutes.LIBRARY, NavRoutes.HISTORY,
-            )
-            bottomNavigationView.visibility = if (show) View.VISIBLE else View.GONE
-            val navHost = findViewById<View>(R.id.nav_host_fragment)
-            (navHost.layoutParams as CoordinatorLayout.LayoutParams)
-                .bottomMargin = if (show) navHeight else 0
-        }
     }
 
     @SuppressLint("InflateParams")
@@ -281,8 +299,8 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
             }
         }
 
-        appBarProfile.setOnClickListener { drawerLayout.openDrawer(navigationView) }
-        appBarSearch.setOnClickListener { navController.navigate(NavRoutes.SEARCH) }
-        appBarNotifications.setOnClickListener { NotificationPopupHelper(navController).show(it) }
+        appBarProfile.setOnClickListener { navigationView?.let { drawerView -> drawerLayout?.openDrawer(drawerView) } }
+        appBarSearch.setOnClickListener { navController?.navigate(NavRoutes.SEARCH) }
+        appBarNotifications.setOnClickListener { navController?.let { it1 -> NotificationPopupHelper(it1) }?.show(it) }
     }
 }

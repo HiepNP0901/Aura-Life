@@ -60,6 +60,7 @@ class HistoryViewModel @Inject constructor(
                     description = fd.description,
                     category = fd.categories?.firstOrNull() ?: "",
                     episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                    watchedAt = item.watchedAt,
                 )
             }
         }

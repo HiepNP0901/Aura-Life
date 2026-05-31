@@ -27,9 +27,6 @@ class PremiumViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<PaymentUiEffect>()
     val effect: SharedFlow<PaymentUiEffect> = _effect.asSharedFlow()
 
-    private val _purchaseResult = MutableSharedFlow<Result<Boolean>>()
-    val purchaseResult: SharedFlow<Result<Boolean>> = _purchaseResult.asSharedFlow()
-
     fun loadPremiumStatus() {
         viewModelScope.launch {
             try {
@@ -46,7 +43,6 @@ class PremiumViewModel @Inject constructor(
             _state.value = _state.value.copy(isPurchasing = true)
             try {
                 val result = setPremiumUseCase(months)
-                _purchaseResult.emit(Result.success(result))
                 if (result) {
                     loadPremiumStatus()
                     _effect.emit(PaymentUiEffect.PurchaseSuccess("Purchase successful"))
@@ -54,7 +50,6 @@ class PremiumViewModel @Inject constructor(
                     _effect.emit(PaymentUiEffect.PurchaseError("Payment unavailable"))
                 }
             } catch (e: Exception) {
-                _purchaseResult.emit(Result.failure(e))
                 _effect.emit(PaymentUiEffect.PurchaseError(e.message ?: "Payment unavailable"))
             } finally {
                 _state.value = _state.value.copy(isPurchasing = false)

@@ -5,9 +5,15 @@ import com.drs.auralife.data.remote.api.model.film.Movie
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.model.FilmEpisode
+import java.time.Instant
 
 object FilmMapper {
     fun Movie.toDomainFilm(): Film {
+        val modifiedAt = try {
+            modified?.time?.let { Instant.parse(it).toEpochMilli() } ?: 0
+        } catch (e: Exception) {
+            0
+        }
         return Film(
             id = movieID ?: slug,
             slug = slug,
@@ -17,6 +23,7 @@ object FilmMapper {
             description = content.orEmpty(),
             category = category?.firstOrNull()?.name.orEmpty(),
             episodeCount = episodeTotal?.toIntOrNull() ?: 0,
+            modifiedAt = modifiedAt,
         )
     }
 
