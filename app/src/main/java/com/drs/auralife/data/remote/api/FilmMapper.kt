@@ -9,8 +9,8 @@ import java.time.Instant
 
 object FilmMapper {
     fun Movie.toDomainFilm(): Film {
-        val createdAt = try {
-            created?.time?.let { Instant.parse(it).toEpochMilli() } ?: 0
+        val modifiedAt = try {
+            modified?.time?.let { Instant.parse(it).toEpochMilli() } ?: 0
         } catch (e: Exception) {
             0
         }
@@ -23,7 +23,7 @@ object FilmMapper {
             description = content.orEmpty(),
             category = category?.firstOrNull()?.name.orEmpty(),
             episodeCount = episodeTotal?.toIntOrNull() ?: 0,
-            createdAt = createdAt,
+            modifiedAt = modifiedAt,
         )
     }
 

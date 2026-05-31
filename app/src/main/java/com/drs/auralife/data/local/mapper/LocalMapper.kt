@@ -28,7 +28,7 @@ object LocalMapper {
         description = description,
         category = category,
         episodeCount = episodeCount,
-        createdAt = createdAt,
+        modifiedAt = modifiedAt,
     )
 
     fun FilmEntity.toDomainFilm() = Film(
@@ -40,7 +40,7 @@ object LocalMapper {
         description = description,
         category = category,
         episodeCount = episodeCount,
-        createdAt = createdAt,
+        modifiedAt = modifiedAt,
     )
 
     // --- FilmDetails ---

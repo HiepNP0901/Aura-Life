@@ -12,5 +12,5 @@ data class FilmEntity(
     val description: String,
     val category: String,
     val episodeCount: Int,
-    val createdAt: Long = 0,
+    val modifiedAt: Long = 0,
 )

@@ -36,10 +36,8 @@ class HomeFilmAdapter(
             tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvTitle.text = film.title
-            tvDetails.text = if (film.createdAt > 0) {
-                Time.calculateTimeDifference(Instant.ofEpochMilli(film.createdAt), itemView.context)
-            } else {
-                film.category
+            if (film.modifiedAt > 0) {
+                tvDetails.text = Time.calculateTimeDifference(Instant.ofEpochMilli(film.modifiedAt), itemView.context)
             }
             MyAppGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
             itemView.setOnClickListener { onItemClick(film.slug) }

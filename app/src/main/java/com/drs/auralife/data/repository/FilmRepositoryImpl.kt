@@ -1,5 +1,6 @@
 package com.drs.auralife.data.repository
 
+import android.util.Log
 import com.drs.auralife.data.local.dao.FilmDao
 import com.drs.auralife.data.local.dao.FilmDetailsDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilm
