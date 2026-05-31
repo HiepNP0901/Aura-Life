@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
+import com.drs.auralife.presentation.navigation.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,10 +35,16 @@ class SplashFragment : Fragment() {
                 splashViewModel.effect.collect { effect ->
                     when (effect) {
                         is SplashUiEffect.NavigateToOnboarding -> {
-                            findNavController().navigate(R.id.action_splash_to_onboarding)
+                            findNavController().navigate(
+                                NavRoutes.ONBOARDING,
+                                NavOptions.Builder().setPopUpTo(R.id.splash, true).build(),
+                            )
                         }
                         is SplashUiEffect.NavigateToHome -> {
-                            findNavController().navigate(R.id.action_splash_to_home)
+                            findNavController().navigate(
+                                NavRoutes.HOME,
+                                NavOptions.Builder().setPopUpTo(R.id.splash, true).build(),
+                            )
                         }
                     }
                 }

@@ -18,6 +18,7 @@ import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.databinding.ActivityFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
 import com.drs.auralife.presentation.library.LibraryUiEffect
@@ -78,11 +79,10 @@ class FilmDetailsFragment : Fragment() {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                         }
                         is FilmDetailsUiEffect.NavigateToPlayFilm -> {
-                            val bundle = Bundle().apply { putString("slug", effect.slug) }
-                            findNavController().navigate(R.id.action_film_details_to_play_film, bundle)
+                            findNavController().navigate(NavRoutes.playFilm(effect.slug))
                         }
                         is FilmDetailsUiEffect.NavigateToLogin -> {
-                            findNavController().navigate(R.id.action_film_details_to_login)
+                            findNavController().navigate(NavRoutes.LOGIN)
                         }
                     }
                 }
