@@ -21,10 +21,11 @@ private fun FirebaseLibrary.toDomainLibrary(): Library = Library(
 class LibraryRepositoryImpl @Inject constructor(
     private val libraryDao: LibraryDao,
     private val libraryFilmCrossRefDao: LibraryFilmCrossRefDao,
+    private val libraryDataSource: LibraryDataSource,
 ) : LibraryRepository {
     override suspend fun getLibraries(): List<Library> {
         return try {
-            val libraries = LibraryDataSource.getLibrary().map { it.toDomainLibrary() }
+            val libraries = libraryDataSource.getLibrary().map { it.toDomainLibrary() }
             libraryDao.clear()
             libraryFilmCrossRefDao.clear()
             libraries.forEach { lib ->
@@ -39,7 +40,7 @@ class LibraryRepositoryImpl @Inject constructor(
 
     override suspend fun getLibrary(name: String): Library? {
         return try {
-            val library = LibraryDataSource.getLibraryData(name)?.toDomainLibrary()
+            val library = libraryDataSource.getLibraryData(name)?.toDomainLibrary()
             if (library != null) {
                 libraryDao.insertLibrary(library.toLibraryEntity())
                 libraryFilmCrossRefDao.insertAll(library.toLibraryFilmCrossRefs())
@@ -53,24 +54,24 @@ class LibraryRepositoryImpl @Inject constructor(
     override suspend fun addToLibrary(library: Library): Boolean {
         if (library.films.isEmpty()) return false
         val film = library.films.first()
-        return LibraryDataSource.addLibraryData(library.name, library.posterUrl, film.slug, film.currentEpisode)
+        return libraryDataSource.addLibraryData(library.name, library.posterUrl, film.slug, film.currentEpisode)
     }
 
     override suspend fun removeFilmFromLibrary(libraryName: String, slug: String): Boolean {
-        return LibraryDataSource.removeFilmFromLibrary(libraryName, slug)
+        return libraryDataSource.removeFilmFromLibrary(libraryName, slug)
     }
 
     override suspend fun renameLibrary(oldName: String, newName: String): Boolean {
-        return LibraryDataSource.renameLibrary(oldName, newName)
+        return libraryDataSource.renameLibrary(oldName, newName)
     }
 
     override suspend fun createLibrary(library: Library): Boolean {
         if (library.films.isEmpty()) return false
         val film = library.films.first()
-        return LibraryDataSource.createLibrary(library.name, library.posterUrl, film.slug, film.currentEpisode)
+        return libraryDataSource.createLibrary(library.name, library.posterUrl, film.slug, film.currentEpisode)
     }
 
     override suspend fun deleteLibrary(name: String): Boolean {
-        return LibraryDataSource.deleteLibrary(name)
+        return libraryDataSource.deleteLibrary(name)
     }
 }

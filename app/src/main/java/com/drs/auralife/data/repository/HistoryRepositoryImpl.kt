@@ -11,10 +11,11 @@ import javax.inject.Inject
 
 class HistoryRepositoryImpl @Inject constructor(
     private val historyDao: HistoryDao,
+    private val historyDataSource: HistoryDataSource,
 ) : HistoryRepository {
     override suspend fun getHistory(): List<HistoryItem> {
         return try {
-            val history = HistoryDataSource.getHistoryData().map { it.toDomainHistoryItem() }
+            val history = historyDataSource.getHistoryData().map { it.toDomainHistoryItem() }
             historyDao.clear()
             history.forEach { historyDao.insertHistory(it.toHistoryEntity()) }
             history
@@ -24,10 +25,10 @@ class HistoryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteHistory(slug: String): Boolean {
-        return HistoryDataSource.deleteHistory(slug)
+        return historyDataSource.deleteHistory(slug)
     }
 
     override suspend fun addHistory(slug: String, episode: Int, position: Long): Boolean {
-        return HistoryDataSource.addHistoryData(slug, episode, position)
+        return historyDataSource.addHistoryData(slug, episode, position)
     }
 }

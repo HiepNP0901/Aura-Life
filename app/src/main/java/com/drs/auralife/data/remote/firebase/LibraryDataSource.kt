@@ -5,14 +5,17 @@ import com.drs.auralife.data.remote.firebase.model.library.Library
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-object LibraryDataSource {
+class LibraryDataSource @Inject constructor(
+    private val database: FirebaseDatabase,
+) {
 
     private fun userIdOrThrow(): String {
         return Authentication.getUserId() ?: throw IllegalStateException("User not authenticated")
     }
 
-    private val userRef = FirebaseDatabase.getInstance().getReference("users")
+    private val userRef = database.getReference("users")
     private val libraryRef by lazy { userRef.child(userIdOrThrow()).child("library") }
 
     private fun snapshotToLibrary(snapshot: DataSnapshot): Library? {

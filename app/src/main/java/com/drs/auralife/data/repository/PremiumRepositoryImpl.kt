@@ -8,10 +8,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
-class PremiumRepositoryImpl @Inject constructor() : PremiumRepository {
+class PremiumRepositoryImpl @Inject constructor(
+    private val premiumDataSource: PremiumDataSource,
+) : PremiumRepository {
     override suspend fun getPremiumStatus(): PremiumStatus {
         return suspendCancellableCoroutine { continuation ->
-            PremiumDataSource.getPremiumStatus { firebasePremium ->
+            premiumDataSource.getPremiumStatus { firebasePremium ->
                 continuation.resume(firebasePremium.toDomainPremiumStatus())
             }
         }
@@ -19,7 +21,7 @@ class PremiumRepositoryImpl @Inject constructor() : PremiumRepository {
 
     override suspend fun setPremium(months: Int): Boolean {
         return suspendCancellableCoroutine { continuation ->
-            PremiumDataSource.uploadPremium(months) { result ->
+            premiumDataSource.uploadPremium(months) { result ->
                 continuation.resume(result.getOrDefault(false))
             }
         }

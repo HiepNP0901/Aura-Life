@@ -7,9 +7,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-object PremiumDataSource {
-    private val userRef = FirebaseDatabase.getInstance().getReference("users")
+class PremiumDataSource @Inject constructor(
+    private val database: FirebaseDatabase,
+) {
+    private val userRef = database.getReference("users")
 
     @SuppressLint("ConstantLocale")
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

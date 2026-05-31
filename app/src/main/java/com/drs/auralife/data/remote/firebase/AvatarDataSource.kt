@@ -3,9 +3,12 @@ package com.drs.auralife.data.remote.firebase
 import android.graphics.Bitmap
 import com.drs.auralife.core.util.ImageEncoderDecoder
 import com.google.firebase.database.FirebaseDatabase
+import javax.inject.Inject
 
-object AvatarDataSource {
-    val userRef = FirebaseDatabase.getInstance().getReference("users")
+class AvatarDataSource @Inject constructor(
+    private val database: FirebaseDatabase,
+) {
+    private val userRef = database.getReference("users")
 
     fun uploadAvatar(
         bitmap: Bitmap,
