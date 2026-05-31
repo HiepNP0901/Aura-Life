@@ -65,7 +65,7 @@
                         android:contentDescription="@string/add_to_library"
                         android:minWidth="48dp"
                         android:minHeight="48dp"
-                        android:src="@drawable/ic_add_library" />
+                        android:src="@drawable/ic_add_library_24" />
 
                     <TextView
                         android:id="@+id/nameFilm"

@@ -12,11 +12,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.databinding.FragmentExploreDetailsBinding
-import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
+import com.drs.auralife.presentation.explore_details.adapter.ExploreDetailFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ExploreDetailsFragment : Fragment() {
+class ExploreDetailFragment : Fragment() {
 
     private val viewModel: ExploreDetailViewModel by viewModels()
     private var _binding: FragmentExploreDetailsBinding? = null
@@ -24,7 +24,7 @@ class ExploreDetailsFragment : Fragment() {
     private var slug: String = ""
     private var name: String = ""
 
-    private val filmAdapter = ExploreFilmAdapter { slug ->
+    private val filmAdapter = ExploreDetailFilmAdapter { slug ->
         viewModel.onFilmClicked(slug)
     }
 
@@ -40,7 +40,12 @@ class ExploreDetailsFragment : Fragment() {
 
         slug = requireArguments().getString("slug") ?: return
         name = requireArguments().getString("name") ?: return
-        binding.tvNameApp.text = "${binding.tvNameApp.text} - $name"
+
+        binding.backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        binding.tvCategoryName.text = name
 
         binding.recyclerView.apply {
             val displayMetrics = resources.displayMetrics

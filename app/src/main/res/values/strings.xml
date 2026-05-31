@@ -112,6 +112,7 @@
     <string name="function_must_login">Please log in to use this function.</string>
     <string name="empty">Empty</string>
     <string name="scroll_to_top">Scroll to top</string>
+    <string name="back">Back</string>
 
     <!-- Strings related to notification -->
     <string name="notifications">Notifications</string>
@@ -124,6 +125,7 @@
     <string name="watched_more_than_5_minutes">You watched more than 5 minutes! Upgrade to Premium to see unlimited.</string>
     <string name="upgrade_now">Upgrade now</string>
     <string name="choose">Choose</string>
+
     <!-- Strings related to payment -->
     <string name="payment_select_plan">Select a plan before continuing</string>
     <string name="premium_status">Premium</string>

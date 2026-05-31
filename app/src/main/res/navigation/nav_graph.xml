@@ -111,7 +111,7 @@
 
     <fragment
         android:id="@+id/explore_details"
-        android:name="com.drs.auralife.presentation.explore_details.ExploreDetailsFragment"
+        android:name="com.drs.auralife.presentation.explore_details.ExploreDetailFragment"
         android:label="ExploreDetails"
         app:route="explore_details/{slug}/{name}"
         tools:layout="@layout/fragment_explore_details">

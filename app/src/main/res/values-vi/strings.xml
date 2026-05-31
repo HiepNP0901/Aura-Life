@@ -91,6 +91,7 @@
     <string name="function_must_login">Vui lòng đăng nhập để sử dụng chức năng này.</string>
     <string name="empty">Trống</string>
     <string name="scroll_to_top">Cuộn lên đầu</string>
+    <string name="back">Trở lại</string>
     <string name="notifications">Thông báo</string>
     <string name="new_episodes">Đã có tập mới</string>
     <string name="history">Lịch sử</string>
