@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
+
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHomeBinding
 import com.drs.auralife.presentation.AppBarProvider
@@ -37,7 +38,7 @@ class HomeFragment : Fragment() {
     private val homeViewModel: HomeViewModel by viewModels()
     
     private var autoScrollJob: kotlinx.coroutines.Job? = null
-    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
+    private var scrollListener: RecyclerView.OnScrollListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,7 +68,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        scrollListener?.let { binding.recyclerView.viewTreeObserver.removeOnScrollChangedListener(it) }
+        scrollListener?.let { binding.recyclerView.removeOnScrollListener(it) }
         scrollListener = null
         _binding = null
     }
@@ -109,26 +110,27 @@ class HomeFragment : Fragment() {
             currentPage = 1
             homeViewModel.getLatestFilms(currentPage)
 
-            val layoutManager = binding.recyclerView.layoutManager as GridLayoutManager
-            scrollListener = ViewTreeObserver.OnScrollChangedListener {
-                if (_binding == null) return@OnScrollChangedListener
-                if (currentPage < totalPages) {
-                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-                    if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
-                        isLoading = true
-                        currentPage++
-                        homeViewModel.loadMoreLatestFilms(currentPage)
+            scrollListener = object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (_binding == null) return
+                    val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                    if (currentPage < totalPages) {
+                        val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                        if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
+                            isLoading = true
+                            currentPage++
+                            homeViewModel.loadMoreLatestFilms(currentPage)
+                        }
+                    }
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                    if (firstVisibleItemPosition > 0) {
+                        binding.scrollToTopButton.visibility = View.VISIBLE
+                    } else {
+                        binding.scrollToTopButton.visibility = View.GONE
                     }
                 }
-
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                if (firstVisibleItemPosition > 0) {
-                    binding.scrollToTopButton.visibility = View.VISIBLE
-                } else {
-                    binding.scrollToTopButton.visibility = View.GONE
-                }
             }
-            binding.recyclerView.viewTreeObserver.addOnScrollChangedListener(scrollListener)
+            scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
 
             binding.scrollToTopButton.setOnClickListener {
                 binding.recyclerView.smoothScrollToPosition(0)

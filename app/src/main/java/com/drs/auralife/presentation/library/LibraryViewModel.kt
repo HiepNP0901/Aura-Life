@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.model.LibraryFilm
+import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.usecase.AddToLibraryUseCase
 import com.drs.auralife.domain.usecase.CreateLibraryUseCase
 import com.drs.auralife.domain.usecase.DeleteLibraryUseCase
@@ -34,7 +35,10 @@ class LibraryViewModel @Inject constructor(
     private val renameLibraryUseCase: RenameLibraryUseCase,
     private val deleteLibraryUseCase: DeleteLibraryUseCase,
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
+
+    fun isLoggedIn() = authRepository.isLoggedIn()
 
     private val _librariesState = MutableStateFlow<UiState<List<Library>>>(UiState.Loading)
     val librariesState: StateFlow<UiState<List<Library>>> = _librariesState.asStateFlow()
