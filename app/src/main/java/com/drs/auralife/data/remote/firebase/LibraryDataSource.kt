@@ -7,8 +7,13 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 
 object LibraryDataSource {
+
+    private fun userIdOrThrow(): String {
+        return Authentication.getUserId() ?: throw IllegalStateException("User not authenticated")
+    }
+
     private val userRef = FirebaseDatabase.getInstance().getReference("users")
-    private val libraryRef = userRef.child(Authentication.getUserId().toString()).child("library")
+    private val libraryRef by lazy { userRef.child(userIdOrThrow()).child("library") }
 
     private fun snapshotToLibrary(snapshot: DataSnapshot): Library? {
         val name = snapshot.key ?: return null

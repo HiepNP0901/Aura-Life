@@ -198,12 +198,14 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         sharedPreferences: android.content.SharedPreferences,
     ) {
         lifecycleScope.launch {
-            mainViewModel.premiumStatus.collect { status ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.premiumStatus.collect { status ->
                 if (status == null) return@collect
                 sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
                 navPremiumStatus.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
                 navPremiumStatus.setOnClickListener {
                     startActivity(Intent(this@MainActivity, PaymentActivity::class.java))
+                }
                 }
             }
         }
@@ -233,7 +235,8 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
     private fun observeAvatarResult() {
         lifecycleScope.launch {
-            mainViewModel.avatarResult.collect { result ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.avatarResult.collect { result ->
                 result.onSuccess {
                     Toast
                         .makeText(
@@ -248,6 +251,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                             getString(R.string.upload_avatar_failed),
                             Toast.LENGTH_SHORT,
                         ).show()
+                }
                 }
             }
         }
@@ -281,7 +285,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 bottomNavigationView.menu[position].isChecked = true
             }
         }
-        viewPager.registerOnPageChangeCallback(pageChangeCallback!!)
+        pageChangeCallback?.let { viewPager.registerOnPageChangeCallback(it) }
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
