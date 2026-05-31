@@ -1,12 +1,10 @@
 package com.drs.auralife.data.remote.firebase
 
 import android.content.Context
-import com.drs.auralife.data.remote.firebase.model.category.Category as CategoryFirebase
 import com.drs.auralife.data.remote.firebase.model.history.History as HistoryFirebase
 import com.drs.auralife.data.remote.firebase.model.premium.Premium as PremiumFirebase
 import com.drs.auralife.data.remote.firebase.model.library.Library as LibraryFirebase
 import com.drs.auralife.data.remote.firebase.model.library.FilmLibrary as FilmLibraryFirebase
-import com.drs.auralife.domain.model.Category as CategoryDomain
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.model.PremiumStatus
 import com.drs.auralife.domain.model.Library as LibraryDomain
@@ -14,15 +12,6 @@ import com.drs.auralife.domain.model.LibraryFilm as LibraryFilmDomain
 import java.util.Locale
 
 object FirebaseMapper {
-
-    fun CategoryFirebase.toDomainCategory(): CategoryDomain {
-        val locale = Locale.getDefault().language
-        return CategoryDomain(
-            slug = this.slug,
-            name = if (locale == "vi") this.vi else this.en,
-            localizedName = if (locale == "vi") this.en else this.vi,
-        )
-    }
 
     fun HistoryFirebase.toDomainHistoryItem(): HistoryItem {
         return HistoryItem(
@@ -62,10 +51,6 @@ object FirebaseMapper {
             posterUrl = this.posterUrl,
             films = this.listFilm.map { it.toDomainLibraryFilm() },
         )
-    }
-
-    fun List<CategoryFirebase>.toDomainCategories(): List<CategoryDomain> {
-        return this.map { it.toDomainCategory() }
     }
 
     fun List<HistoryFirebase>.toDomainHistoryItems(): List<HistoryItem> {

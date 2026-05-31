@@ -3,23 +3,23 @@ package com.drs.auralife.data.repository
 import com.drs.auralife.data.local.dao.CategoryCacheDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toCategoryCacheEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainCategory
-import com.drs.auralife.data.remote.firebase.CategoryDataSource as FirebaseCategoryRepository
-import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainCategories
+import com.drs.auralife.data.remote.api.FilmAPI
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.repository.CategoryRepository
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import javax.inject.Inject
 
 class CategoryRepositoryImpl @Inject constructor(
+    private val filmAPI: FilmAPI,
     private val categoryCacheDao: CategoryCacheDao,
 ) : CategoryRepository {
     override suspend fun getCategories(): List<Category> {
         return try {
-            val categories = suspendCancellableCoroutine<List<Category>> { continuation ->
-                FirebaseCategoryRepository.getCategoryData { firebaseCategories ->
-                    continuation.resume(firebaseCategories.toDomainCategories())
-                }
+            val categories = filmAPI.getCategories().map { apiCategory ->
+                Category(
+                    slug = apiCategory.slug,
+                    name = apiCategory.name,
+                    localizedName = apiCategory.name,
+                )
             }
             categoryCacheDao.clear()
             categoryCacheDao.insertAll(categories.map { it.toCategoryCacheEntity() })
