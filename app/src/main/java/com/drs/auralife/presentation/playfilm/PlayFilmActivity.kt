@@ -24,14 +24,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.presentation.filmdetails.FilmDetailsViewModel
 import com.drs.auralife.domain.model.FilmDetails
-import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.auth.LoginActivity
 import com.drs.auralife.presentation.common.UiState
 import com.drs.auralife.presentation.filmdetails.EXTRA_SLUG
 import com.drs.auralife.presentation.payment.PaymentActivity
 import com.drs.auralife.core.utils.SystemUiController
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @dagger.hilt.android.AndroidEntryPoint
@@ -40,9 +38,6 @@ class PlayFilmActivity : AppCompatActivity() {
     private val historyViewModel: HistoryViewModel by viewModels()
     private val playFilmViewModel: PlayFilmViewModel by viewModels()
     private var recyclerView: RecyclerView? = null
-
-    @Inject
-    lateinit var authRepository: AuthRepository
 
     private var exoPlayer: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -299,7 +294,7 @@ class PlayFilmActivity : AppCompatActivity() {
         }
 
         btnCreate.setOnClickListener {
-            if (authRepository.isLoggedIn()) {
+            if (playFilmViewModel.isLoggedIn()) {
                 val intent = Intent(this, PaymentActivity::class.java)
                 startActivity(intent)
             } else {

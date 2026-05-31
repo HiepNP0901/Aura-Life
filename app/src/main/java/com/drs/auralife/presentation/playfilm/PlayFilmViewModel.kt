@@ -2,6 +2,7 @@ package com.drs.auralife.presentation.playfilm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.usecase.GetPremiumStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,7 +17,10 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayFilmViewModel @Inject constructor(
     private val getPremiumStatusUseCase: GetPremiumStatusUseCase,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
+
+    fun isLoggedIn() = authRepository.isLoggedIn()
 
     private val _throttleEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val throttleEvent: SharedFlow<Unit> = _throttleEvent.asSharedFlow()

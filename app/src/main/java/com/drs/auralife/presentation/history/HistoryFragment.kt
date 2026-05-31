@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHistoryBinding
 import com.drs.auralife.presentation.AppBarProvider
@@ -22,7 +24,7 @@ class HistoryFragment :
     private val historyViewModel: HistoryViewModel by viewModels()
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
-    private val filmAdapter = HistoryFilmAdapter(mutableListOf())
+    private val filmAdapter = HistoryFilmAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,8 +54,9 @@ class HistoryFragment :
     }
 
     private fun observeFilms() {
-        lifecycleScope.launch {
-            historyViewModel.filmsState.collect { state ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                historyViewModel.filmsState.collect { state ->
                 if (_binding == null) return@collect
                 when (state) {
                     is UiState.Success -> {
@@ -72,6 +75,7 @@ class HistoryFragment :
                         binding.text.text = state.message
                     }
                     is UiState.Loading -> {}
+                }
                 }
             }
         }

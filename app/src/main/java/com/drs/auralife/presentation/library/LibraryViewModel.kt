@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.model.LibraryFilm
+import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.usecase.AddToLibraryUseCase
 import com.drs.auralife.domain.usecase.CreateLibraryUseCase
 import com.drs.auralife.domain.usecase.DeleteLibraryUseCase
@@ -14,8 +15,7 @@ import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase
 import com.drs.auralife.domain.usecase.RenameLibraryUseCase
 import com.drs.auralife.presentation.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -34,7 +34,10 @@ class LibraryViewModel @Inject constructor(
     private val renameLibraryUseCase: RenameLibraryUseCase,
     private val deleteLibraryUseCase: DeleteLibraryUseCase,
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
+
+    fun isLoggedIn() = authRepository.isLoggedIn()
 
     private val _librariesState = MutableStateFlow<UiState<List<Library>>>(UiState.Loading)
     val librariesState: StateFlow<UiState<List<Library>>> = _librariesState.asStateFlow()
@@ -45,8 +48,8 @@ class LibraryViewModel @Inject constructor(
     private val _operationResult = MutableSharedFlow<Result<Boolean>>()
     val operationResult: SharedFlow<Result<Boolean>> = _operationResult.asSharedFlow()
 
-    private val _librariesLoaded = MutableSharedFlow<List<Library>>()
-    val librariesLoaded: SharedFlow<List<Library>> = _librariesLoaded.asSharedFlow()
+    private val _librariesLoaded = MutableStateFlow<List<Library>>(emptyList())
+    val librariesLoaded: StateFlow<List<Library>> = _librariesLoaded.asStateFlow()
 
     fun getLibraries() {
         viewModelScope.launch {
@@ -75,27 +78,21 @@ class LibraryViewModel @Inject constructor(
     }
 
     private suspend fun buildFilmsFromLibrary(lib: Library): List<Film> {
-        return coroutineScope {
-            lib.films.map { filmLib ->
-                async {
-                    val details = getFilmDetailsUseCase(filmLib.slug)
-                    details?.let {
-                        Film(
-                            id = it.slug,
-                            slug = it.slug,
-                            title = it.title,
-                            posterUrl = it.posterUrl,
-                            thumbUrl = it.thumbUrl,
-                            description = it.description,
-                            category = it.categories?.firstOrNull() ?: "",
-                            episodeCount = it.episodeTotal?.toIntOrNull() ?: 0,
-                        )
-                    }
-                }
-            }.mapNotNull { it.await() }
-                .let { sorted ->
-                    lib.films.mapNotNull { filmLib -> sorted.find { it.slug == filmLib.slug } }
-                }
+        val slugs = lib.films.map { it.slug }
+        val detailsMap = getFilmDetailsUseCase.batch(slugs)
+        return lib.films.mapNotNull { filmLib ->
+            detailsMap[filmLib.slug]?.let { fd ->
+                Film(
+                    id = fd.slug,
+                    slug = fd.slug,
+                    title = fd.title,
+                    posterUrl = fd.posterUrl,
+                    thumbUrl = fd.thumbUrl,
+                    description = fd.description,
+                    category = fd.categories?.firstOrNull() ?: "",
+                    episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                )
+            }
         }
     }
 

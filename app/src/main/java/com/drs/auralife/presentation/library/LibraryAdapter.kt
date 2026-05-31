@@ -7,16 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.core.utils.MyAppGlideModule
 import com.drs.auralife.domain.model.Library
 
 class LibraryAdapter(
-    private val library: MutableList<Library>,
     private val onRename: (oldName: String, newName: String) -> Unit,
     private val onDelete: (name: String) -> Unit,
 ) : RecyclerView.Adapter<LibraryAdapter.ItemViewHolder>() {
+
+    private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Library>() {
+        override fun areItemsTheSame(oldItem: Library, newItem: Library): Boolean = oldItem.name == newItem.name
+        override fun areContentsTheSame(oldItem: Library, newItem: Library): Boolean = oldItem == newItem
+    })
     class ItemViewHolder(
         itemView: View,
     ) : RecyclerView.ViewHolder(itemView) {
@@ -38,7 +44,7 @@ class LibraryAdapter(
         holder: ItemViewHolder,
         position: Int,
     ) {
-        val item = library[position]
+        val item = differ.currentList[position]
         val context = holder.itemView.context
 
         MyAppGlideModule.loadImage(context, item.posterUrl, holder.tvImage)
@@ -65,13 +71,10 @@ class LibraryAdapter(
         }
     }
 
-    override fun getItemCount() = library.size
+    override fun getItemCount() = differ.currentList.size
 
-    @SuppressLint("NotifyDataSetChanged")
     fun refreshLibrary(newLibrary: MutableList<Library>) {
-        library.clear()
-        library.addAll(newLibrary)
-        library.sortBy { it.name }
-        notifyDataSetChanged()
+        newLibrary.sortBy { it.name }
+        differ.submitList(newLibrary)
     }
 }

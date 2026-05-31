@@ -10,7 +10,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.PaymentItem
 import com.drs.auralife.databinding.ActivityPaymentBinding
@@ -61,36 +63,40 @@ class PaymentActivity : AppCompatActivity() {
 
     private fun observePremiumStatus() {
         lifecycleScope.launch {
-            premiumViewModel.premiumStatus.collect { status ->
-                if (status == null) return@collect
-                binding.apply {
-                    if (status.isPremium) {
-                        tvPremium.text = getString(R.string.premium_status)
-                        val formattedDate = status.expiryTimestamp?.let {
-                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it))
-                        } ?: ""
-                        tvDate.text = getString(R.string.registration_date, formattedDate)
-                        tvExpireDate.text = getString(R.string.expiry_date, formattedDate)
-                        tvDate.visibility = View.VISIBLE
-                        tvExpireDate.visibility = View.VISIBLE
-                    } else {
-                        tvPremium.text = getString(R.string.free_status)
-                        tvDate.visibility = View.GONE
-                        tvExpireDate.visibility = View.GONE
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                premiumViewModel.premiumStatus.collect { status ->
+                    if (status == null) return@collect
+                    binding.apply {
+                        if (status.isPremium) {
+                            tvPremium.text = getString(R.string.premium_status)
+                            val formattedDate = status.expiryTimestamp?.let {
+                                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it))
+                            } ?: ""
+                            tvDate.text = getString(R.string.registration_date, formattedDate)
+                            tvExpireDate.text = getString(R.string.expiry_date, formattedDate)
+                            tvDate.visibility = View.VISIBLE
+                            tvExpireDate.visibility = View.VISIBLE
+                        } else {
+                            tvPremium.text = getString(R.string.free_status)
+                            tvDate.visibility = View.GONE
+                            tvExpireDate.visibility = View.GONE
+                        }
                     }
                 }
             }
         }
         lifecycleScope.launch {
-            premiumViewModel.purchaseResult.collect { result ->
-                result.onSuccess { success ->
-                    if (success) {
-                        Toast.makeText(this@PaymentActivity, getString(R.string.purchase_success), Toast.LENGTH_SHORT).show()
-                    } else {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                premiumViewModel.purchaseResult.collect { result ->
+                    result.onSuccess { success ->
+                        if (success) {
+                            Toast.makeText(this@PaymentActivity, getString(R.string.purchase_success), Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@PaymentActivity, getString(R.string.payment_unavailable), Toast.LENGTH_LONG).show()
+                        }
+                    }.onFailure {
                         Toast.makeText(this@PaymentActivity, getString(R.string.payment_unavailable), Toast.LENGTH_LONG).show()
                     }
-                }.onFailure {
-                    Toast.makeText(this@PaymentActivity, getString(R.string.payment_unavailable), Toast.LENGTH_LONG).show()
                 }
             }
         }

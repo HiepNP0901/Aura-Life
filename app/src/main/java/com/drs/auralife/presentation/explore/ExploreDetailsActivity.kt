@@ -5,13 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.databinding.ActivityExploreDetailsBinding
 import com.drs.auralife.presentation.common.UiState
@@ -25,11 +25,12 @@ private const val CATEGORY_NAME = "NAME_CATEGORY"
 class ExploreDetailsActivity : AppCompatActivity() {
     private val binding by lazy { ActivityExploreDetailsBinding.inflate(layoutInflater) }
     private val viewModel: ExploreDetailViewModel by viewModels()
-    private val filmAdapter by lazy { ExploreFilmAdapter(mutableListOf()) }
+    private val filmAdapter by lazy { ExploreFilmAdapter() }
     private var isLoading = false
     private var currentPage = 1
     private var totalPages = 0
     private var currentSlug: String? = null
+    private var scrollListener: RecyclerView.OnScrollListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,9 +78,8 @@ class ExploreDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupPagination() {
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
                 val lastVisibleItemPosition =
                     (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
                 if (lastVisibleItemPosition >= filmAdapter.itemCount - 1 && currentPage < totalPages && !isLoading) {
@@ -90,7 +90,9 @@ class ExploreDetailsActivity : AppCompatActivity() {
                     }
                 }
             }
-        })
+        }
+
+        scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
     }
 
     override fun onRestart() {
@@ -105,6 +107,11 @@ class ExploreDetailsActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         binding.root.isSelected = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scrollListener?.let { binding.recyclerView.removeOnScrollListener(it) }
     }
 
     companion object {
