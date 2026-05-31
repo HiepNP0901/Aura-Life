@@ -73,10 +73,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeBanners() {
-        lifecycleScope.launch {
-            homeViewModel.bannersState.collect { state ->
-                if (_binding == null) return@collect
-                when (state) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.bannersState.collect { state ->
+                    if (_binding == null) return@collect
+                    when (state) {
                     is UiState.Success -> {
                         val bannerData = state.data
                         if (bannerData.isEmpty()) return@collect
@@ -88,6 +89,7 @@ class HomeFragment : Fragment() {
                         Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                     }
                     is UiState.Loading -> {}
+                }
                 }
             }
         }

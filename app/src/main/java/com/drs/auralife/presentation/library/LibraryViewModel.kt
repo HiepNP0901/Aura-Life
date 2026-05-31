@@ -45,8 +45,8 @@ class LibraryViewModel @Inject constructor(
     private val _operationResult = MutableSharedFlow<Result<Boolean>>()
     val operationResult: SharedFlow<Result<Boolean>> = _operationResult.asSharedFlow()
 
-    private val _librariesLoaded = MutableSharedFlow<List<Library>>()
-    val librariesLoaded: SharedFlow<List<Library>> = _librariesLoaded.asSharedFlow()
+    private val _librariesLoaded = MutableStateFlow<List<Library>>(emptyList())
+    val librariesLoaded: StateFlow<List<Library>> = _librariesLoaded.asStateFlow()
 
     fun getLibraries() {
         viewModelScope.launch {
