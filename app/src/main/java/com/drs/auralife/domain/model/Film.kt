@@ -10,4 +10,5 @@ data class Film(
     val category: String,
     val episodeCount: Int,
     val watchedAt: Long = 0,
+    val createdAt: Long = 0,
 )
