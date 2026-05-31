@@ -3,7 +3,6 @@ package com.drs.auralife.presentation.explore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetCategoriesUseCase
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

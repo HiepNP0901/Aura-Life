@@ -17,7 +17,7 @@ class BannerRepositoryImpl @Inject constructor(
 ) : BannerRepository {
     override suspend fun getBanners(): List<Banner> {
         return try {
-            val banners = suspendCancellableCoroutine<List<Banner>> { continuation ->
+            val banners = suspendCancellableCoroutine { continuation ->
                 bannerDataSource.getBannerData { firebaseBanners ->
                     continuation.resume(firebaseBanners.toDomainBanners())
                 }

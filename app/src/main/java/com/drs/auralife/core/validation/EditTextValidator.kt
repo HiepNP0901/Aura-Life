@@ -76,7 +76,7 @@ class EmailValidator(
 ) : TextEditTextValidator(errorText) {
     private val emailPattern: String = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}"
 
-    override fun isValid(value: String): Boolean = hasMatch(emailPattern.toString(), value)
+    override fun isValid(value: String): Boolean = hasMatch(emailPattern, value)
 }
 
 class MatchValidator(

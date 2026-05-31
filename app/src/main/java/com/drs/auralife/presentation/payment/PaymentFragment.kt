@@ -12,8 +12,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityPaymentBinding
@@ -21,7 +19,6 @@ import com.drs.auralife.domain.model.PaymentItem
 import com.drs.auralife.presentation.payment.adapter.PaymentAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

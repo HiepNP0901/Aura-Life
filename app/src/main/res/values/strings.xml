@@ -14,7 +14,7 @@
     <string name="other_than_0">Field must be a number other than 0</string>
     <string name="invalid_password">Password must be at least 6 characters long</string>
 
-    <!-- Strings related to login - register -->
+    <!-- Strings related to log in - register -->
     <string name="login_title">Login To Your Account</string>
     <string name="register_title">Sign Up Here</string>
     <string name="prompt_email">Email</string>

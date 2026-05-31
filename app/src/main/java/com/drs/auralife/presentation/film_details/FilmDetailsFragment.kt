@@ -1,7 +1,6 @@
-package com.drs.auralife.presentation.filmdetails
+package com.drs.auralife.presentation.film_details
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

@@ -65,9 +65,6 @@ object AddToLibraryDialog {
 
     fun showCreateLibraryDialog(
         context: Context,
-        slug: String,
-        posterUrl: String?,
-        episodeCurrent: String?,
         onCreateLibrary: (name: String) -> Unit,
     ) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_rename, null)

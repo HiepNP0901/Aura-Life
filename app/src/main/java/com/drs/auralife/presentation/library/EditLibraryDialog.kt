@@ -63,7 +63,6 @@ object EditLibraryDialog {
 
     fun showDeleteLibraryDialog(
         context: Context,
-        nameLibrary: String,
         onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
@@ -84,8 +83,6 @@ object EditLibraryDialog {
     @SuppressLint("SetTextI18n")
     fun showDeleteFilmFromLibrary(
         context: Context,
-        nameLibrary: String,
-        slug: String,
         onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)

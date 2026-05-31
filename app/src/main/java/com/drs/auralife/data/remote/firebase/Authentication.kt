@@ -11,7 +11,7 @@ import java.io.IOException
 
 object Authentication {
     private val auth = Firebase.auth
-    var isLoggedIn = MutableLiveData<Boolean>(isLoggedIn())
+    var isLoggedIn = MutableLiveData(isLoggedIn())
 
     fun isLoggedIn() = auth.currentUser != null
 

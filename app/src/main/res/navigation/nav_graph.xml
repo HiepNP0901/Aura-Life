@@ -65,7 +65,7 @@
 
     <fragment
         android:id="@+id/film_details"
-        android:name="com.drs.auralife.presentation.filmdetails.FilmDetailsFragment"
+        android:name="com.drs.auralife.presentation.film_details.FilmDetailsFragment"
         android:label="FilmDetails"
         app:route="film_details/{slug}"
         tools:layout="@layout/activity_film_details">
@@ -94,7 +94,7 @@
 
     <fragment
         android:id="@+id/play_film"
-        android:name="com.drs.auralife.presentation.playfilm.PlayFilmFragment"
+        android:name="com.drs.auralife.presentation.play_film.PlayFilmFragment"
         android:label="PlayFilm"
         app:route="play_film/{slug}"
         tools:layout="@layout/activity_play_film">

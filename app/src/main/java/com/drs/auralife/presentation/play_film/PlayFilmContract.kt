@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.playfilm
+package com.drs.auralife.presentation.play_film
 
 sealed interface PlayFilmUiEffect {
     data object ShowPremiumDialog : PlayFilmUiEffect

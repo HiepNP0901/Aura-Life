@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.Library
-import com.drs.auralife.domain.model.LibraryFilm
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetLibraryUseCase
 import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase

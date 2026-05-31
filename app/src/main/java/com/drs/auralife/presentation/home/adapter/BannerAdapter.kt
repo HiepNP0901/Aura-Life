@@ -13,7 +13,7 @@ class BannerAdapter(
     private val banners: List<Banner>,
     private val onBannerClick: (String) -> Unit,
 ) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
-    inner class BannerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class BannerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val bannerImage: ImageView = itemView.findViewById(R.id.bannerImage)
 
         fun bind(banner: Banner) {
