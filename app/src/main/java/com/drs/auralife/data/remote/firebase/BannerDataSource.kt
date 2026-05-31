@@ -12,7 +12,7 @@ object BannerDataSource {
             for (snapshot in data.children) {
                 val bannerData = snapshot.getValue(String::class.java)
                 bannerData?.let {
-                    bannerList.add(Banner(imageUrl = snapshot.key.toString(), filmSlug = it))
+                    bannerList.add(Banner(imageUrl = it, filmSlug = snapshot.key.toString()))
                 }
             }
             onDataReceived(bannerList)

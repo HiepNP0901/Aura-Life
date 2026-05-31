@@ -17,7 +17,7 @@ class BannerAdapter(
         val bannerImage: ImageView = itemView.findViewById(R.id.bannerImage)
 
         fun bind(banner: Banner) {
-            MyAppGlideModule.loadImage(bannerImage.context, banner.filmSlug, bannerImage)
+            MyAppGlideModule.loadImage(bannerImage.context, banner.imageUrl, bannerImage)
         }
     }
 
