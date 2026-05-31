@@ -23,4 +23,5 @@ rootProject.name = "AuraLife"
 include(":app")
 include(":core:common")
 include(":domain")
+include(":data")
  

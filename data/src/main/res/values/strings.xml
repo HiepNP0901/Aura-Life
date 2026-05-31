@@ -1,0 +1,5 @@
+<resources>
+    <string name="please_verify_account">Please check your email to verify your account.</string>
+    <string name="email_already_exist">The email address is already in use by another account.</string>
+    <string name="login_successful">Login Successful.</string>
+</resources>

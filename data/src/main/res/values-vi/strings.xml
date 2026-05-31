@@ -1,0 +1,5 @@
+<resources>
+    <string name="please_verify_account">Vui lòng kiểm tra hòm thư điện tử để xác thực tài khoản của bạn.</string>
+    <string name="email_already_exist">Địa chỉ thư điện tử đã được một tài khoản khác sử dụng.</string>
+    <string name="login_successful">Đăng nhập thành công.</string>
+</resources>

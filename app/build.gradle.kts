@@ -62,6 +62,7 @@ dependencies {
     // --- Internal Modules ---
     implementation(project(":core:common"))
     implementation(project(":domain"))
+    implementation(project(":data"))
 
     // --- Testing ---
     testImplementation(libs.junit)
