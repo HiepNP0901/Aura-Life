@@ -6,6 +6,7 @@ import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -121,7 +122,9 @@ class LoginFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
                 loginViewModel.effect.collect { effect ->
                     when (effect) {
-                        is LoginUiEffect.ShowToast -> { /* snackbar if needed */ }
+                        is LoginUiEffect.ShowToast -> {
+                            Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+                        }
                         is LoginUiEffect.NavigateBackWithResult -> {
                             findNavController().popBackStack()
                         }

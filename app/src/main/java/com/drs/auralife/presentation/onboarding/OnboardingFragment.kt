@@ -76,7 +76,7 @@ class OnboardingFragment : Fragment() {
                         is OnboardingUiEffect.NavigateToMain -> {
                             findNavController().navigate(
                                 NavRoutes.HOME,
-                                NavOptions.Builder().setPopUpTo(R.id.splash, true).build(),
+                                NavOptions.Builder().setPopUpTo(R.id.onboarding, true).build(),
                             )
                         }
                     }
