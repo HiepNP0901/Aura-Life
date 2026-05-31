@@ -65,6 +65,20 @@ class HomeFragment : Fragment() {
                 homeViewModel.state.collect { state ->
                     if (_binding == null) return@collect
 
+                    if (state.isLoadingBanners || state.isLoadingFilms) {
+                        binding.loadingIndicator.visibility = View.VISIBLE
+                    } else {
+                        binding.loadingIndicator.visibility = View.GONE
+                    }
+                    if (state.errorMessage != null) {
+                        binding.errorText.apply {
+                            visibility = View.VISIBLE
+                            text = state.errorMessage
+                        }
+                    } else {
+                        binding.errorText.visibility = View.GONE
+                    }
+
                     if (state.banners.isNotEmpty()) {
                         val bannerViewPager = binding.bannerViewPager
                         bannerViewPager.adapter = com.drs.auralife.presentation.home.adapter.BannerAdapter(state.banners) { slug ->

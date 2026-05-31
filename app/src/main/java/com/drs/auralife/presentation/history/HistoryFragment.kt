@@ -54,6 +54,7 @@ class HistoryFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
                 historyViewModel.state.collect { state ->
                     if (_binding == null) return@collect
+                    binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                     if (state.films.isEmpty()) {
                         binding.text.visibility = View.VISIBLE
                     } else {

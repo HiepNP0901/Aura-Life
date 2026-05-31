@@ -3,7 +3,7 @@ package com.drs.auralife.data.repository
 import com.drs.auralife.data.local.dao.HistoryDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainHistoryItem
 import com.drs.auralife.data.local.mapper.LocalMapper.toHistoryEntity
-import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainHistoryItem
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainHistoryItems
 import com.drs.auralife.data.remote.firebase.HistoryDataSource
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.repository.HistoryRepository
@@ -15,7 +15,7 @@ class HistoryRepositoryImpl @Inject constructor(
 ) : HistoryRepository {
     override suspend fun getHistory(): List<HistoryItem> {
         return try {
-            val history = historyDataSource.getHistoryData().map { it.toDomainHistoryItem() }
+            val history = historyDataSource.getHistoryData().toDomainHistoryItems()
             historyDao.clear()
             history.forEach { historyDao.insertHistory(it.toHistoryEntity()) }
             history

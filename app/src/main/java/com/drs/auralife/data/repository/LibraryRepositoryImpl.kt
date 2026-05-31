@@ -5,18 +5,12 @@ import com.drs.auralife.data.local.dao.LibraryFilmCrossRefDao
 import com.drs.auralife.data.local.mapper.LocalMapper.toDomainLibrary
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryEntity
 import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryFilmCrossRefs
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibraries
+import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibrary
 import com.drs.auralife.data.remote.firebase.LibraryDataSource
-import com.drs.auralife.data.remote.firebase.model.library.Library as FirebaseLibrary
 import com.drs.auralife.domain.model.Library
-import com.drs.auralife.domain.model.LibraryFilm
 import com.drs.auralife.domain.repository.LibraryRepository
 import javax.inject.Inject
-
-private fun FirebaseLibrary.toDomainLibrary(): Library = Library(
-    name = name,
-    posterUrl = posterUrl,
-    films = listFilm.map { LibraryFilm(slug = it.slug, currentEpisode = it.episode) },
-)
 
 class LibraryRepositoryImpl @Inject constructor(
     private val libraryDao: LibraryDao,
@@ -25,7 +19,7 @@ class LibraryRepositoryImpl @Inject constructor(
 ) : LibraryRepository {
     override suspend fun getLibraries(): List<Library> {
         return try {
-            val libraries = libraryDataSource.getLibrary().map { it.toDomainLibrary() }
+            val libraries = libraryDataSource.getLibrary().toDomainLibraries()
             libraryDao.clear()
             libraryFilmCrossRefDao.clear()
             libraries.forEach { lib ->
