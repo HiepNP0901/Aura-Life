@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.util
+package com.drs.auralife.presentation.common
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle

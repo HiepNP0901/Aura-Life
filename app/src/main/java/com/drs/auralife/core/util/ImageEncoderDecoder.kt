@@ -1,4 +1,5 @@
-package com.drs.auralife.core.utils
+package com.drs.auralife.core.util
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -6,7 +7,6 @@ import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
 object ImageEncoderDecoder {
-    // Encode Bitmap to Base64 string
     fun encodeToBase64(
         bitmap: Bitmap,
         compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
@@ -20,7 +20,6 @@ object ImageEncoderDecoder {
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
-    // Decode Base64 string to Bitmap
     fun decodeFromBase64(base64String: String): Bitmap? =
         try {
             val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)

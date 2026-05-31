@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.R

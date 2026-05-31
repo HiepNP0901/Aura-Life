@@ -9,10 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
-import com.drs.auralife.core.utils.Validator
+import com.drs.auralife.core.validation.Validator
 import com.drs.auralife.databinding.ActivityRegisterBinding
 import com.drs.auralife.presentation.common.LogoFragment
 import dagger.hilt.android.AndroidEntryPoint

@@ -14,10 +14,10 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.presentation.util.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
-import com.drs.auralife.core.utils.MyAppGlideModule
+import com.drs.auralife.presentation.common.MyAppGlideModule
 import com.drs.auralife.databinding.ActivityFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
 import com.drs.auralife.presentation.library.LibraryUiEffect

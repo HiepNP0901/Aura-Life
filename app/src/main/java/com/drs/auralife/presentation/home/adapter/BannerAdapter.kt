@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
-import com.drs.auralife.core.utils.MyAppGlideModule
+import com.drs.auralife.presentation.common.MyAppGlideModule
 
 class BannerAdapter(
     private val banners: List<Pair<String, String>>,

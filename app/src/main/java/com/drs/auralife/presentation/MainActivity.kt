@@ -36,10 +36,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
-import com.drs.auralife.core.utils.MyAppGlideModule
-import com.drs.auralife.core.utils.Notification
-import com.drs.auralife.core.utils.PermissionPhotoHandler
-import com.drs.auralife.core.utils.UpdateLibraryWorker
+import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.core.util.Notification
+import com.drs.auralife.presentation.common.PermissionPhotoHandler
+import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.presentation.common.NotificationAdapter
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.presentation.search.SearchFilmAdapter

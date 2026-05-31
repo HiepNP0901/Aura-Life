@@ -1,7 +1,7 @@
 package com.drs.auralife.data.remote.firebase
 
 import android.graphics.Bitmap
-import com.drs.auralife.core.utils.ImageEncoderDecoder
+import com.drs.auralife.core.util.ImageEncoderDecoder
 import com.google.firebase.database.FirebaseDatabase
 
 object AvatarDataSource {

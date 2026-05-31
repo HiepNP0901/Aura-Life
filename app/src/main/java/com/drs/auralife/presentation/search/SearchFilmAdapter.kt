@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
 import com.drs.auralife.domain.model.Film
-import com.drs.auralife.core.utils.MyAppGlideModule
+import com.drs.auralife.presentation.common.MyAppGlideModule
 
 class SearchFilmAdapter(
     private val onItemClick: (String) -> Unit,
