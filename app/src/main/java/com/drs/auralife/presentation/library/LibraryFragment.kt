@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.databinding.FragmentLibraryBinding
 import com.drs.auralife.presentation.AppBarProvider
 import com.drs.auralife.presentation.library.adapter.LibraryAdapter
@@ -89,8 +90,7 @@ class LibraryFragment : Fragment() {
                             Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
                         }
                         is LibraryUiEffect.NavigateToDetails -> {
-                            val bundle = Bundle().apply { putString("name", effect.name) }
-                            findNavController().navigate(R.id.library_details, bundle)
+                            findNavController().navigate(NavRoutes.libraryDetails(effect.name))
                         }
                     }
                 }

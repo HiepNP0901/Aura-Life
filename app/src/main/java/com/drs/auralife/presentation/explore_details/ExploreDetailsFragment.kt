@@ -13,6 +13,7 @@ import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.databinding.ActivityExploreDetailsBinding
 import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,8 +80,7 @@ class ExploreDetailsFragment : Fragment() {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                         }
                         is ExploreDetailUiEffect.NavigateToFilm -> {
-                            val bundle = Bundle().apply { putString("slug", effect.slug) }
-                            findNavController().navigate(R.id.film_details, bundle)
+                            findNavController().navigate(NavRoutes.filmDetails(effect.slug))
                         }
                     }
                 }

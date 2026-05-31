@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
+import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.databinding.FragmentHistoryBinding
 import com.drs.auralife.presentation.AppBarProvider
 import com.drs.auralife.presentation.history.adapter.HistoryFilmAdapter
@@ -79,8 +80,7 @@ class HistoryFragment : Fragment() {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                         }
                         is HistoryUiEffect.NavigateToFilm -> {
-                            val bundle = Bundle().apply { putString("slug", effect.slug) }
-                            findNavController().navigate(R.id.film_details, bundle)
+                            findNavController().navigate(NavRoutes.filmDetails(effect.slug))
                         }
                     }
                 }

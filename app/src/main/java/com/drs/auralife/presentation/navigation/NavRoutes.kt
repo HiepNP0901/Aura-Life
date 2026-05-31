@@ -15,6 +15,7 @@ object NavRoutes {
     const val PAYMENT = "payment"
     const val PLAY_FILM = "play_film/{slug}"
     const val EXPLORE_DETAILS = "explore_details/{slug}/{name}"
+    const val SEARCH = "search"
 
     fun filmDetails(slug: String) = "film_details/$slug"
     fun libraryDetails(name: String) = "library_details/$name"
