@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.playfilm.adapter
+package com.drs.auralife.presentation.play_film.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +12,7 @@ class EpisodeAdapter(
     private val episodes: List<FilmEpisode>,
     private val onItemClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<EpisodeAdapter.ViewHolder>() {
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.episodeNumber)
     }
 

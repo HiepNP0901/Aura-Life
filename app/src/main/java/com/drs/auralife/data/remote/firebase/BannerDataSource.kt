@@ -5,7 +5,7 @@ import com.google.firebase.database.FirebaseDatabase
 import javax.inject.Inject
 
 class BannerDataSource @Inject constructor(
-    private val database: FirebaseDatabase,
+    database: FirebaseDatabase,
 ) {
     private val bannerRef = database.getReference("banners")
 

@@ -10,7 +10,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 class PremiumDataSource @Inject constructor(
-    private val database: FirebaseDatabase,
+    database: FirebaseDatabase,
 ) {
     private val userRef = database.getReference("users")
 
@@ -57,7 +57,7 @@ class PremiumDataSource @Inject constructor(
         callback: (Result<Boolean>) -> Unit,
     ) {
         val userId = Authentication.getUserId()
-        userId?.let {
+        userId?.let { it ->
             userRef
                 .child(it)
                 .child("premium")
@@ -66,7 +66,7 @@ class PremiumDataSource @Inject constructor(
                     val currentDate = Date()
                     val calendar = Calendar.getInstance()
 
-                    snapshot.getValue(Premium::class.java)?.let {
+                    snapshot.getValue(Premium::class.java)?.let { it ->
                         val expireDate = dateFormat.parse(it.expireDate)
                         calendar.time = if (expireDate != null && expireDate.after(currentDate)) {
                             expireDate

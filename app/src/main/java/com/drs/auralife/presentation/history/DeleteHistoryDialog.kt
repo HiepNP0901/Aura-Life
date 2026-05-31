@@ -12,7 +12,6 @@ object DeleteHistoryDialog {
     @SuppressLint("SetTextI18n")
     fun showDeleteFilmFromHistory(
         context: Context,
-        slug: String,
         onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)

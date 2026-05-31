@@ -1,7 +1,6 @@
-package com.drs.auralife.presentation.filmdetails
+package com.drs.auralife.presentation.film_details
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -119,9 +118,6 @@ class FilmDetailsFragment : Fragment() {
                     libraryViewModel.getLibraries()
                     AddToLibraryDialog.showAddLibraryDialog(
                         context = requireContext(),
-                        slug = film.slug,
-                        posterUrl = film.posterUrl,
-                        episodeCurrent = film.episodeCurrent,
                         libraries = libraryViewModel.librariesState.value.libraries,
                         onAddToLibrary = { libraryName ->
                             libraryViewModel.addToLibrary(libraryName, film.slug, film.posterUrl, film.episodeCurrent ?: "")

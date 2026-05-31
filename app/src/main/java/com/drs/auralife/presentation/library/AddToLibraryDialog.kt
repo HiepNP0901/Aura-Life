@@ -18,9 +18,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 object AddToLibraryDialog {
     fun showAddLibraryDialog(
         context: Context,
-        slug: String,
-        posterUrl: String?,
-        episodeCurrent: String?,
         libraries: List<Library>,
         onAddToLibrary: (libraryName: String) -> Unit,
         onCreateLibrary: (name: String) -> Unit,
@@ -35,7 +32,7 @@ object AddToLibraryDialog {
         val btnCreateLibrary = dialogView.findViewById<Button>(R.id.btnCreateLibrary)
         btnCreateLibrary.setOnClickListener {
             bottomSheetDialog.dismiss()
-            showCreateLibraryDialog(context, slug, posterUrl, episodeCurrent, onCreateLibrary)
+            showCreateLibraryDialog(context, onCreateLibrary)
         }
         libraries.forEach { library ->
             container.addView(
@@ -65,9 +62,6 @@ object AddToLibraryDialog {
 
     fun showCreateLibraryDialog(
         context: Context,
-        slug: String,
-        posterUrl: String?,
-        episodeCurrent: String?,
         onCreateLibrary: (name: String) -> Unit,
     ) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_rename, null)

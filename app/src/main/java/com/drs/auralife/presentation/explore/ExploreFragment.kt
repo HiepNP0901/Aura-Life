@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
@@ -100,7 +99,6 @@ class ExploreFragment : Fragment() {
     private fun buildCategoryViews(categories: List<com.drs.auralife.domain.model.Category>) {
         binding.exploreFragmentBody.removeAllViews()
         categories.forEach { category ->
-            val currentContext = context ?: return@forEach
             val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
 
             item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).setOnClickListener {

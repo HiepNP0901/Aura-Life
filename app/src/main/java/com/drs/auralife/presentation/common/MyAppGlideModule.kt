@@ -19,8 +19,7 @@ object MyAppGlideModule : AppGlideModule() {
             return false
         }
         if (context is Activity) {
-            val activity = context
-            if (activity.isDestroyed || activity.isFinishing) {
+            if (context.isDestroyed || context.isFinishing) {
                 return false
             }
         }
