@@ -4,13 +4,10 @@ import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -20,34 +17,33 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.utils.widget.ImageFilterButton
 import androidx.constraintlayout.utils.widget.ImageFilterView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.edit
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
-import com.drs.auralife.presentation.common.MyAppGlideModule
 import com.drs.auralife.core.util.Notification
-import com.drs.auralife.presentation.common.PermissionPhotoHandler
 import com.drs.auralife.core.worker.UpdateLibraryWorker
-import com.drs.auralife.presentation.common.NotificationAdapter
+import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.NotificationPopupHelper
+import com.drs.auralife.presentation.common.PermissionPhotoHandler
+import com.drs.auralife.presentation.common.launchAndRepeatOnStarted
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
-    @dagger.hilt.android.AndroidEntryPoint
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), AppBarProvider {
     companion object {
         private const val PREF_NAME = "PREFERENCE"
@@ -60,7 +56,6 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
     private var permissionPhotoHandler: PermissionPhotoHandler? = null
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-    private var pageChangeCallback: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback? = null
 
     private val mainViewModel: MainViewModel by viewModels()
 
@@ -79,7 +74,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         setupBottomNav()
         setupDrawer()
         setupBackPressed()
-        hideBottomNavOnDetailScreens()
+        setupBottomNavVisibility()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -102,7 +97,12 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
     private fun setupDrawer() {
         setupDrawerToggle()
-        setupDrawerHeader()
+        setupNavProfileClick()
+        observeAuthState()
+        observePremiumStatus()
+        observeAvatar()
+        observeAvatarResult()
+        scheduleLibraryWorker()
         handleDrawerItemSelection()
     }
 
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
     }
 
-    private fun setupDrawerHeader() {
+    private fun setupNavProfileClick() {
         val activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
@@ -131,83 +131,90 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     navController.navigate(NavRoutes.LOGIN)
                 }
             }
+    }
 
-        val navLogin = navigationView.menu.findItem(R.id.navLogin)
-        val navLogout = navigationView.menu.findItem(R.id.navLogout)
-        val navigationHeader = navigationView.getHeaderView(0)
-        val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
-        val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
-        val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navFreemium)
-        val sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+    private fun observeAuthState() {
+        launchAndRepeatOnStarted {
+            mainViewModel.authState.collect { isLoggedIn ->
+                val navLogin = navigationView.menu.findItem(R.id.navLogin)
+                val navLogout = navigationView.menu.findItem(R.id.navLogout)
+                val navigationHeader = navigationView.getHeaderView(0)
+                val navEmail = navigationHeader.findViewById<TextView>(R.id.navEmail)
+                val navPic = navigationHeader.findViewById<ImageView>(R.id.navProfilePic)
+                val navPremiumStatus = navigationHeader.findViewById<TextView>(R.id.navFreemium)
 
-        observePremiumStatus(navPremiumStatus, sharedPreferences)
-        observeAvatarResult()
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.authState.collect { isLoggedIn ->
-                    if (isLoggedIn) {
-                        navLogin.isVisible = false
-                        navLogout.isVisible = true
-                        navEmail.text = mainViewModel.userEmail
-                        mainViewModel.loadAvatar()
-                        navPremiumStatus.visibility = View.VISIBLE
-                        mainViewModel.loadPremiumStatus()
-                    } else {
-                        navLogin.isVisible = true
-                        navLogout.isVisible = false
-                        navPremiumStatus.visibility = View.GONE
-                        navEmail.text = getString(R.string.example_email)
-                        navPic.setImageResource(R.drawable.ic_profile)
-                        sharedPreferences.edit { putString("ExpireDate", "") }
-                    }
+                if (isLoggedIn) {
+                    navLogin.isVisible = false
+                    navLogout.isVisible = true
+                    navEmail.text = mainViewModel.userEmail
+                    mainViewModel.loadAvatar()
+                    navPremiumStatus.visibility = View.VISIBLE
+                    mainViewModel.loadPremiumStatus()
+                } else {
+                    navLogin.isVisible = true
+                    navLogout.isVisible = false
+                    navPremiumStatus.visibility = View.GONE
+                    navEmail.text = getString(R.string.example_email)
+                    navPic.setImageResource(R.drawable.ic_profile)
+                    getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+                        .edit { putString("ExpireDate", "") }
                 }
             }
         }
+    }
 
+    private fun observePremiumStatus() {
+        launchAndRepeatOnStarted {
+            mainViewModel.premiumStatus.collect { status ->
+                if (status == null) return@collect
+                val navPremiumStatus = navigationView
+                    .getHeaderView(0)
+                    .findViewById<TextView>(R.id.navFreemium)
+                getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+                    .edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
+                navPremiumStatus.text =
+                    if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
+                navPremiumStatus.setOnClickListener {
+                    navController.navigate(NavRoutes.PAYMENT)
+                }
+            }
+        }
+    }
+
+    private fun observeAvatar() {
+        launchAndRepeatOnStarted {
+            mainViewModel.avatarState.collect { bitmap ->
+                val navPic = navigationView
+                    .getHeaderView(0)
+                    .findViewById<ImageView>(R.id.navProfilePic)
+                if (bitmap != null) {
+                    MyAppGlideModule.loadImage(this@MainActivity, bitmap, navPic)
+                }
+            }
+        }
+    }
+
+    private fun observeAvatarResult() {
+        launchAndRepeatOnStarted {
+            mainViewModel.effect.collect { effect ->
+                if (effect is MainUiEffect.ShowToast) {
+                    Toast.makeText(this@MainActivity, effect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun scheduleLibraryWorker() {
         lifecycleScope.launch {
             val isLoggedIn = mainViewModel.authState.first()
             if (isLoggedIn) {
                 WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
                     "UpdateEpisodeWork",
                     ExistingPeriodicWorkPolicy.KEEP,
-                    PeriodicWorkRequestBuilder<UpdateLibraryWorker>(
-                        6,
-                        TimeUnit.HOURS,
-                    ).build(),
+                    PeriodicWorkRequestBuilder<UpdateLibraryWorker>(6, TimeUnit.HOURS).build(),
                 )
-
-                WorkManager
-                    .getInstance(this@MainActivity)
+                WorkManager.getInstance(this@MainActivity)
                     .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.avatarState.collect { bitmap ->
-                    if (bitmap != null) {
-                        MyAppGlideModule.loadImage(context = this@MainActivity, image = bitmap, imageView = navPic)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observePremiumStatus(
-        navPremiumStatus: TextView,
-        sharedPreferences: android.content.SharedPreferences,
-    ) {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.premiumStatus.collect { status ->
-                    if (status == null) return@collect
-                    sharedPreferences.edit { putString("ExpireDate", status.expiryTimestamp?.toString() ?: "") }
-                    navPremiumStatus.text = if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
-                    navPremiumStatus.setOnClickListener {
-                        navController.navigate(NavRoutes.PAYMENT)
-                    }
-                }
             }
         }
     }
@@ -233,20 +240,6 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         }
     }
 
-    private fun observeAvatarResult() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is MainUiEffect.ShowToast -> {
-                            Toast.makeText(this@MainActivity, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -258,82 +251,38 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
-    private fun hideBottomNavOnDetailScreens() {
+    private fun setupBottomNavVisibility() {
+        val navHeight = (75 * resources.displayMetrics.density).toInt()
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val detailDestinations = setOf(
-                R.id.film_details, R.id.library_details, R.id.payment,
-                R.id.play_film, R.id.explore_details, R.id.login, R.id.register,
-                R.id.search,
+            val show = destination.route in setOf(
+                NavRoutes.HOME, NavRoutes.EXPLORE, NavRoutes.LIBRARY, NavRoutes.HISTORY,
             )
-            bottomNavigationView.visibility =
-                if (destination.id in detailDestinations) View.GONE else View.VISIBLE
+            bottomNavigationView.visibility = if (show) View.VISIBLE else View.GONE
+            val navHost = findViewById<View>(R.id.nav_host_fragment)
+            (navHost.layoutParams as CoordinatorLayout.LayoutParams)
+                .bottomMargin = if (show) navHeight else 0
         }
     }
 
     @SuppressLint("InflateParams")
-    override fun setupAppBar(view: FrameLayout) {
-        view.addView(layoutInflater.inflate(R.layout.app_bar, null), 0)
-        val appBarProfile = view.findViewById<ImageFilterButton>(R.id.app_bar_profile)
-        val appBarSearch = view.findViewById<ImageButton>(R.id.app_bar_search)
-        val appBarNotifications = view.findViewById<ImageButton>(R.id.app_bar_notifications)
+    override fun setupAppBar(container: FrameLayout) {
+        container.addView(layoutInflater.inflate(R.layout.app_bar, null), 0)
+        val appBarProfile = container.findViewById<ImageFilterButton>(R.id.app_bar_profile)
+        val appBarSearch = container.findViewById<ImageButton>(R.id.app_bar_search)
+        val appBarNotifications = container.findViewById<ImageButton>(R.id.app_bar_notifications)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.avatarState.collect { bitmap ->
-                    if (bitmap != null) {
-                        MyAppGlideModule.loadImage(this@MainActivity, bitmap, appBarProfile)
-                    } else {
-                        appBarProfile.setImageResource(R.drawable.ic_profile)
-                    }
+        launchAndRepeatOnStarted {
+            mainViewModel.avatarState.collect { bitmap ->
+                if (bitmap != null) {
+                    MyAppGlideModule.loadImage(this@MainActivity, bitmap, appBarProfile)
+                } else {
+                    appBarProfile.setImageResource(R.drawable.ic_profile)
                 }
             }
         }
 
-        appBarProfile.setOnClickListener {
-            drawerLayout.openDrawer(navigationView)
-        }
-
-        appBarSearch.setOnClickListener {
-            navController.navigate(NavRoutes.SEARCH)
-        }
-
-        appBarNotifications.setOnClickListener {
-            showNotificationList(it)
-        }
-    }
-
-    @SuppressLint("InflateParams")
-    private fun showNotificationList(anchor: View) {
-        val popupView = LayoutInflater.from(this).inflate(R.layout.popup_notification_list, null)
-        val rvNotifications = popupView.findViewById<RecyclerView>(R.id.rvNotifications)
-        val text = popupView.findViewById<TextView>(R.id.text)
-
-        val notifications = Notification.getNotifications(this)
-
-        if (notifications.isEmpty()) {
-            text.visibility = View.VISIBLE
-        } else {
-            text.visibility = View.GONE
-        }
-
-        rvNotifications.layoutManager = LinearLayoutManager(this)
-
-        val adapter = NotificationAdapter(
-            notifications,
-            {
-                navController.navigate(NavRoutes.filmDetails(it.first))
-            },
-            { Notification.removeNotification(this, it) },
-        )
-
-        rvNotifications.adapter = adapter
-
-        val popupWindow = PopupWindow(
-            popupView,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            true,
-        )
-        popupWindow.showAsDropDown(anchor)
+        appBarProfile.setOnClickListener { drawerLayout.openDrawer(navigationView) }
+        appBarSearch.setOnClickListener { navController.navigate(NavRoutes.SEARCH) }
+        appBarNotifications.setOnClickListener { NotificationPopupHelper(navController).show(it) }
     }
 }
