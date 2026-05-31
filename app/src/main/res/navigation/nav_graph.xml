@@ -119,6 +119,11 @@
     </fragment>
 
     <fragment
+        android:id="@+id/search"
+        android:name="com.drs.auralife.presentation.search.SearchFragment"
+        android:label="Search" />
+
+    <fragment
         android:id="@+id/explore_details"
         android:name="com.drs.auralife.presentation.explore_details.ExploreDetailsFragment"
         android:label="ExploreDetails"

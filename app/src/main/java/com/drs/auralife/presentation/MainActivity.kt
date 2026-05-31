@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -41,24 +40,13 @@ import com.drs.auralife.core.util.Notification
 import com.drs.auralife.presentation.common.PermissionPhotoHandler
 import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.presentation.common.NotificationAdapter
-import com.drs.auralife.presentation.navigation.NavRoutes
-import com.drs.auralife.presentation.search.SearchFilmAdapter
-import com.drs.auralife.presentation.search.SearchUiEffect
-import com.drs.auralife.presentation.search.SearchUiState
-import com.drs.auralife.presentation.search.SearchViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
     @dagger.hilt.android.AndroidEntryPoint
-@OptIn(FlowPreview::class)
 class MainActivity : AppCompatActivity(), AppBarProvider {
     companion object {
         private const val PREF_NAME = "PREFERENCE"
@@ -74,13 +62,6 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private var pageChangeCallback: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback? = null
 
     private val mainViewModel: MainViewModel by viewModels()
-    private val searchViewModel: SearchViewModel by viewModels()
-
-    private var searchBar: EditText? = null
-    private var searchLayout: LinearLayout? = null
-    private var searchResults: RecyclerView? = null
-    private var searchAdapter: SearchFilmAdapter? = null
-    private val searchQueryFlow = kotlinx.coroutines.flow.MutableStateFlow("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,15 +74,11 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         drawerLayout = findViewById(R.id.main_layout)
         navigationView = findViewById(R.id.navigation_view)
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
-        searchLayout = findViewById(R.id.search_layout)
-        searchBar = findViewById(R.id.search_bar)
-        searchResults = findViewById(R.id.search_results)
 
         setupBottomNav()
         setupDrawer()
         setupBackPressed()
         hideBottomNavOnDetailScreens()
-        setupSearch()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -272,10 +249,6 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (searchLayout?.visibility == View.VISIBLE) {
-                    hideSearch()
-                    return
-                }
                 if (!navController.popBackStack()) {
                     finish()
                 }
@@ -289,6 +262,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
             val detailDestinations = setOf(
                 R.id.film_details, R.id.library_details, R.id.payment,
                 R.id.play_film, R.id.explore_details, R.id.login, R.id.register,
+                R.id.search,
             )
             bottomNavigationView.visibility =
                 if (destination.id in detailDestinations) View.GONE else View.VISIBLE
@@ -319,96 +293,12 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         }
 
         appBarSearch.setOnClickListener {
-            showSearch()
+            navController.navigate(R.id.search)
         }
 
         appBarNotifications.setOnClickListener {
             showNotificationList(it)
         }
-    }
-
-    private fun setupSearch() {
-        searchAdapter = SearchFilmAdapter { slug ->
-            hideSearch()
-            val bundle = Bundle().apply { putString("slug", slug) }
-            navController.navigate(R.id.film_details, bundle)
-        }
-        searchResults?.layoutManager = LinearLayoutManager(this)
-        searchResults?.adapter = searchAdapter
-
-        val textWatcher = object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                searchQueryFlow.value = s.toString().trim()
-                if (s.toString().trim().isEmpty()) {
-                    searchViewModel.clearResults()
-                    searchAdapter?.replaceItems(emptyList())
-                }
-            }
-        }
-        searchBar?.addTextChangedListener(textWatcher)
-
-        observeSearchState()
-        observeSearchEffect()
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                searchQueryFlow
-                    .debounce(500)
-                    .distinctUntilChanged()
-                    .filter { it.isNotEmpty() }
-                    .collectLatest { query ->
-                        searchViewModel.searchFilms(query, 5)
-                    }
-            }
-        }
-    }
-
-    private fun observeSearchState() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                searchViewModel.state.collect { state ->
-                    when (state) {
-                        is SearchUiState.Success -> {
-                            searchAdapter?.replaceItems(state.films)
-                        }
-                        else -> { /* idle, loading, error handled implicitly */ }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeSearchEffect() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                searchViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is SearchUiEffect.NavigateToFilmDetails -> {
-                            hideSearch()
-                            val bundle = Bundle().apply { putString("slug", effect.slug) }
-                            navController.navigate(R.id.film_details, bundle)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun showSearch() {
-        searchLayout?.visibility = View.VISIBLE
-        bottomNavigationView.visibility = View.GONE
-        searchBar?.requestFocus()
-        searchResults?.adapter = searchAdapter
-    }
-
-    private fun hideSearch() {
-        searchLayout?.visibility = View.GONE
-        bottomNavigationView.visibility = View.VISIBLE
-        searchBar?.text?.clear()
-        searchViewModel.clearResults()
-        searchAdapter?.replaceItems(emptyList())
     }
 
     @SuppressLint("InflateParams")
