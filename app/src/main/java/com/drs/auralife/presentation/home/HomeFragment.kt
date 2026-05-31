@@ -1,8 +1,5 @@
 package com.drs.auralife.presentation.home
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,9 +7,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.R
@@ -34,9 +30,6 @@ class HomeFragment : Fragment() {
         homeViewModel.onFilmClicked(slug)
     }
 
-    private var isLoading = false
-    private var currentPage = 1
-    private var totalPages = 0
     private var autoScrollJob: Job? = null
     private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
 
@@ -67,8 +60,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 homeViewModel.state.collect { state ->
                     if (_binding == null) return@collect
 
@@ -82,13 +74,11 @@ class HomeFragment : Fragment() {
 
                     filmAdapter.submitList(state.films)
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 homeViewModel.effect.collect { effect ->
                     when (effect) {
                         is HomeUiEffect.ShowToast -> {
@@ -100,59 +90,41 @@ class HomeFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
     private fun setupRecyclerView() {
-        if (context?.isConnectedToInternet() == true) {
-            binding.recyclerView.apply {
-                val displayMetrics = resources.displayMetrics
-                var numberFilmInLine = (displayMetrics.widthPixels / 400).coerceIn(2, 5)
-                layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
-                adapter = filmAdapter
-            }
-
-            observeLatestFilms()
-
-            currentPage = 1
-            homeViewModel.getLatestFilms(currentPage)
-
-            scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
-                    if (_binding == null) return
-                    val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                    if (currentPage < totalPages) {
-                        val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-                        if (!isLoading && lastVisibleItemPosition >= layoutManager.itemCount - 1) {
-                            isLoading = true
-                            currentPage++
-                            homeViewModel.loadMoreLatestFilms(currentPage)
-                        }
-                    }
-                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-                    binding.scrollToTopButton.visibility =
-                        if (firstVisibleItemPosition > 0) View.VISIBLE else View.GONE
-                }
-            }
-            scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
-
-            binding.scrollToTopButton.setOnClickListener {
-                binding.recyclerView.smoothScrollToPosition(0)
-            }
-        } else {
+        val isConnected = homeViewModel.checkConnectivity(requireContext())
+        if (!isConnected) {
             Toast.makeText(context, getString(R.string.no_internet_retry), Toast.LENGTH_LONG).show()
+            return
         }
-    }
+        binding.recyclerView.apply {
+            val displayMetrics = resources.displayMetrics
+            var numberFilmInLine = (displayMetrics.widthPixels / 400).coerceIn(2, 5)
+            layoutManager = GridLayoutManager(requireContext(), ++numberFilmInLine)
+            adapter = filmAdapter
+        }
 
-    private fun observeLatestFilms() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.state.collect { state ->
-                    totalPages = state.totalPages
-                    isLoading = state.isLoadingMore
+        homeViewModel.loadLatestFilms()
+
+        scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                if (_binding == null) return
+                val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                if (lastVisibleItemPosition >= layoutManager.itemCount - 1) {
+                    homeViewModel.onScrolledToBottom()
                 }
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                binding.scrollToTopButton.visibility =
+                    if (firstVisibleItemPosition > 0) View.VISIBLE else View.GONE
             }
+        }
+        scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
+
+        binding.scrollToTopButton.setOnClickListener {
+            binding.recyclerView.smoothScrollToPosition(0)
         }
     }
 
@@ -169,10 +141,5 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun Context.isConnectedToInternet(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
 }
+

@@ -1,5 +1,8 @@
 package com.drs.auralife.presentation.home
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,7 +43,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getLatestFilms(page: Int) {
+    fun loadLatestFilms() {
+        val page = 1
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingFilms = true, errorMessage = null)
             try {
@@ -48,6 +52,7 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     films = result.data,
                     totalPages = result.totalPages,
+                    currentPage = page,
                     isLoadingFilms = false,
                 )
             } catch (e: Exception) {
@@ -57,15 +62,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun loadMoreLatestFilms(page: Int) {
+    fun onScrolledToBottom() {
+        val current = _state.value
+        if (current.isLoadingMore || current.currentPage >= current.totalPages) return
+        val nextPage = current.currentPage + 1
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingMore = true)
             try {
-                val result = getLatestFilmsUseCase(page)
+                val result = getLatestFilmsUseCase(nextPage)
                 val allFilms = _state.value.films + result.data
                 _state.value = _state.value.copy(
                     films = allFilms,
                     totalPages = result.totalPages,
+                    currentPage = nextPage,
                     isLoadingMore = false,
                 )
             } catch (e: Exception) {
@@ -80,5 +89,14 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _effect.emit(HomeUiEffect.NavigateToFilm(slug))
         }
+    }
+
+    fun checkConnectivity(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        val connected = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        _state.value = _state.value.copy(isConnected = connected)
+        return connected
     }
 }

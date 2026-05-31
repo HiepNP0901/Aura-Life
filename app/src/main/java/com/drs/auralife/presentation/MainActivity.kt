@@ -36,10 +36,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
-import com.drs.auralife.core.utils.MyAppGlideModule
-import com.drs.auralife.core.utils.Notification
-import com.drs.auralife.core.utils.PermissionPhotoHandler
-import com.drs.auralife.core.utils.UpdateLibraryWorker
+import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.core.util.Notification
+import com.drs.auralife.presentation.common.PermissionPhotoHandler
+import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.presentation.common.NotificationAdapter
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.presentation.search.SearchFilmAdapter
@@ -258,11 +258,11 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun observeAvatarResult() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.avatarResult.collect { result ->
-                    result.onSuccess {
-                        Toast.makeText(this@MainActivity, getString(R.string.upload_avatar_successfully), Toast.LENGTH_SHORT).show()
-                    }.onFailure {
-                        Toast.makeText(this@MainActivity, getString(R.string.upload_avatar_failed), Toast.LENGTH_SHORT).show()
+                mainViewModel.effect.collect { effect ->
+                    when (effect) {
+                        is MainUiEffect.ShowToast -> {
+                            Toast.makeText(this@MainActivity, effect.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

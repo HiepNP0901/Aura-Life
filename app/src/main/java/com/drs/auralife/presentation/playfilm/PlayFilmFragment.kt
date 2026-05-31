@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -26,7 +26,7 @@ import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.presentation.filmdetails.FilmDetailsViewModel
 import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.playfilm.adapter.EpisodeAdapter
-import com.drs.auralife.core.utils.SystemUiController
+import com.drs.auralife.presentation.common.SystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -133,8 +133,7 @@ class PlayFilmFragment : Fragment() {
     }
 
     private fun observeFilmDetails() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 filmDetailsViewModel.state.collect { state ->
                     if (state.film != null) {
                         film = state.film
@@ -145,15 +144,13 @@ class PlayFilmFragment : Fragment() {
                             }
                     }
                 }
-            }
         }
 
         playFilmViewModel.loadPremiumStatus()
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 playFilmViewModel.effect.collect { effect ->
                     when (effect) {
                         is PlayFilmUiEffect.ShowPremiumDialog -> {
@@ -170,7 +167,6 @@ class PlayFilmFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -256,8 +252,7 @@ class PlayFilmFragment : Fragment() {
     }
 
     private fun startPlaybackMonitor() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 while (true) {
                     exoPlayer?.let { player ->
                         playFilmViewModel.checkPlaybackThrottle(
@@ -267,7 +262,6 @@ class PlayFilmFragment : Fragment() {
                     }
                     delay(1000)
                 }
-            }
         }
     }
 
@@ -291,3 +285,4 @@ class PlayFilmFragment : Fragment() {
         dialog.show()
     }
 }
+

@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.databinding.ActivityLibraryDetailsBinding
@@ -23,14 +23,11 @@ class LibraryDetailsFragment : Fragment() {
 
     private val viewModel: LibraryDetailsViewModel by viewModels()
     private var _binding: ActivityLibraryDetailsBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private var libraryName: String = ""
 
     private val filmAdapter = LibraryFilmAdapter(
-        onItemClick = { slug ->
-            val bundle = Bundle().apply { putString("slug", slug) }
-            findNavController().navigate(R.id.film_details, bundle)
-        },
+        onItemClick = { slug -> viewModel.onFilmClicked(slug) },
         onLongClick = { slug -> onLongClick(slug) },
     )
 
@@ -47,6 +44,7 @@ class LibraryDetailsFragment : Fragment() {
         binding.tvNameApp.text = "${binding.tvNameApp.text} - $libraryName"
 
         observeLibraryFilms()
+        observeEffect()
         viewModel.loadLibraryFilms(libraryName)
     }
 
@@ -56,8 +54,7 @@ class LibraryDetailsFragment : Fragment() {
     }
 
     private fun observeLibraryFilms() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 viewModel.state.collect { state ->
                     if (state.films.isNotEmpty()) {
                         filmAdapter.submitList(state.films)
@@ -66,14 +63,29 @@ class LibraryDetailsFragment : Fragment() {
                         Toast.makeText(context, state.errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
+        }
+    }
+
+    private fun observeEffect() {
+        launchAndRepeatWithViewLifecycle {
+                viewModel.effect.collect { effect ->
+                    when (effect) {
+                        is LibraryDetailUiEffect.ShowToast -> {
+                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                        }
+                        is LibraryDetailUiEffect.NavigateToFilm -> {
+                            val bundle = Bundle().apply { putString("slug", effect.slug) }
+                            findNavController().navigate(R.id.film_details, bundle)
+                        }
+                    }
+                }
         }
     }
 
     private fun onLongClick(slug: String) {
         EditLibraryDialog.showDeleteFilmFromLibrary(requireContext(), libraryName, slug) {
             viewModel.removeFilm(libraryName, slug)
-            viewModel.loadLibraryFilms(libraryName)
         }
     }
 }
+

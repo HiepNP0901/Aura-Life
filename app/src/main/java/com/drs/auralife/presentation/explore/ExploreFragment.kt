@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.R
@@ -60,21 +60,26 @@ class ExploreFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 exploreViewModel.state.collect { state ->
                     if (_binding == null) return@collect
                     if (state.categories.isNotEmpty()) {
                         buildCategoryViews(state.categories)
                     }
+                    state.filmsByCategory.forEach { (slug, films) ->
+                        val index = state.categories.indexOfFirst { it.slug == slug }
+                        if (index >= 0) {
+                            val child = binding.exploreFragmentBody.getChildAt(index)
+                            val rv = child?.findViewById<RecyclerView>(R.id.recyclerView)
+                            (rv?.adapter as? CategoryFilmAdapter)?.addItem(films)
+                        }
+                    }
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 exploreViewModel.effect.collect { effect ->
                     when (effect) {
                         is ExploreUiEffect.ShowToast -> {
@@ -93,11 +98,11 @@ class ExploreFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
     private fun buildCategoryViews(categories: List<com.drs.auralife.domain.model.Category>) {
+        binding.exploreFragmentBody.removeAllViews()
         categories.forEach { category ->
             val currentContext = context ?: return@forEach
             val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
@@ -114,11 +119,7 @@ class ExploreFragment : Fragment() {
 
             val buttonText = if (Locale.getDefault().language == "en") category.localizedName else category.name
             item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).text = buttonText
-
-            exploreViewModel.getFilmsByCategoryList(category.slug, 1) { films ->
-                if (_binding == null) return@getFilmsByCategoryList
-                films?.let { list -> filmAdapter.addItem(list) }
-            }
         }
     }
 }
+

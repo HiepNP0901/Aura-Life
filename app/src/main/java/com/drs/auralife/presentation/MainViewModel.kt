@@ -20,6 +20,10 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
+sealed interface MainUiEffect {
+    data class ShowToast(val message: String) : MainUiEffect
+}
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getPremiumStatusUseCase: GetPremiumStatusUseCase,
@@ -38,8 +42,8 @@ class MainViewModel @Inject constructor(
     private val _avatarState = MutableStateFlow<Bitmap?>(null)
     val avatarState: StateFlow<Bitmap?> = _avatarState.asStateFlow()
 
-    private val _avatarResult = MutableSharedFlow<Result<Unit>>()
-    val avatarResult: SharedFlow<Result<Unit>> = _avatarResult.asSharedFlow()
+    private val _effect = MutableSharedFlow<MainUiEffect>()
+    val effect: SharedFlow<MainUiEffect> = _effect.asSharedFlow()
 
     fun loadPremiumStatus() {
         viewModelScope.launch {
@@ -74,13 +78,13 @@ class MainViewModel @Inject constructor(
                 val imageBytes = stream.toByteArray()
                 val success = uploadAvatarUseCase(imageBytes)
                 if (success) {
-                    _avatarResult.emit(Result.success(Unit))
                     loadAvatar()
+                    _effect.emit(MainUiEffect.ShowToast("Upload avatar successfully"))
                 } else {
-                    _avatarResult.emit(Result.failure(Exception("Upload failed")))
+                    _effect.emit(MainUiEffect.ShowToast("Upload avatar failed"))
                 }
             } catch (e: Exception) {
-                _avatarResult.emit(Result.failure(e))
+                _effect.emit(MainUiEffect.ShowToast(e.message ?: "Upload avatar failed"))
             }
         }
     }

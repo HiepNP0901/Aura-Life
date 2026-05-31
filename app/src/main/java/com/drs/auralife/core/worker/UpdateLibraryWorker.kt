@@ -1,4 +1,4 @@
-package com.drs.auralife.core.utils
+package com.drs.auralife.core.worker
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -14,6 +14,7 @@ import androidx.work.WorkerParameters
 import com.drs.auralife.R
 import com.drs.auralife.data.remote.api.FilmAPI
 import com.drs.auralife.data.remote.firebase.LibraryDataSource
+import com.drs.auralife.core.util.Notification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

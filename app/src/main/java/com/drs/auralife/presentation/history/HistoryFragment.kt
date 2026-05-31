@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.R
 import com.drs.auralife.databinding.FragmentHistoryBinding
@@ -53,8 +53,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 historyViewModel.state.collect { state ->
                     if (_binding == null) return@collect
                     if (state.films.isEmpty()) {
@@ -69,13 +68,11 @@ class HistoryFragment : Fragment() {
                         binding.text.text = state.errorMessage
                     }
                 }
-            }
         }
     }
 
     private fun observeEffect() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launchAndRepeatWithViewLifecycle {
                 historyViewModel.effect.collect { effect ->
                     when (effect) {
                         is HistoryUiEffect.ShowToast -> {
@@ -87,7 +84,6 @@ class HistoryFragment : Fragment() {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -99,3 +95,4 @@ class HistoryFragment : Fragment() {
         }
     }
 }
+

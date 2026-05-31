@@ -3,7 +3,6 @@ package com.drs.auralife.presentation.explore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.usecase.GetCategoriesUseCase
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
@@ -33,7 +32,11 @@ class ExploreViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
-                _state.value = _state.value.copy(categories = getCategoriesUseCase(), isLoading = false)
+                val categories = getCategoriesUseCase()
+                _state.value = _state.value.copy(categories = categories, isLoading = false)
+                categories.forEach { category ->
+                    loadFilmsForCategory(category.slug)
+                }
             } catch (e: Exception) {
                 Log.e("ExploreViewModel", "loadCategories failed", e)
                 _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
@@ -41,15 +44,15 @@ class ExploreViewModel @Inject constructor(
         }
     }
 
-    fun getFilmsByCategoryList(slug: String, page: Int, onResult: (List<Film>?) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val result = getFilmsByCategoryUseCase(slug, page)
-                onResult(result.data)
-            } catch (e: Exception) {
-                Log.e("ExploreViewModel", "getFilmsByCategoryList failed", e)
-                onResult(null)
-            }
+    private suspend fun loadFilmsForCategory(slug: String) {
+        try {
+            val result = getFilmsByCategoryUseCase(slug, 1)
+            val current = _state.value.filmsByCategory.toMutableMap()
+            current[slug] = result.data
+            _state.value = _state.value.copy(filmsByCategory = current)
+        } catch (e: Exception) {
+            Log.e("ExploreViewModel", "loadFilmsForCategory failed for $slug", e)
+            _effect.emit(ExploreUiEffect.ShowToast("Failed to load films for category"))
         }
     }
 

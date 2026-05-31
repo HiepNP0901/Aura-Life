@@ -46,8 +46,8 @@ object AddToLibraryDialog {
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                             ).apply {
-                                var dp5 = dpToPx(5f, resources.displayMetrics).toInt()
-                                var dp10 = dpToPx(10f, resources.displayMetrics).toInt()
+                                val dp5 = dpToPx(5f, resources.displayMetrics).toInt()
+                                val dp10 = dpToPx(10f, resources.displayMetrics).toInt()
                                 setMargins(dp5, 0, dp5, dp10)
                                 setBackgroundResource(R.drawable.rounded)
                                 isAllCaps = false

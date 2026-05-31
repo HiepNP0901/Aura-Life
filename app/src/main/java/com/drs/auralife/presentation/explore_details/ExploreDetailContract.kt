@@ -4,6 +4,7 @@ import com.drs.auralife.domain.model.Film
 
 data class ExploreDetailUiState(
     val films: List<Film> = emptyList(),
+    val currentPage: Int = 1,
     val totalPages: Int = 0,
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,

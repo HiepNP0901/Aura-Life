@@ -37,18 +37,14 @@ class LibraryViewModel @Inject constructor(
     private val _librariesState = MutableStateFlow(LibraryUiState())
     val librariesState: StateFlow<LibraryUiState> = _librariesState.asStateFlow()
 
-    private val _operationResult = MutableSharedFlow<Result<Boolean>>()
-    val operationResult: SharedFlow<Result<Boolean>> = _operationResult.asSharedFlow()
-
-    private val _librariesLoaded = MutableStateFlow<List<Library>>(emptyList())
-    val librariesLoaded: StateFlow<List<Library>> = _librariesLoaded.asStateFlow()
+    private val _effect = MutableSharedFlow<LibraryUiEffect>()
+    val effect: SharedFlow<LibraryUiEffect> = _effect.asSharedFlow()
 
     fun getLibraries() {
         viewModelScope.launch {
             _librariesState.value = _librariesState.value.copy(isLoading = true)
             try {
                 val libs = getLibraryUseCase()
-                _librariesLoaded.emit(libs)
                 _librariesState.value = _librariesState.value.copy(libraries = libs, isLoading = false)
             } catch (e: Exception) {
                 _librariesState.value = _librariesState.value.copy(isLoading = false, errorMessage = e.message)
@@ -64,7 +60,7 @@ class LibraryViewModel @Inject constructor(
                 films = listOf(LibraryFilm(slug = slug, currentEpisode = episodeCurrent)),
             )
             val result = addToLibraryUseCase(library)
-            _operationResult.emit(Result.success(result))
+            _effect.emit(LibraryUiEffect.ShowToast(if (result) "Added" else "Failed"))
         }
     }
 
@@ -76,17 +72,18 @@ class LibraryViewModel @Inject constructor(
                 films = listOf(LibraryFilm(slug = slug, currentEpisode = episodeCurrent)),
             )
             val result = createLibraryUseCase(library)
-            _operationResult.emit(Result.success(result))
+            _effect.emit(LibraryUiEffect.ShowToast(if (result) "Created" else "Failed"))
         }
     }
 
     fun renameLibrary(oldName: String, newName: String) {
         viewModelScope.launch {
             try {
-                val result = renameLibraryUseCase(oldName, newName)
-                _operationResult.emit(Result.success(result))
+                renameLibraryUseCase(oldName, newName)
+                getLibraries()
+                _effect.emit(LibraryUiEffect.ShowToast("Renamed"))
             } catch (e: Exception) {
-                _operationResult.emit(Result.failure(e))
+                _effect.emit(LibraryUiEffect.ShowToast(e.message ?: "Rename failed"))
             }
         }
     }
@@ -94,11 +91,18 @@ class LibraryViewModel @Inject constructor(
     fun deleteLibrary(name: String) {
         viewModelScope.launch {
             try {
-                val result = deleteLibraryUseCase(name)
-                _operationResult.emit(Result.success(result))
+                deleteLibraryUseCase(name)
+                getLibraries()
+                _effect.emit(LibraryUiEffect.ShowToast("Deleted"))
             } catch (e: Exception) {
-                _operationResult.emit(Result.failure(e))
+                _effect.emit(LibraryUiEffect.ShowToast(e.message ?: "Delete failed"))
             }
+        }
+    }
+
+    fun onLibraryClicked(name: String) {
+        viewModelScope.launch {
+            _effect.emit(LibraryUiEffect.NavigateToDetails(name))
         }
     }
 }

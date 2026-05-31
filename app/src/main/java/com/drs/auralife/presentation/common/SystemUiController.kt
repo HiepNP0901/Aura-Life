@@ -1,4 +1,4 @@
-package com.drs.auralife.core.utils
+package com.drs.auralife.presentation.common
 
 import android.os.Build
 import android.view.View
