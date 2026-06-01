@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.R
+import com.drs.auralife.core.designsystem.R
 import com.drs.auralife.core.util.Notification
 import com.drs.auralife.presentation.navigation.NavRoutes
 

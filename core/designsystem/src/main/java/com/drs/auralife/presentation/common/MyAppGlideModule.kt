@@ -10,7 +10,7 @@ import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
-import com.drs.auralife.R
+import com.drs.auralife.core.designsystem.R
 
 @GlideModule
 object MyAppGlideModule : AppGlideModule() {

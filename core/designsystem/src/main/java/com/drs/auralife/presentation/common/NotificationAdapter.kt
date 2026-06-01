@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.R
+import com.drs.auralife.core.designsystem.R
 
 class NotificationAdapter(
     private val notifications: MutableList<Pair<String, String>>,

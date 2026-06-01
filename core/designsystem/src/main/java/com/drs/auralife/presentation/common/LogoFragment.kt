@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.drs.auralife.databinding.FragmentLogoBinding
+import com.drs.auralife.core.designsystem.databinding.FragmentLogoBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TITLE = "@string/name"
