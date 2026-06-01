@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library")
+    id("aura-life.android.library")
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
 }
