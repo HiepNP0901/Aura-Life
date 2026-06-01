@@ -1,4 +1,6 @@
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -14,7 +16,15 @@ kotlin {
     }
 }
 
-val baseUrl: String = localProperty("baseUrl")
+fun getSecret(key: String, default: String): String {
+    val secretsFile = rootProject.file("secrets.properties")
+    if (!secretsFile.exists()) return default
+    val props = Properties()
+    props.load(FileInputStream(secretsFile))
+    return props.getProperty(key) ?: default
+}
+
+val baseUrl = getSecret("baseUrl", "https://default.example.com")
 
 android {
     namespace = "com.drs.auralife"
@@ -27,7 +37,6 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     buildFeatures {
@@ -36,6 +45,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix = "-debug"
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        }
+
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -43,12 +60,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-        }
-        debug {
-            versionNameSuffix = "-debug"
-            isMinifyEnabled = false
-            isShrinkResources = false
-            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         }
     }
 
