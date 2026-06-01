@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.history.R
-import com.drs.auralife.core.util.Time
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.core.util.TimeUtils
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Film
 import java.time.Instant
 
@@ -37,11 +37,11 @@ class HistoryFilmAdapter(
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvTitle.text = film.title
             tvDetails.text = if (film.watchedAt > 0) {
-                Time.calculateTimeDifference(Instant.ofEpochMilli(film.watchedAt), itemView.context)
+                TimeUtils.calculateTimeDifference(Instant.ofEpochMilli(film.watchedAt), itemView.context)
             } else {
                 film.description
             }
-            MyAppGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
+            AuraLifeGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
             itemView.setOnClickListener { onItemClick(film.slug) }
             itemView.setOnLongClickListener {
                 onLongClick(film.slug)

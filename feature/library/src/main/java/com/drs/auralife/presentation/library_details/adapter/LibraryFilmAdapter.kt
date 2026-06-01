@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.library.R
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Film
 
 class LibraryFilmAdapter(
@@ -35,7 +35,7 @@ class LibraryFilmAdapter(
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
             tvTitle.text = film.title
             tvDetails.text = film.description
-            MyAppGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
+            AuraLifeGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
             itemView.setOnClickListener { onItemClick(film.slug) }
             itemView.setOnLongClickListener {
                 onLongClick(film.slug)

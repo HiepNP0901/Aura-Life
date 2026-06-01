@@ -15,7 +15,7 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.feature.payment.R
 import com.drs.auralife.feature.payment.databinding.FragmentPaymentBinding
-import com.drs.auralife.domain.model.PaymentItem
+import com.drs.auralife.domain.model.SubscriptionPlan
 import com.drs.auralife.presentation.payment.adapter.PaymentAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +26,7 @@ import java.util.Locale
 @AndroidEntryPoint
 class PaymentFragment : Fragment() {
 
-    private val premiumViewModel: PremiumViewModel by viewModels()
+    private val PaymentViewModel: PaymentViewModel by viewModels()
     private var _binding: FragmentPaymentBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private lateinit var paymentAdapter: PaymentAdapter
@@ -41,7 +41,7 @@ class PaymentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         observePremiumStatus()
-        premiumViewModel.loadPremiumStatus()
+        PaymentViewModel.loadPremiumStatus()
         setupPaymentItems()
 
         binding.btnChoose.setOnClickListener {
@@ -57,7 +57,7 @@ class PaymentFragment : Fragment() {
                 dialogView.findViewById<Button>(R.id.btnPay).setOnClickListener {
                     bottomSheet.dismiss()
                     Handler(Looper.getMainLooper()).postDelayed({
-                        premiumViewModel.purchasePremium(selectedItem.month)
+                        PaymentViewModel.purchasePremium(selectedItem.month)
                     }, 1500)
                 }
                 bottomSheet.show()
@@ -72,7 +72,7 @@ class PaymentFragment : Fragment() {
 
     private fun observePremiumStatus() {
         launchAndRepeatWithViewLifecycle {
-                premiumViewModel.state.collect { state ->
+                PaymentViewModel.state.collect { state ->
                     val status = state.premiumStatus ?: return@collect
                     binding.apply {
                         if (status.isPremium) {
@@ -93,7 +93,7 @@ class PaymentFragment : Fragment() {
                 }
         }
         launchAndRepeatWithViewLifecycle {
-                premiumViewModel.effect.collect { effect ->
+                PaymentViewModel.effect.collect { effect ->
                     when (effect) {
                         is PaymentUiEffect.ShowToast -> {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
@@ -111,9 +111,9 @@ class PaymentFragment : Fragment() {
 
     private fun setupPaymentItems() {
         val paymentList = listOf(
-            PaymentItem(1, getString(R.string.plan_1_month_title), getString(R.string.plan_1_month_desc), getString(R.string.plan_1_month_price)),
-            PaymentItem(3, getString(R.string.plan_3_month_title), getString(R.string.plan_3_month_desc), getString(R.string.plan_3_month_price)),
-            PaymentItem(6, getString(R.string.plan_6_month_title), getString(R.string.plan_6_month_desc), getString(R.string.plan_6_month_price)),
+            SubscriptionPlan(1, getString(R.string.plan_1_month_title), getString(R.string.plan_1_month_desc), getString(R.string.plan_1_month_price)),
+            SubscriptionPlan(3, getString(R.string.plan_3_month_title), getString(R.string.plan_3_month_desc), getString(R.string.plan_3_month_price)),
+            SubscriptionPlan(6, getString(R.string.plan_6_month_title), getString(R.string.plan_6_month_desc), getString(R.string.plan_6_month_price)),
         )
         paymentAdapter = PaymentAdapter(paymentList)
         binding.rvPayment.adapter = paymentAdapter

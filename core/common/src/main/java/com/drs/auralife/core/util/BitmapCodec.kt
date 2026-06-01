@@ -6,7 +6,7 @@ import android.util.Base64
 import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
-object ImageEncoderDecoder {
+object BitmapCodec {
     fun encodeToBase64(
         bitmap: Bitmap,
         compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,

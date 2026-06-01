@@ -34,7 +34,7 @@ class SearchFragment : Fragment() {
 
     private val searchViewModel: SearchViewModel by viewModels()
     private val searchQueryFlow = MutableStateFlow("")
-    private var searchAdapter: SearchFilmAdapter? = null
+    private var searchAdapter: SearchAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,7 +57,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        searchAdapter = SearchFilmAdapter { slug ->
+        searchAdapter = SearchAdapter { slug ->
             val navOptions = NavOptions.Builder()
                 .setPopUpTo(R.id.search, true)
                 .build()

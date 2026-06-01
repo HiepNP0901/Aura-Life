@@ -8,7 +8,7 @@ import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 
-class PermissionPhotoHandler(
+class PhotoPermissionHandler(
     private val activity: Activity,
     private val activityResultLauncher: ActivityResultLauncher<Intent>,
 ) {

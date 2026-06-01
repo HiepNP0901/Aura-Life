@@ -9,7 +9,7 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.core.designsystem.R
-import com.drs.auralife.core.util.Notification
+import com.drs.auralife.core.util.AppNotification
 import com.drs.auralife.presentation.navigation.NavRoutes
 
 @SuppressLint("InflateParams")
@@ -22,7 +22,7 @@ class NotificationPopupHelper(
         val rvNotifications = popupView.findViewById<RecyclerView>(R.id.rvNotifications)
         val text = popupView.findViewById<TextView>(R.id.text)
 
-        val notifications = Notification.getNotifications(context)
+        val notifications = AppNotification.getNotifications(context)
 
         text.visibility = if (notifications.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
 
@@ -31,7 +31,7 @@ class NotificationPopupHelper(
         val adapter = NotificationAdapter(
             notifications,
             { navController.navigate(NavRoutes.filmDetails(it.first)) },
-            { Notification.removeNotification(context, it) },
+            { AppNotification.removeNotification(context, it) },
         )
 
         rvNotifications.adapter = adapter

@@ -5,7 +5,7 @@ import com.drs.auralife.core.common.R
 import java.time.Duration
 import java.time.Instant
 
-object Time {
+object TimeUtils {
     fun calculateTimeDifference(
         updateInstant: Instant,
         context: Context,

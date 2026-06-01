@@ -8,10 +8,10 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.payment.R
-import com.drs.auralife.domain.model.PaymentItem
+import com.drs.auralife.domain.model.SubscriptionPlan
 
 class PaymentAdapter(
-    private val paymentItems: List<PaymentItem>,
+    private val paymentItems: List<SubscriptionPlan>,
 ) : RecyclerView.Adapter<PaymentAdapter.PaymentViewHolder>() {
     private var selectedPosition = RecyclerView.NO_POSITION
 
@@ -21,7 +21,7 @@ class PaymentAdapter(
         private val tvDescription = view.findViewById<TextView>(R.id.tv_description)
         private val tvPrice = view.findViewById<TextView>(R.id.tv_price)
 
-        fun bind(item: PaymentItem, isSelected: Boolean) {
+        fun bind(item: SubscriptionPlan, isSelected: Boolean) {
             tvTitle.text = item.title
             tvDescription.text = item.description
             tvPrice.text = item.price
@@ -54,6 +54,6 @@ class PaymentAdapter(
         holder.bind(paymentItems[position], position == selectedPosition)
     }
 
-    fun getSelectedItem(): PaymentItem? =
+    fun getSelectedItem(): SubscriptionPlan? =
         if (selectedPosition != RecyclerView.NO_POSITION) paymentItems[selectedPosition] else null
 }

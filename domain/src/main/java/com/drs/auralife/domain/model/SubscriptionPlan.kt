@@ -1,6 +1,6 @@
 package com.drs.auralife.domain.model
 
-data class PaymentItem(
+data class SubscriptionPlan(
     val month: Int,
     val title: String,
     val description: String,

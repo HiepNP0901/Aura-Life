@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PremiumViewModel @Inject constructor(
+class PaymentViewModel @Inject constructor(
     private val getPremiumStatusUseCase: GetPremiumStatusUseCase,
     private val setPremiumUseCase: SetPremiumUseCase,
 ) : ViewModel() {

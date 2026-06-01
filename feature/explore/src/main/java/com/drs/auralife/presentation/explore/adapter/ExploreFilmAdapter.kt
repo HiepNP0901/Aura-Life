@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.explore.R
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Film
 
 class ExploreFilmAdapter(
@@ -38,7 +38,7 @@ class ExploreFilmAdapter(
             tvTitle.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvDetails.textAlignment = View.TEXT_ALIGNMENT_CENTER
             tvTitle.text = film.title
-            MyAppGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
+            AuraLifeGlideModule.loadImage(itemView.context, film.posterUrl, ivPoster)
             itemView.setOnClickListener { onItemClick(film.slug) }
         }
     }

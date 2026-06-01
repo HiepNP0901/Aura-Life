@@ -10,11 +10,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.search.R
 import com.drs.auralife.domain.model.Film
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 
-class SearchFilmAdapter(
+class SearchAdapter(
     private val onItemClick: (String) -> Unit,
-) : RecyclerView.Adapter<SearchFilmAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
     private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Film>() {
         override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
@@ -46,7 +46,7 @@ class SearchFilmAdapter(
         val film = differ.currentList[position]
         holder.tvTitle.text = film.title
         holder.tvDetails.text = film.description
-        MyAppGlideModule.loadImage(
+        AuraLifeGlideModule.loadImage(
             holder.itemView.context,
             film.posterUrl,
             holder.posterView,

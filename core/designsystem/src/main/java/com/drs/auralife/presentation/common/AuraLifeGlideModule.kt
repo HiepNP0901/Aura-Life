@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.drs.auralife.core.designsystem.R
 
 @GlideModule
-object MyAppGlideModule : AppGlideModule() {
+object AuraLifeGlideModule : AppGlideModule() {
     private fun isValidContextForGlide(context: Context?): Boolean {
         if (context == null) {
             return false

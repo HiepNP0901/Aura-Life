@@ -7,7 +7,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.home.R
 import com.drs.auralife.domain.model.Banner
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 
 class BannerAdapter(
     private val banners: List<Banner>,
@@ -17,7 +17,7 @@ class BannerAdapter(
         val bannerImage: ImageView = itemView.findViewById(R.id.bannerImage)
 
         fun bind(banner: Banner) {
-            MyAppGlideModule.loadImage(bannerImage.context, banner.imageUrl, bannerImage)
+            AuraLifeGlideModule.loadImage(bannerImage.context, banner.imageUrl, bannerImage)
         }
     }
 

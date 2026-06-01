@@ -4,7 +4,7 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 
-object Notification {
+object AppNotification {
     private const val PREF_NAME = "notifications"
     private const val KEY_NOTIFICATION_LIST = "notification_list"
 

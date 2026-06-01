@@ -20,5 +20,5 @@ data class FilmDetails(
     val actors: List<String>?,
     val categories: List<String>?,
     val countries: List<String>?,
-    val episodes: List<FilmEpisode>,
+    val episodes: List<Episode>,
 )

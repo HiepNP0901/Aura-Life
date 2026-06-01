@@ -28,11 +28,11 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
-import com.drs.auralife.core.util.Notification
+import com.drs.auralife.core.util.AppNotification
 import com.drs.auralife.core.worker.UpdateLibraryWorker
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.presentation.common.NotificationPopupHelper
-import com.drs.auralife.presentation.common.PermissionPhotoHandler
+import com.drs.auralife.presentation.common.PhotoPermissionHandler
 import com.drs.auralife.presentation.common.launchAndRepeatOnStarted
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private var drawerLayout: DrawerLayout? = null
     private var navigationView: NavigationView? = null
     private var bottomNavigationView: BottomNavigationView? = null
-    private var permissionPhotoHandler: PermissionPhotoHandler? = null
+    private var PhotoPermissionHandler: PhotoPermissionHandler? = null
     private var actionBarDrawerToggle: ActionBarDrawerToggle? = null
 
     private val mainViewModel: MainViewModel by viewModels()
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionPhotoHandler?.handlePermissionsResult(requestCode, grantResults)
+        PhotoPermissionHandler?.handlePermissionsResult(requestCode, grantResults)
     }
 
     private fun setupBottomNav() {
@@ -146,14 +146,14 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 }
             }
 
-        permissionPhotoHandler = PermissionPhotoHandler(this, activityResultLauncher)
+        PhotoPermissionHandler = PhotoPermissionHandler(this, activityResultLauncher)
 
         navigationView
             ?.getHeaderView(0)
             ?.findViewById<ImageFilterView>(R.id.navProfilePic)
             ?.setOnClickListener {
                 if (mainViewModel.authState.value) {
-                    permissionPhotoHandler?.checkAndRequestPermissions()
+                    PhotoPermissionHandler?.checkAndRequestPermissions()
                 } else {
                     navController?.navigate(NavRoutes.LOGIN)
                 }
@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     ?.getHeaderView(0)
                     ?.findViewById<ImageView>(R.id.navProfilePic)
                 if (bitmap != null) {
-                    navPic?.let { MyAppGlideModule.loadImage(this@MainActivity, bitmap, it) }
+                    navPic?.let { AuraLifeGlideModule.loadImage(this@MainActivity, bitmap, it) }
                 }
             }
         }
@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 R.id.navLogin -> navController?.navigate(NavRoutes.LOGIN)
                 R.id.navLogout -> {
                     mainViewModel.logout()
-                    Notification.removeAllNotification(this)
+                    AppNotification.removeAllNotification(this)
                 }
 
                 R.id.navExit -> finish()
@@ -291,7 +291,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         launchAndRepeatOnStarted {
             mainViewModel.avatarState.collect { bitmap ->
                 if (bitmap != null) {
-                    MyAppGlideModule.loadImage(this@MainActivity, bitmap, appBarProfile)
+                    AuraLifeGlideModule.loadImage(this@MainActivity, bitmap, appBarProfile)
                 } else {
                     appBarProfile.setImageResource(R.drawable.ic_profile_24)
                 }

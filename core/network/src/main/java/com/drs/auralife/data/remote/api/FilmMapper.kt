@@ -4,7 +4,7 @@ import com.drs.auralife.data.remote.api.model.film.Episode
 import com.drs.auralife.data.remote.api.model.film.Movie
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
-import com.drs.auralife.domain.model.FilmEpisode
+import com.drs.auralife.domain.model.Episode as DomainEpisode
 import java.time.Instant
 
 object FilmMapper {
@@ -52,9 +52,9 @@ object FilmMapper {
         )
     }
 
-    private fun mapEpisodeToDomain(episode: Episode): List<FilmEpisode> {
+    private fun mapEpisodeToDomain(episode: Episode): List<DomainEpisode> {
         return episode.serverData.map { data ->
-            FilmEpisode(
+            DomainEpisode(
                 name = data.name,
                 filename = data.filename,
                 linkM3u8 = data.linkM3u8,

@@ -1,7 +1,7 @@
 package com.drs.auralife.data.remote.firebase
 
 import android.graphics.Bitmap
-import com.drs.auralife.core.util.ImageEncoderDecoder
+import com.drs.auralife.core.util.BitmapCodec
 import com.google.firebase.database.FirebaseDatabase
 import javax.inject.Inject
 
@@ -14,7 +14,7 @@ class AvatarDataSource @Inject constructor(
         bitmap: Bitmap,
         callback: (Result<Boolean>) -> Unit,
     ) {
-        val base64String = ImageEncoderDecoder.encodeToBase64(bitmap)
+        val base64String = BitmapCodec.encodeToBase64(bitmap)
         val userId = Authentication.getUserId() ?: return callback(Result.failure(Exception("User not authenticated")))
         userRef
             .child(userId)
@@ -30,7 +30,7 @@ class AvatarDataSource @Inject constructor(
     fun getAvatar(callback: (Bitmap) -> Unit) {
         val userId = Authentication.getUserId() ?: return
         userRef.child(userId).child("avatar").get().addOnSuccessListener {
-            ImageEncoderDecoder.decodeFromBase64(it.value.toString())?.let { bitmap ->
+            BitmapCodec.decodeFromBase64(it.value.toString())?.let { bitmap ->
                 callback(bitmap)
             }
         }

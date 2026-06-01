@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.film.detail.R
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.feature.film.detail.databinding.FragmentFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
@@ -97,8 +97,8 @@ class FilmDetailsFragment : Fragment() {
             binding.root.findViewById<LinearLayout>(R.id.filmDetails).addView(createFilmDetailItem(key, value))
         }
 
-        MyAppGlideModule.loadImage(requireContext(), film.posterUrl, binding.posterView)
-        MyAppGlideModule.loadImage(requireContext(), film.thumbUrl, binding.thumbView)
+        AuraLifeGlideModule.loadImage(requireContext(), film.posterUrl, binding.posterView)
+        AuraLifeGlideModule.loadImage(requireContext(), film.thumbUrl, binding.thumbView)
 
         binding.trailerButton.setOnClickListener {
             film.trailerUrl?.let { url ->

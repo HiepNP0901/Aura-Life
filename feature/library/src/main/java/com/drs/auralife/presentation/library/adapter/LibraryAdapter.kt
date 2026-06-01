@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.library.R
-import com.drs.auralife.presentation.common.MyAppGlideModule
+import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.presentation.library.EditLibraryDialog
 
@@ -34,7 +34,7 @@ class LibraryAdapter(
         val item = getItem(position)
         val context = holder.itemView.context
 
-        MyAppGlideModule.loadImage(context, item.posterUrl, holder.tvImage)
+        AuraLifeGlideModule.loadImage(context, item.posterUrl, holder.tvImage)
 
         holder.tvTitle.text = item.name
         holder.tvDetails.text = context.getString(R.string.quantity) + ": " + item.films.size.toString()
