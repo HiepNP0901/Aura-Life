@@ -12,8 +12,6 @@ import kotlin.coroutines.resume
 class AvatarRepositoryImpl @Inject constructor(
     private val avatarDataSource: AvatarDataSource,
 ) : AvatarRepository {
-    override suspend fun getAvatarUrl(): String? = null
-
     override suspend fun getAvatar(): ByteArray? {
         return suspendCancellableCoroutine { continuation ->
             avatarDataSource.getAvatar { bitmap ->
