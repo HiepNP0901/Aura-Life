@@ -68,6 +68,16 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:designsystem"))
     implementation(project(":data"))
+    implementation(project(":feature:splash"))
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:auth"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:explore"))
+    implementation(project(":feature:film"))
+    implementation(project(":feature:library"))
+    implementation(project(":feature:history"))
+    implementation(project(":feature:search"))
+    implementation(project(":feature:payment"))
 
     // --- Testing ---
     testImplementation(libs.junit)
