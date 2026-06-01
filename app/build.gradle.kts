@@ -59,6 +59,16 @@ android {
 }
 
 dependencies {
+    // --- Modules ---
+    implementation(project(":domain"))
+    implementation(project(":core:common"))
+    implementation(project(":core:network"))
+    implementation(project(":core:firebase"))
+    implementation(project(":core:database"))
+    implementation(project(":core:navigation"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":data"))
+
     // --- Testing ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
