@@ -65,7 +65,7 @@
 
     <fragment
         android:id="@+id/film_details"
-        android:name="com.drs.auralife.presentation.film_details.FilmDetailsFragment"
+        android:name="com.drs.auralife.feature.film_detail.FilmDetailsFragment"
         android:label="FilmDetails"
         app:route="film_details/{slug}"
         tools:layout="@layout/fragment_film_details">

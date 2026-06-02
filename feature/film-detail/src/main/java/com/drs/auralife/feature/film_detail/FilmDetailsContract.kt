@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.film_details
+package com.drs.auralife.feature.film_detail
 
 import com.drs.auralife.domain.model.FilmDetails
 

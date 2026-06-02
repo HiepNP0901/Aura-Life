@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.film_details
+package com.drs.auralife.feature.film_detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

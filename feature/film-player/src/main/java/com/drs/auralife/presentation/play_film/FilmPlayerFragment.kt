@@ -25,7 +25,7 @@ import com.drs.auralife.feature.film.player.R
 import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.navigation.NavRoutes
-import com.drs.auralife.presentation.film_details.FilmDetailsViewModel
+import com.drs.auralife.feature.film_detail.FilmDetailsViewModel
 import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.play_film.adapter.EpisodeAdapter
 import com.drs.auralife.designsystem.SystemUiController

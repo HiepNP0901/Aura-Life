@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.film_details
+package com.drs.auralife.feature.film_detail
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +17,7 @@ import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.film.detail.R
 import com.drs.auralife.designsystem.AuraLifeGlideModule
+import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.film.detail.databinding.FragmentFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
@@ -24,6 +25,7 @@ import com.drs.auralife.presentation.library.LibraryUiEffect
 import com.drs.auralife.presentation.library.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.collections.iterator
 
 @AndroidEntryPoint
 class FilmDetailsFragment : Fragment() {
@@ -88,7 +90,7 @@ class FilmDetailsFragment : Fragment() {
         }
     }
 
-    private fun updateUI(film: com.drs.auralife.domain.model.FilmDetails) {
+    private fun updateUI(film: FilmDetails) {
         binding.nameFilm.text = film.title
         binding.nameEngFilm.text = film.originName
         binding.filmDescription.text = HtmlCompat.fromHtml(film.description, HtmlCompat.FROM_HTML_MODE_LEGACY)
@@ -146,7 +148,7 @@ class FilmDetailsFragment : Fragment() {
         }
     }
 
-    private fun getFilmDetailsMap(film: com.drs.auralife.domain.model.FilmDetails): Map<String, String?> = mapOf(
+    private fun getFilmDetailsMap(film: FilmDetails): Map<String, String?> = mapOf(
         getString(R.string.status) to film.episodeCurrent,
         getString(R.string.episode_number) to film.episodeTotal,
         getString(R.string.duration) to film.duration,
