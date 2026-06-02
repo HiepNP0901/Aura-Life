@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.library_details
+package com.drs.auralife.feature.library.library_details
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -12,8 +12,8 @@ import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.library.databinding.FragmentLibraryDetailsBinding
-import com.drs.auralife.presentation.library.EditLibraryDialog
-import com.drs.auralife.presentation.library_details.adapter.LibraryFilmAdapter
+import com.drs.auralife.feature.library.library.EditLibraryDialog
+import com.drs.auralife.feature.library.library_details.adapter.LibraryFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

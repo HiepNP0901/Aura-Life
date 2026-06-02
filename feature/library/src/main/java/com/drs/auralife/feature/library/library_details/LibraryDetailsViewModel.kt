@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.library_details
+package com.drs.auralife.feature.library.library_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

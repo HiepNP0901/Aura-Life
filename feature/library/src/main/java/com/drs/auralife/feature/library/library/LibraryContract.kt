@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.library
+package com.drs.auralife.feature.library.library
 
 import com.drs.auralife.domain.model.Library
 

@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.library
+package com.drs.auralife.feature.library.library
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +15,7 @@ import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.library.databinding.FragmentLibraryBinding
 import com.drs.auralife.designsystem.AppBarProvider
-import com.drs.auralife.presentation.library.adapter.LibraryAdapter
+import com.drs.auralife.feature.library.library.adapter.LibraryAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

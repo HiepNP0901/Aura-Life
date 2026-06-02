@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.library.adapter
+package com.drs.auralife.feature.library.library.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.library.R
 import com.drs.auralife.designsystem.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Library
-import com.drs.auralife.presentation.library.EditLibraryDialog
+import com.drs.auralife.feature.library.library.EditLibraryDialog
 
 class LibraryAdapter(
     private val onRename: (oldName: String, newName: String) -> Unit,

@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.library_details.adapter
+package com.drs.auralife.feature.library.library_details.adapter
 
 import android.view.LayoutInflater
 import android.view.View

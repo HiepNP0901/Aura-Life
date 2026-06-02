@@ -20,9 +20,9 @@ import com.drs.auralife.designsystem.AuraLifeGlideModule
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.film.detail.databinding.FragmentFilmDetailsBinding
-import com.drs.auralife.presentation.library.AddToLibraryDialog
-import com.drs.auralife.presentation.library.LibraryUiEffect
-import com.drs.auralife.presentation.library.LibraryViewModel
+import com.drs.auralife.feature.library.library.AddToLibraryDialog
+import com.drs.auralife.feature.library.library.LibraryUiEffect
+import com.drs.auralife.feature.library.library.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.collections.iterator
