@@ -14,7 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drs.auralife.feature.search.R
 import com.drs.auralife.feature.search.databinding.FragmentSearchBinding
-import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.presentation.navigation.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview

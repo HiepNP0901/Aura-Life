@@ -8,10 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.feature.explore.R
 import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.Film
-import com.drs.auralife.presentation.common.AuraLifeGlideModule
+import com.drs.auralife.designsystem.AuraLifeGlideModule
 
 class ExploreDetailFilmAdapter(
     private val onItemClick: (String) -> Unit,

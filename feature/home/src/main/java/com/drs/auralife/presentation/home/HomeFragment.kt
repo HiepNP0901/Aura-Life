@@ -8,13 +8,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.feature.home.R
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.feature.home.databinding.FragmentHomeBinding
-import com.drs.auralife.presentation.AppBarProvider
+import com.drs.auralife.designsystem.AppBarProvider
+import com.drs.auralife.presentation.home.adapter.BannerAdapter
 import com.drs.auralife.presentation.home.adapter.HomeFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -81,7 +82,7 @@ class HomeFragment : Fragment() {
 
                     if (state.banners.isNotEmpty()) {
                         val bannerViewPager = binding.bannerViewPager
-                        bannerViewPager.adapter = com.drs.auralife.presentation.home.adapter.BannerAdapter(state.banners) { slug ->
+                        bannerViewPager.adapter = BannerAdapter(state.banners) { slug ->
                             homeViewModel.onFilmClicked(slug)
                         }
                         startAutoScroll(bannerViewPager, state.banners.size)

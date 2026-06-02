@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.common
+package com.drs.auralife.designsystem
 
 sealed class UiState<out T> {
     object Loading : UiState<Nothing>()

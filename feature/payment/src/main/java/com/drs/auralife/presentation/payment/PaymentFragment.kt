@@ -12,7 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.feature.payment.R
 import com.drs.auralife.feature.payment.databinding.FragmentPaymentBinding
 import com.drs.auralife.domain.model.SubscriptionPlan

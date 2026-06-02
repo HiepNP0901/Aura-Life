@@ -7,7 +7,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.home.R
 import com.drs.auralife.domain.model.Banner
-import com.drs.auralife.presentation.common.AuraLifeGlideModule
+import com.drs.auralife.designsystem.AuraLifeGlideModule
 
 class BannerAdapter(
     private val banners: List<Banner>,

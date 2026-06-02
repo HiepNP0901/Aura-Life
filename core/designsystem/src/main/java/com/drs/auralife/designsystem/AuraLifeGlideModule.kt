@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.common
+package com.drs.auralife.designsystem
 
 import android.app.Activity
 import android.content.Context

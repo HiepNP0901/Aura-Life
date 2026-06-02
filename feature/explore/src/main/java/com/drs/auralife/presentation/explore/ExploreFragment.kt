@@ -9,14 +9,14 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.explore.R
 import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.feature.explore.databinding.FragmentExploreBinding
-import com.drs.auralife.presentation.AppBarProvider
+import com.drs.auralife.designsystem.AppBarProvider
 import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay

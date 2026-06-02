@@ -13,13 +13,14 @@ import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.film.player.R
 import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.FilmDetails
@@ -27,7 +28,7 @@ import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.presentation.film_details.FilmDetailsViewModel
 import com.drs.auralife.presentation.history.HistoryViewModel
 import com.drs.auralife.presentation.play_film.adapter.EpisodeAdapter
-import com.drs.auralife.presentation.common.SystemUiController
+import com.drs.auralife.designsystem.SystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -139,7 +140,7 @@ class FilmPlayerFragment : Fragment() {
                     if (state.film != null) {
                         film = state.film
                         playEpisode(currentEpisode)
-                        view?.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.episodeRecyclerView)
+                        view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
                             ?.adapter = EpisodeAdapter(state.film!!.episodes) { ep ->
                                 playEpisode(ep)
                             }

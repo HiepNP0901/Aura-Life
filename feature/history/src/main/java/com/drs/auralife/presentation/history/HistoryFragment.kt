@@ -8,13 +8,12 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.feature.history.R
 import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.feature.history.databinding.FragmentHistoryBinding
-import com.drs.auralife.presentation.AppBarProvider
+import com.drs.auralife.designsystem.AppBarProvider
 import com.drs.auralife.presentation.history.adapter.HistoryFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 

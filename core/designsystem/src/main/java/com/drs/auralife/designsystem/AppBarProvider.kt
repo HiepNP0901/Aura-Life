@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation
+package com.drs.auralife.designsystem
 
 import android.widget.FrameLayout
 

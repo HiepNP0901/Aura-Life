@@ -1,7 +1,8 @@
-package com.drs.auralife.presentation.common
+package com.drs.auralife.designsystem
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -16,7 +17,7 @@ import com.drs.auralife.presentation.navigation.NavRoutes
 class NotificationPopupHelper(
     private val navController: NavController,
 ) {
-    fun show(anchor: android.view.View) {
+    fun show(anchor: View) {
         val context = anchor.context
         val popupView = LayoutInflater.from(context).inflate(R.layout.popup_notification_list, null)
         val rvNotifications = popupView.findViewById<RecyclerView>(R.id.rvNotifications)
@@ -24,7 +25,7 @@ class NotificationPopupHelper(
 
         val notifications = AppNotification.getNotifications(context)
 
-        text.visibility = if (notifications.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+        text.visibility = if (notifications.isEmpty()) View.VISIBLE else View.GONE
 
         rvNotifications.layoutManager = LinearLayoutManager(context)
 

@@ -30,10 +30,11 @@ import androidx.work.WorkManager
 import com.drs.auralife.R
 import com.drs.auralife.core.common.util.AppNotification
 import com.drs.auralife.core.worker.UpdateLibraryWorker
-import com.drs.auralife.presentation.common.AuraLifeGlideModule
-import com.drs.auralife.presentation.common.NotificationPopupHelper
-import com.drs.auralife.presentation.common.PhotoPermissionHandler
-import com.drs.auralife.presentation.common.launchAndRepeatOnStarted
+import com.drs.auralife.designsystem.AppBarProvider
+import com.drs.auralife.designsystem.AuraLifeGlideModule
+import com.drs.auralife.designsystem.NotificationPopupHelper
+import com.drs.auralife.designsystem.PhotoPermissionHandler
+import com.drs.auralife.designsystem.launchAndRepeatOnStarted
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
