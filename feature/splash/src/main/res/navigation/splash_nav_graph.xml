@@ -5,6 +5,6 @@
     app:startDestination="@id/splash">
     <fragment
         android:id="@+id/splash"
-        android:name="com.drs.auralife.presentation.splash.SplashFragment"
+        android:name="com.drs.auralife.feature.splash.SplashFragment"
         app:route="splash" />
 </navigation>

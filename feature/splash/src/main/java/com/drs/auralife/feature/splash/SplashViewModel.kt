@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.splash
+package com.drs.auralife.feature.splash
 
 import android.app.Application
 import androidx.lifecycle.ViewModel

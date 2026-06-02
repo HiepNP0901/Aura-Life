@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.splash
+package com.drs.auralife.feature.splash
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.feature.splash.R
 import com.drs.auralife.navigation.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 

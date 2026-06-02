@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.splash
+package com.drs.auralife.feature.splash
 
 sealed interface SplashUiEffect {
     data object NavigateToOnboarding : SplashUiEffect
