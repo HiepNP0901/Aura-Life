@@ -1,13 +1,13 @@
-package com.drs.auralife.data.local.mapper
+package com.drs.auralife.core.database.mapper
 
-import com.drs.auralife.data.local.entity.BannerCacheEntity
-import com.drs.auralife.data.local.entity.CategoryCacheEntity
-import com.drs.auralife.data.local.entity.FilmDetailsEntity
-import com.drs.auralife.data.local.entity.FilmEntity
-import com.drs.auralife.data.local.entity.HistoryEntity
-import com.drs.auralife.data.local.entity.LibraryEntity
-import com.drs.auralife.data.local.entity.LibraryFilmCrossRef
-import com.drs.auralife.data.local.entity.LibraryWithFilms
+import com.drs.auralife.core.database.entity.BannerCacheEntity
+import com.drs.auralife.core.database.entity.CategoryCacheEntity
+import com.drs.auralife.core.database.entity.FilmDetailsEntity
+import com.drs.auralife.core.database.entity.FilmEntity
+import com.drs.auralife.core.database.entity.HistoryEntity
+import com.drs.auralife.core.database.entity.LibraryEntity
+import com.drs.auralife.core.database.entity.LibraryFilmCrossRef
+import com.drs.auralife.core.database.entity.LibraryWithFilms
 import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.model.Film

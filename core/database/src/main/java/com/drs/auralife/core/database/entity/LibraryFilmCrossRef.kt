@@ -1,11 +1,12 @@
-package com.drs.auralife.data.local.entity
+package com.drs.auralife.core.database.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 
 @Entity(
     tableName = "library_film_cross_ref",
     primaryKeys = ["libraryName", "filmSlug"],
-    indices = [androidx.room.Index("filmSlug")],
+    indices = [Index("filmSlug")],
 )
 data class LibraryFilmCrossRef(
     val libraryName: String,

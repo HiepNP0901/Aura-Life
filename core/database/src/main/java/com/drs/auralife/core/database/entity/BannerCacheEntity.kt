@@ -1,4 +1,4 @@
-package com.drs.auralife.data.local.entity
+package com.drs.auralife.core.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

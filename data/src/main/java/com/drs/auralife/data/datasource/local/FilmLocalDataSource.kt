@@ -1,11 +1,11 @@
 package com.drs.auralife.data.datasource.local
 
-import com.drs.auralife.data.local.dao.FilmDao
-import com.drs.auralife.data.local.dao.FilmDetailsDao
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilm
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilmDetails
-import com.drs.auralife.data.local.mapper.LocalMapper.toFilmDetailsEntity
-import com.drs.auralife.data.local.mapper.LocalMapper.toFilmEntity
+import com.drs.auralife.core.database.dao.FilmDao
+import com.drs.auralife.core.database.dao.FilmDetailsDao
+import com.drs.auralife.core.database.mapper.LocalMapper.toDomainFilm
+import com.drs.auralife.core.database.mapper.LocalMapper.toDomainFilmDetails
+import com.drs.auralife.core.database.mapper.LocalMapper.toFilmDetailsEntity
+import com.drs.auralife.core.database.mapper.LocalMapper.toFilmEntity
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import javax.inject.Inject

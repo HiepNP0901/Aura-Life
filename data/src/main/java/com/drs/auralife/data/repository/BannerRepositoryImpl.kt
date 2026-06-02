@@ -1,8 +1,8 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.local.dao.BannerCacheDao
-import com.drs.auralife.data.local.mapper.LocalMapper.toBannerCacheEntity
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainBanner
+import com.drs.auralife.core.database.dao.BannerCacheDao
+import com.drs.auralife.core.database.mapper.LocalMapper.toBannerCacheEntity
+import com.drs.auralife.core.database.mapper.LocalMapper.toDomainBanner
 import com.drs.auralife.data.remote.firebase.BannerDataSource
 import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainBanners
 import com.drs.auralife.domain.model.Banner

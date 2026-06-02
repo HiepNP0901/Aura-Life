@@ -1,10 +1,10 @@
-package com.drs.auralife.data.local.dao
+package com.drs.auralife.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.drs.auralife.data.local.entity.CategoryCacheEntity
+import com.drs.auralife.core.database.entity.CategoryCacheEntity
 
 @Dao
 interface CategoryCacheDao {

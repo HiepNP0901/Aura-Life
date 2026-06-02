@@ -1,10 +1,10 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.local.dao.LibraryDao
-import com.drs.auralife.data.local.dao.LibraryFilmCrossRefDao
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainLibrary
-import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryEntity
-import com.drs.auralife.data.local.mapper.LocalMapper.toLibraryFilmCrossRefs
+import com.drs.auralife.core.database.dao.LibraryDao
+import com.drs.auralife.core.database.dao.LibraryFilmCrossRefDao
+import com.drs.auralife.core.database.mapper.LocalMapper.toDomainLibrary
+import com.drs.auralife.core.database.mapper.LocalMapper.toLibraryEntity
+import com.drs.auralife.core.database.mapper.LocalMapper.toLibraryFilmCrossRefs
 import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibraries
 import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibrary
 import com.drs.auralife.data.remote.firebase.LibraryDataSource

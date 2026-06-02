@@ -1,8 +1,8 @@
 package com.drs.auralife.data.repository
 
-import com.drs.auralife.data.local.dao.HistoryDao
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainHistoryItem
-import com.drs.auralife.data.local.mapper.LocalMapper.toHistoryEntity
+import com.drs.auralife.core.database.dao.HistoryDao
+import com.drs.auralife.core.database.mapper.LocalMapper.toDomainHistoryItem
+import com.drs.auralife.core.database.mapper.LocalMapper.toHistoryEntity
 import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainHistoryItems
 import com.drs.auralife.data.remote.firebase.HistoryDataSource
 import com.drs.auralife.domain.model.HistoryItem

@@ -2,14 +2,14 @@ package com.drs.auralife.core.database.di
 
 import android.content.Context
 import androidx.room.Room
-import com.drs.auralife.data.local.dao.BannerCacheDao
-import com.drs.auralife.data.local.dao.CategoryCacheDao
-import com.drs.auralife.data.local.dao.FilmDao
-import com.drs.auralife.data.local.dao.FilmDetailsDao
-import com.drs.auralife.data.local.dao.HistoryDao
-import com.drs.auralife.data.local.dao.LibraryDao
-import com.drs.auralife.data.local.dao.LibraryFilmCrossRefDao
-import com.drs.auralife.data.local.db.AppDatabase
+import com.drs.auralife.core.database.dao.BannerCacheDao
+import com.drs.auralife.core.database.dao.CategoryCacheDao
+import com.drs.auralife.core.database.dao.FilmDao
+import com.drs.auralife.core.database.dao.FilmDetailsDao
+import com.drs.auralife.core.database.dao.HistoryDao
+import com.drs.auralife.core.database.dao.LibraryDao
+import com.drs.auralife.core.database.dao.LibraryFilmCrossRefDao
+import com.drs.auralife.core.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
