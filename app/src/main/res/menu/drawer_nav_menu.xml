@@ -1,20 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    <item-->
-<!--        android:id="@+id/navProfile"-->
-<!--        android:title="@string/profile" />-->
-<!--    <item-->
-<!--        android:id="@+id/navSettings"-->
-<!--        android:title="@string/settings" />-->
+    <!--    <item-->
+    <!--        android:id="@+id/navProfile"-->
+    <!--        android:title="@string/profile" />-->
+    <!--    <item-->
+    <!--        android:id="@+id/navSettings"-->
+    <!--        android:title="@string/settings" />-->
     <item
         android:id="@+id/navLogin"
         android:title="@string/login"
-        android:visible="true"/>
+        android:visible="true" />
     <item
         android:id="@+id/navLogout"
         android:title="@string/logout"
-        android:visible="true"/>
+        android:visible="true" />
     <item
         android:id="@+id/navExit"
         android:title="@string/exit"
-        android:visible="true"/>
+        android:visible="true" />
 </menu>

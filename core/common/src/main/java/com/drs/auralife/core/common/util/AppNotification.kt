@@ -1,9 +1,9 @@
 package com.drs.auralife.core.common.util
 
 import android.content.Context
+import androidx.core.content.edit
 import org.json.JSONArray
 import org.json.JSONObject
-import androidx.core.content.edit
 
 object AppNotification {
     private const val PREF_NAME = "notifications"

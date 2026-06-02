@@ -2,9 +2,9 @@
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.firebase.AvatarDataSource
 import com.drs.auralife.domain.repository.AvatarRepository
+import com.drs.auralife.domain.result.Result
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject

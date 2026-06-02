@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.Toolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -44,7 +43,7 @@
         android:src="@drawable/ic_search_24"
         android:background="@color/transparent"
         android:contentDescription="@string/search"
-        android:layout_gravity="end"/>
+        android:layout_gravity="end" />
 
     <ImageButton
         android:id="@+id/app_bar_notifications"
@@ -55,5 +54,5 @@
         android:background="@color/transparent"
         android:contentDescription="@string/notifications"
         android:src="@drawable/ic_notifications_24"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 </androidx.appcompat.widget.Toolbar>

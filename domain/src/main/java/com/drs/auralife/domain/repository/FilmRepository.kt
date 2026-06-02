@@ -1,9 +1,9 @@
 ﻿package com.drs.auralife.domain.repository
 
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.model.PagedResult
+import com.drs.auralife.domain.result.Result
 
 interface FilmRepository {
     suspend fun getLatestFilms(page: Int): Result<PagedResult<Film>>

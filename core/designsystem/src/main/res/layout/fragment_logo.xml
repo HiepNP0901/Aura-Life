@@ -10,43 +10,43 @@
     tools:ignore="UselessParent"
     tools:context=".presentation.logo.LogoFragment">
 
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="91dp"
-            android:layout_height="92dp"
-            android:importantForAccessibility="no"
-            android:paddingTop="10dp"
-            app:srcCompat="@drawable/bg_logo" />
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="91dp"
+        android:layout_height="92dp"
+        android:importantForAccessibility="no"
+        android:paddingTop="10dp"
+        app:srcCompat="@drawable/bg_logo" />
 
-        <TextView
-            android:id="@+id/appName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="@font/yeon_sung"
-            android:text="@string/app_name"
-            android:textAlignment="center"
-            android:textColor="@color/red"
-            android:textSize="40sp"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/yeon_sung"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textColor="@color/red"
+        android:textSize="40sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/textDeliverFavoriteFood"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/splash_description"
-            android:textAlignment="center"
-            android:textColor="@color/red"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/textDeliverFavoriteFood"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/splash_description"
+        android:textAlignment="center"
+        android:textColor="@color/red"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="#TITLE"
-            android:textColor="@color/red"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="#TITLE"
+        android:textColor="@color/red"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 </LinearLayout>

@@ -82,7 +82,7 @@ class PremiumDataSource @Inject constructor(
                     val newPremium = Premium(
                         status = true,
                         date = dateFormat.format(currentDate),
-                        expireDate = newExpireDate
+                        expireDate = newExpireDate,
                     )
 
                     userRef

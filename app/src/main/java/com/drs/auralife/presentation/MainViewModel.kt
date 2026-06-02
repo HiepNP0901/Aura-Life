@@ -5,10 +5,10 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.model.PremiumStatus
 import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.repository.AvatarRepository
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.usecase.GetPremiumStatusUseCase
 import com.drs.auralife.domain.usecase.UploadAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,7 +52,7 @@ class MainViewModel @Inject constructor(
             when (val result = getPremiumStatusUseCase()) {
                 is Result.Success -> _premiumStatus.value = result.data
                 is Result.Error -> Log.e("MainViewModel", "loadPremiumStatus failed", result.exception)
-                is Result.Loading -> { }
+                is Result.Loading -> {}
             }
         }
     }
@@ -66,11 +66,13 @@ class MainViewModel @Inject constructor(
                         BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     } else null
                 }
+
                 is Result.Error -> {
                     Log.e("MainViewModel", "loadAvatar failed", result.exception)
                     _avatarState.value = null
                 }
-                is Result.Loading -> { }
+
+                is Result.Loading -> {}
             }
         }
     }

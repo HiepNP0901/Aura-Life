@@ -4,10 +4,10 @@ import com.drs.auralife.core.firebase.model.history.History
 import com.drs.auralife.core.firebase.model.library.FilmLibrary
 import com.drs.auralife.core.firebase.model.library.Library
 import com.drs.auralife.core.firebase.model.premium.Premium
-import com.drs.auralife.data.remote.firebase.model.banner.Banner as BannerFirebase
-import com.drs.auralife.domain.model.Banner as BannerDomain
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.model.PremiumStatus
+import com.drs.auralife.data.remote.firebase.model.banner.Banner as BannerFirebase
+import com.drs.auralife.domain.model.Banner as BannerDomain
 import com.drs.auralife.domain.model.Library as LibraryDomain
 import com.drs.auralife.domain.model.LibraryFilm as LibraryFilmDomain
 

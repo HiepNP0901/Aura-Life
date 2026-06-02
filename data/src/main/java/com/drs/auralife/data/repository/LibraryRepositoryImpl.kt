@@ -1,6 +1,5 @@
 ﻿package com.drs.auralife.data.repository
 
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.database.dao.LibraryDao
 import com.drs.auralife.core.database.dao.LibraryFilmCrossRefDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainLibrary
@@ -11,6 +10,7 @@ import com.drs.auralife.core.firebase.FirebaseMapper.toDomainLibrary
 import com.drs.auralife.core.firebase.LibraryDataSource
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.repository.LibraryRepository
+import com.drs.auralife.domain.result.Result
 import javax.inject.Inject
 
 class LibraryRepositoryImpl @Inject constructor(

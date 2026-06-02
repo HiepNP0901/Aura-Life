@@ -1,7 +1,7 @@
 ﻿package com.drs.auralife.domain.repository
 
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.model.Library
+import com.drs.auralife.domain.result.Result
 
 interface LibraryRepository {
     suspend fun getLibraries(): Result<List<Library>>

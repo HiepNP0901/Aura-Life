@@ -13,7 +13,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"
-        android:gravity="center"/>
+        android:gravity="center" />
 
     <EditText
         android:id="@+id/editText"

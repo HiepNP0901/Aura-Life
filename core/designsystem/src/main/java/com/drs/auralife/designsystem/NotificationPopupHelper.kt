@@ -8,8 +8,8 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.core.designsystem.R
 import com.drs.auralife.core.common.util.AppNotification
+import com.drs.auralife.core.designsystem.R
 import com.drs.auralife.core.navigation.AppNavigator
 
 @SuppressLint("InflateParams")

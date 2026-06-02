@@ -1,7 +1,7 @@
 ﻿package com.drs.auralife.domain.repository
 
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.model.HistoryItem
+import com.drs.auralife.domain.result.Result
 
 interface HistoryRepository {
     suspend fun getHistory(): Result<List<HistoryItem>>
