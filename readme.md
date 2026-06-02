@@ -5,17 +5,10 @@ Android movie streaming application built with **Clean Architecture** and **mult
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/home.jpg" width="200" alt="Home" />
-  <img src="screenshots/film_details.jpg" width="200" alt="Film Details" />
-  <img src="screenshots/player.jpg" width="200" alt="Player" />
-  <img src="screenshots/library.jpg" width="200" alt="Library" />
-</p>
-
-<p align="center">
-  <img src="screenshots/explore.jpg" width="200" alt="Explore" />
-  <img src="screenshots/search.jpg" width="200" alt="Search" />
-  <img src="screenshots/login.jpg" width="200" alt="Login" />
-  <img src="screenshots/payment.jpg" width="200" alt="Payment" />
+  <img src="screenshot/home.png" width="200" alt="Home" />
+  <img src="screenshot/film-detail.png" width="200" alt="Film Details" />
+  <img src="screenshot/film-player.png" width="200" alt="Player" />
+  <img src="screenshot/login.png" width="200" alt="Login" />
 </p>
 
 ## Module structure
