@@ -1,81 +1,100 @@
 # AuraLife
 
-## Project purpose
-AuraLife is an Android application that provides movie streaming services.
+Android movie streaming application built with **Clean Architecture** and **multi-module** structure.
 
-## Current architecture
-The project follows **Clean Architecture** with dependency injection managed by **Hilt**.
+## Module structure
 
-### Package structure
 ```
-com.drs.auralife
-├── core/              — utilities, constants, helpers
-├── data/              — network, Firebase, DTOs, mappers, repository implementations
-│   ├── di/            — Hilt modules (NetworkModule, RepositoryModule)
-│   ├── firebase/      — Firebase helpers and data access
-│   ├── mapper/        — DTO ↔ domain mapping (FilmMapper, FirebaseMapper)
-│   ├── model/         — DTOs for API and Firebase
-│   └── repository/    — concrete repository implementations
-├── domain/            — business logic layer (no platform dependencies)
-│   ├── model/         — pure domain entities (Film, FilmDetails, PagedResult, etc.)
-│   ├── repository/    — repository interfaces
-│   └── usecase/       — business use cases
-└── presentation/      — Activities, Fragments, ViewModels, Adapters (per-screen packages)
-    ├── auth/
-    ├── common/
-    ├── explore/
-    ├── filmdetails/
-    ├── history/
-    ├── home/
-    ├── library/
-    ├── payment/
-    ├── playfilm/
-    └── start/
+├── app/                          — DI graph, navigation host, Application class
+├── domain/                       — Pure Kotlin, no platform dependencies
+│   ├── model/                    — Domain entities (Film, FilmDetails, etc.)
+│   ├── repository/               — Repository interfaces returning Result<T>
+│   └── usecase/                  — Business use cases
+├── data/                         — Repository implementations, datasources
+│   ├── datasource/
+│   │   ├── remote/api/           — FilmApiDataSource
+│   │   └── local/                — FilmLocalDataSource
+│   ├── repository/               — Concrete repository impls
+│   └── di/RepositoryModule.kt    — Binds impls to interfaces
+├── core/
+│   ├── common/                   — Utils, validators, DispatcherProvider
+│   ├── network/                  — Retrofit, OkHttp, FilmAPI, DTOs
+│   ├── firebase/                 — Firebase Auth, Realtime DB data sources
+│   ├── database/                 — Room DB, DAOs, entities
+│   ├── navigation/               — NavRoutes, AppNavigator
+│   └── designsystem/             — Shared resources, themes, custom views
+└── feature/                      — Feature modules (each with own nav_graph)
+    ├── splash/
+    ├── onboarding/
+    ├── auth/                     — Login + Register
+    ├── home/                     — Banners + latest films
+    ├── explore/                  — Categories + detail grid
+    ├── film-detail/              — Film details page
+    ├── film-player/              — ExoPlayer with premium throttle
+    ├── library/                  — Library CRUD
+    ├── history/                  — Watch history
+    ├── search/                   — Debounced search
+    └── payment/                  — Premium purchase
 ```
 
-### Architecture principles
-- `presentation` depends only on `domain` (interfaces + models), not on `data` implementations
-- `domain` has no Retrofit, Firebase, or Android dependencies
-- `data` implements domain interfaces and handles DTO ↔ domain mapping
-- All dependencies wired via Hilt DI modules
-- Each screen has its own ViewModel and Adapter — no shared mega-ViewModels
-- UI state exposed via `StateFlow` and collected with `repeatOnLifecycle`
+## Architecture principles
 
-## Dependency Injection (Hilt)
-- `@HiltAndroidApp` in `AuraLifeApplication`
-- `@AndroidEntryPoint` on all Activities and Fragments
-- `@HiltViewModel` on ViewModels with `@Inject constructor`
-- `@Inject constructor` on use cases and repository implementations
-- `@Inject field` injection for AuthRepository in Activities that need sync checks
+- **Domain layer** has zero Android/Retrofit/Firebase dependencies
+- **Data layer** implements domain interfaces, uses datasource pattern (API + Local)
+- **Feature modules** depend on `domain`, `core:designsystem`, `core:navigation`, `core:common`, `data`
+- **App module** depends on all features + core, provides DI graph and NavHost
+- All repository read methods return `Result<T>` (success/error/loading) from `domain/result/Result.kt`
+- Navigation goes through `AppNavigator` (type-safe wrapper over NavController)
+- Coroutine dispatchers are injected via `DispatcherProvider` (testable)
+- Resources are centralized in `core:designsystem` with `android.nonTransitiveRClass=false`
 
-### Hilt modules
-- **NetworkModule** — provides OkHttpClient, Retrofit, FilmAPI
-- **RepositoryModule** — binds all 7+ repository interfaces to their implementations
+## Navigation
 
-### Per-screen ViewModels
-| Screen                | ViewModel                  | Responsibility                         |
-|-----------------------|----------------------------|----------------------------------------|
-| Home                  | `HomeViewModel`            | Banners + latest films with pagination |
-| Explore               | `ExploreViewModel`         | Categories + category film rows        |
-| Explore Detail        | `ExploreDetailViewModel`   | Category film grid with pagination     |
-| Search (MainActivity) | `SearchViewModel`          | Debounced search results               |
-| Film Details          | `FilmDetailsViewModel`     | Film detail + episode data             |
-| Play Film             | (via FilmDetailsViewModel) | Playback + episode navigation          |
-| Login                 | `AuthViewModel`            | Login/register                         |
-| Library               | `LibraryViewModel`         | Library CRUD                           |
-| History               | `HistoryViewModel`         | Watch history                          |
-| Premium               | `PremiumViewModel`         | Premium status + purchase              |
-| Main                  | `MainViewModel`            | Auth state, avatar, premium status     |
+Each feature owns its own `nav_graph.xml`. The main `nav_graph.xml` in `:app` uses `<include>`:
 
-### Per-screen Adapters
-Shared `FilmAdapter` replaced with dedicated adapters:
-- `HomeFilmAdapter` — vertical cards in grid
-- `ExploreFilmAdapter` / `CategoryFilmAdapter` — vertical cards in grid/horizontal row
-- `SearchFilmAdapter` — horizontal cards for search results
-- `LibraryFilmAdapter` — horizontal cards with long-press remove
-- `HistoryFilmAdapter` — horizontal cards with long-press delete
+```xml
+<navigation app:startDestination="@id/splash_nav_graph">
+    <include app:graph="@navigation/splash_nav_graph" />
+    <include app:graph="@navigation/home_nav_graph" />
+    ...
+</navigation>
+```
+
+## Dependency injection (Hilt)
+
+| Module | Provides |
+|--------|----------|
+| `core:network/di/` | OkHttpClient, Retrofit, FilmAPI |
+| `core:firebase/di/` | FirebaseDatabase |
+| `core:database/di/` | Room DB, all DAOs |
+| `core:common/di/` | DispatcherProvider |
+| `data/di/` | Repository bindings (impl → interface) |
+
+## ViewModels
+
+| Feature | ViewModel | Responsibility |
+|---------|-----------|----------------|
+| splash | SplashViewModel | First-time check, delayed navigation |
+| onboarding | OnboardingViewModel | First-time flow completion |
+| auth | LoginViewModel / RegisterViewModel | Firebase Auth login/register |
+| home | HomeViewModel | Banners + latest films with pagination |
+| explore | ExploreViewModel | Categories + film rows |
+| explore detail | ExploreDetailViewModel | Category film grid with pagination |
+| film-detail | FilmDetailsViewModel | Film info, episodes, add to library |
+| film-player | FilmPlayerViewModel | Premium throttle check |
+| library | LibraryViewModel | Library CRUD operations |
+| library detail | LibraryDetailsViewModel | Library films list |
+| history | HistoryViewModel | Watch history |
+| search | SearchViewModel | Debounced search |
+| payment | PaymentViewModel | Premium status + purchase |
+| app | MainViewModel | Auth state, avatar, premium status |
 
 ## Build and run
-1. Open the project in Android Studio.
-2. Sync Gradle.
-3. Use `./gradlew assembleDebug` to verify the code compiles.
+
+1. Open in Android Studio.
+2. Create `secrets.properties` in project root:
+   ```properties
+   baseUrl=https://your-api-url.com
+   ```
+3. Build: `./gradlew assembleDebug`
+4. Lint: `./gradlew ktlintCheck`
