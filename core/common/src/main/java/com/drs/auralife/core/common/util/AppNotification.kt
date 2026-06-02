@@ -3,6 +3,7 @@ package com.drs.auralife.core.common.util
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
+import androidx.core.content.edit
 
 object AppNotification {
     private const val PREF_NAME = "notifications"
@@ -34,7 +35,7 @@ object AppNotification {
             jsonObject.put("content", content)
             jsonArray.put(jsonObject)
         }
-        sharedPreferences.edit().putString(KEY_NOTIFICATION_LIST, jsonArray.toString()).apply()
+        sharedPreferences.edit { putString(KEY_NOTIFICATION_LIST, jsonArray.toString()) }
     }
 
     fun addNotification(
@@ -58,6 +59,6 @@ object AppNotification {
 
     fun removeAllNotification(context: Context) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        sharedPreferences.edit().remove(KEY_NOTIFICATION_LIST).apply()
+        sharedPreferences.edit { remove(KEY_NOTIFICATION_LIST) }
     }
 }

@@ -37,7 +37,11 @@ class LibraryAdapter(
         AuraLifeGlideModule.loadImage(context, item.posterUrl, holder.tvImage)
 
         holder.tvTitle.text = item.name
-        holder.tvDetails.text = context.getString(R.string.quantity) + ": " + item.films.size.toString()
+        holder.tvDetails.text = buildString {
+            append(context.getString(R.string.quantity))
+            append(": ")
+            append(item.films.size.toString())
+        }
 
         holder.itemView.setOnClickListener { onItemClick(item.name) }
 

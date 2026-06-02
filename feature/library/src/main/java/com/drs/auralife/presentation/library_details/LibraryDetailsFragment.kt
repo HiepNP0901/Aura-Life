@@ -19,13 +19,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class LibraryDetailsFragment : Fragment() {
 
-    private val viewModel: LibraryDetailsViewModel by viewModels()
+    private val libraryDetailsViewModel: LibraryDetailsViewModel by viewModels()
     private var _binding: FragmentLibraryDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private var libraryName: String = ""
 
     private val filmAdapter = LibraryFilmAdapter(
-        onItemClick = { slug -> viewModel.onFilmClicked(slug) },
+        onItemClick = { slug -> libraryDetailsViewModel.onFilmClicked(slug) },
         onLongClick = { slug -> onLongClick(slug) },
     )
 
@@ -49,7 +49,7 @@ class LibraryDetailsFragment : Fragment() {
 
         observeLibraryFilms()
         observeEffect()
-        viewModel.loadLibraryFilms(libraryName)
+        libraryDetailsViewModel.loadLibraryFilms(libraryName)
     }
 
     override fun onDestroyView() {
@@ -59,7 +59,7 @@ class LibraryDetailsFragment : Fragment() {
 
     private fun observeLibraryFilms() {
         launchAndRepeatWithViewLifecycle {
-                viewModel.state.collect { state ->
+                libraryDetailsViewModel.state.collect { state ->
                     if (state.films.isNotEmpty()) {
                         filmAdapter.submitList(state.films)
                     }
@@ -72,7 +72,7 @@ class LibraryDetailsFragment : Fragment() {
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                viewModel.effect.collect { effect ->
+                libraryDetailsViewModel.effect.collect { effect ->
                     when (effect) {
                         is LibraryDetailUiEffect.ShowToast -> {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
@@ -87,7 +87,7 @@ class LibraryDetailsFragment : Fragment() {
 
     private fun onLongClick(slug: String) {
         EditLibraryDialog.showDeleteFilmFromLibrary(requireContext()) {
-            viewModel.removeFilm(libraryName, slug)
+            libraryDetailsViewModel.removeFilm(libraryName, slug)
         }
     }
 }

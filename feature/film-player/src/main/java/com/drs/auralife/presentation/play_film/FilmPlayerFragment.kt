@@ -38,7 +38,7 @@ class FilmPlayerFragment : Fragment() {
 
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
-    private val FilmPlayerViewModel: FilmPlayerViewModel by viewModels()
+    private val filmPlayerViewModel: FilmPlayerViewModel by viewModels()
 
     private var exoPlayer: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -81,7 +81,7 @@ class FilmPlayerFragment : Fragment() {
         nameFilm = view.findViewById(DsR.id.nameFilm)
 
         numberEpInLine = resources.displayMetrics.widthPixels / resources.displayMetrics.densityDpi
-        val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.episodeRecyclerView)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.episodeRecyclerView)
         recyclerView?.layoutManager = GridLayoutManager(requireContext(), ++numberEpInLine)
 
         observeFilmDetails()
@@ -142,18 +142,18 @@ class FilmPlayerFragment : Fragment() {
                         playEpisode(currentEpisode)
                         view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
                             ?.adapter = EpisodeAdapter(state.film!!.episodes) { ep ->
-                                playEpisode(ep)
-                            }
+                            playEpisode(ep)
+                        }
                     }
                 }
         }
 
-        FilmPlayerViewModel.loadPremiumStatus()
+        filmPlayerViewModel.loadPremiumStatus()
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                FilmPlayerViewModel.effect.collect { effect ->
+                filmPlayerViewModel.effect.collect { effect ->
                     when (effect) {
                         is PlayFilmUiEffect.ShowPremiumDialog -> {
                             exoPlayer?.pause()
@@ -238,7 +238,7 @@ class FilmPlayerFragment : Fragment() {
     }
 
     private fun toggleFullscreen() {
-        val recyclerView = view?.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.episodeRecyclerView)
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
         val otherViews = listOf(recyclerView, nameFilm)
         playerView?.apply {
             if (!isFullscreen) {
@@ -257,7 +257,7 @@ class FilmPlayerFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
                 while (true) {
                     exoPlayer?.let { player ->
-                        FilmPlayerViewModel.checkPlaybackThrottle(
+                        filmPlayerViewModel.checkPlaybackThrottle(
                             position = player.currentPosition,
                             maxPreviewDurationMs = 5L * 60 * 1000,
                         )
@@ -281,7 +281,7 @@ class FilmPlayerFragment : Fragment() {
         btnCancel.setOnClickListener { dialog.dismiss() }
         btnCreate.setOnClickListener {
             dialog.dismiss()
-            FilmPlayerViewModel.onUpgradeClicked()
+            filmPlayerViewModel.onUpgradeClicked()
         }
 
         dialog.show()

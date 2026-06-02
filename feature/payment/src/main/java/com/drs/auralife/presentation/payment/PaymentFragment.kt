@@ -26,7 +26,7 @@ import java.util.Locale
 @AndroidEntryPoint
 class PaymentFragment : Fragment() {
 
-    private val PaymentViewModel: PaymentViewModel by viewModels()
+    private val paymentViewModel: PaymentViewModel by viewModels()
     private var _binding: FragmentPaymentBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private lateinit var paymentAdapter: PaymentAdapter
@@ -41,7 +41,7 @@ class PaymentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         observePremiumStatus()
-        PaymentViewModel.loadPremiumStatus()
+        paymentViewModel.loadPremiumStatus()
         setupPaymentItems()
 
         binding.btnChoose.setOnClickListener {
@@ -57,7 +57,7 @@ class PaymentFragment : Fragment() {
                 dialogView.findViewById<Button>(R.id.btnPay).setOnClickListener {
                     bottomSheet.dismiss()
                     Handler(Looper.getMainLooper()).postDelayed({
-                        PaymentViewModel.purchasePremium(selectedItem.month)
+                        paymentViewModel.purchasePremium(selectedItem.month)
                     }, 1500)
                 }
                 bottomSheet.show()
@@ -72,7 +72,7 @@ class PaymentFragment : Fragment() {
 
     private fun observePremiumStatus() {
         launchAndRepeatWithViewLifecycle {
-                PaymentViewModel.state.collect { state ->
+                paymentViewModel.state.collect { state ->
                     val status = state.premiumStatus ?: return@collect
                     binding.apply {
                         if (status.isPremium) {
@@ -93,7 +93,7 @@ class PaymentFragment : Fragment() {
                 }
         }
         launchAndRepeatWithViewLifecycle {
-                PaymentViewModel.effect.collect { effect ->
+                paymentViewModel.effect.collect { effect ->
                     when (effect) {
                         is PaymentUiEffect.ShowToast -> {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()

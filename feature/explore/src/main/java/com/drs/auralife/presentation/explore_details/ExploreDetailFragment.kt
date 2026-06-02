@@ -18,14 +18,14 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ExploreDetailFragment : Fragment() {
 
-    private val viewModel: ExploreDetailViewModel by viewModels()
+    private val exploreDetailViewModel: ExploreDetailViewModel by viewModels()
     private var _binding: FragmentExploreDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private var slug: String = ""
     private var name: String = ""
 
     private val filmAdapter = ExploreDetailFilmAdapter { slug ->
-        viewModel.onFilmClicked(slug)
+        exploreDetailViewModel.onFilmClicked(slug)
     }
 
     private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
@@ -56,7 +56,7 @@ class ExploreDetailFragment : Fragment() {
 
         observeState()
         observeEffect()
-        viewModel.getFilmsByCategory(slug)
+        exploreDetailViewModel.getFilmsByCategory(slug)
         setupPagination()
     }
 
@@ -67,7 +67,7 @@ class ExploreDetailFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                viewModel.state.collect { state ->
+                exploreDetailViewModel.state.collect { state ->
                     filmAdapter.submitList(state.films)
                 }
         }
@@ -75,7 +75,7 @@ class ExploreDetailFragment : Fragment() {
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                viewModel.effect.collect { effect ->
+                exploreDetailViewModel.effect.collect { effect ->
                     when (effect) {
                         is ExploreDetailUiEffect.ShowToast -> {
                             Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
@@ -93,7 +93,7 @@ class ExploreDetailFragment : Fragment() {
             override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
                 val lastVisibleItemPosition = (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
                 if (lastVisibleItemPosition >= filmAdapter.itemCount - 1) {
-                    viewModel.onScrolledToBottom(slug)
+                    exploreDetailViewModel.onScrolledToBottom(slug)
                 }
             }
         }
