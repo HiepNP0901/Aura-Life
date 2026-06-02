@@ -14,8 +14,6 @@ kotlin {
     }
 }
 
-val baseUrl: String = localProperty("baseUrl")
-
 android {
     namespace = "com.drs.auralife"
     compileSdk = 36
@@ -27,7 +25,6 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     buildFeatures {
@@ -36,6 +33,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix = "-debug"
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -43,12 +47,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-        }
-        debug {
-            versionNameSuffix = "-debug"
-            isMinifyEnabled = false
-            isShrinkResources = false
-            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -59,6 +57,27 @@ android {
 }
 
 dependencies {
+    // --- Modules ---
+    implementation(project(":domain"))
+    implementation(project(":core:common"))
+    implementation(project(":core:network"))
+    implementation(project(":core:firebase"))
+    implementation(project(":core:database"))
+    implementation(project(":core:navigation"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":data"))
+    implementation(project(":feature:splash"))
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:auth"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:explore"))
+    implementation(project(":feature:film-detail"))
+    implementation(project(":feature:film-player"))
+    implementation(project(":feature:library"))
+    implementation(project(":feature:history"))
+    implementation(project(":feature:search"))
+    implementation(project(":feature:payment"))
+
     // --- Testing ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="watched_more_than_5_minutes">You watched more than 5 minutes! Upgrade to Premium to see unlimited.</string>
+    <string name="upgrade_now">Upgrade now</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="rewind">Rewind</string>
+    <string name="forward">Forward</string>
+    <string name="previous_video">Previous Video</string>
+    <string name="next_video">Next Video</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="days_ago">" days ago"</string>
+    <string name="hours_ago">" hours ago"</string>
+    <string name="minutes_ago">" minutes ago"</string>
+    <string name="just_finished">Just finished</string>
+    <string name="required_field">Required field</string>
+    <string name="must_be_a_number">Must be a number</string>
+    <string name="other_than_0">Other than 0</string>
+    <string name="invalid_password">Invalid password</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="not_match_password">Not match password</string>
+</resources>

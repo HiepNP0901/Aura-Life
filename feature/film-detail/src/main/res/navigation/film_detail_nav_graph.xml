@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/film_detail_nav_graph"
+    app:startDestination="@id/film_details">
+
+    <fragment
+        android:id="@+id/film_details"
+        android:name="com.drs.auralife.feature.film_detail.FilmDetailsFragment"
+        android:label="FilmDetails"
+        app:route="film_details/{slug}"
+        tools:layout="@layout/fragment_film_details">
+        <argument
+            android:name="slug"
+            app:argType="string" />
+    </fragment>
+</navigation>

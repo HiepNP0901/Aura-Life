@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_description_1">Explore Unlimited Movies Anytime, Anywhere</string>
+    <string name="onboarding_description_2">Discover tailored recommendations just for you</string>
+    <string name="onboarding_description_3">Join the global community of movie enthusiasts</string>
+    <string name="next">Next</string>
+    <string name="start">Start</string>
+</resources>

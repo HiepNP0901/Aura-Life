@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/auth_nav_graph"
+    app:startDestination="@id/login">
+
+    <fragment
+        android:id="@+id/login"
+        android:name="com.drs.auralife.feature.auth.login.LoginFragment"
+        android:label="Login"
+        app:route="login" />
+
+    <fragment
+        android:id="@+id/register"
+        android:name="com.drs.auralife.feature.auth.register.RegisterFragment"
+        android:label="Register"
+        app:route="register" />
+</navigation>

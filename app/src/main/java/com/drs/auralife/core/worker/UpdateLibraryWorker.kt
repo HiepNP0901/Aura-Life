@@ -12,9 +12,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.data.remote.api.FilmAPI
-import com.drs.auralife.data.remote.firebase.LibraryDataSource
-import com.drs.auralife.core.util.Notification
+import com.drs.auralife.core.network.FilmAPI
+import com.drs.auralife.core.firebase.LibraryDataSource
+import com.drs.auralife.core.common.util.AppNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +69,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
                                     filmItem.slug,
                                     filmDetails.movie.episodeCurrent.toString(),
                                 )
-                                Notification.addNotification(applicationContext, filmItem.slug, message)
+                                AppNotification.addNotification(applicationContext, filmItem.slug, message)
                             }
                         } catch (e: Exception) {
                             Log.e("UpdateLibraryWorker", "checkForNewEpisode failed", e)

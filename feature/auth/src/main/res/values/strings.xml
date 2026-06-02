@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Login To Your Account</string>
+    <string name="register_title">Sign Up Here</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="login">Login</string>
+    <string name="don_t_have_account">Don’t Have an Account?</string>
+    <string name="prompt_confirm_password">Confirm password</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_have_an_account">Already Have an Account?</string>
+</resources>

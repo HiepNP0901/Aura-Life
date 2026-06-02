@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_new_library">Create new Library</string>
+    <string name="enter_new_library_name">Enter new library name</string>
+    <string name="library_name_cannot_be_empty">Library name cannot be empty!</string>
+    <string name="rename_library">Rename Library</string>
+    <string name="sure_delete_library">Are you sure you want to delete this library?</string>
+    <string name="sure_delete_film">Are you sure you want to delete this film?</string>
+    <string name="function_must_login">Please log in to use this function.</string>
+    <string name="empty">Empty</string>
+    <string name="quantity">Quantity</string>
+    <string name="app_name">Aura Life</string>
+    <string name="search">Search</string>
+    <string name="profile">Profile</string>
+    <string name="notifications">Notifications</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="new_library">+ New library</string>
+    <string name="select_library">Select Library</string>
+    <string name="done">Done</string>
+    <string name="back">Back</string>
+</resources>

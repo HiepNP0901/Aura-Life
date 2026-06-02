@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/history_nav_graph"
+    app:startDestination="@id/history">
+
+    <fragment
+        android:id="@+id/history"
+        android:name="com.drs.auralife.feature.history.HistoryFragment"
+        android:label="History"
+        app:route="history"
+        tools:layout="@layout/fragment_history" />
+</navigation>

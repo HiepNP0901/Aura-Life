@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/library_nav_graph"
+    app:startDestination="@id/library">
+
+    <fragment
+        android:id="@+id/library"
+        android:name="com.drs.auralife.feature.library.library.LibraryFragment"
+        android:label="Library"
+        app:route="library"
+        tools:layout="@layout/fragment_library" />
+
+    <fragment
+        android:id="@+id/library_details"
+        android:name="com.drs.auralife.feature.library.library_details.LibraryDetailsFragment"
+        android:label="LibraryDetails"
+        app:route="library_details/{name}"
+        tools:layout="@layout/fragment_library_details">
+        <argument
+            android:name="name"
+            app:argType="string" />
+    </fragment>
+</navigation>

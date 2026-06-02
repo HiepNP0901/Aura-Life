@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_internet_retry">Please connect to the internet and try again!</string>
+    <string name="app_name">Aura Life</string>
+    <string name="search">Search</string>
+    <string name="profile">Profile</string>
+    <string name="notifications">Notifications</string>
+    <string name="scroll_to_top">Scroll to top</string>
+</resources>
