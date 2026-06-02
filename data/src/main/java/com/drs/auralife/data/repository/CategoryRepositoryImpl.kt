@@ -3,7 +3,7 @@ package com.drs.auralife.data.repository
 import com.drs.auralife.core.database.dao.CategoryCacheDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toCategoryCacheEntity
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainCategory
-import com.drs.auralife.data.remote.api.FilmAPI
+import com.drs.auralife.core.network.FilmAPI
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.repository.CategoryRepository
 import javax.inject.Inject

@@ -1,9 +1,9 @@
-package com.drs.auralife.data.remote.api
+package com.drs.auralife.core.network
 
+import com.drs.auralife.core.network.model.film.FilmDetails
+import com.drs.auralife.core.network.model.films.Films
+import com.drs.auralife.core.network.model.search.SearchResults
 import com.drs.auralife.data.remote.api.model.category.CategoryResponse
-import com.drs.auralife.data.remote.api.model.film.FilmDetails
-import com.drs.auralife.data.remote.api.model.films.Films
-import com.drs.auralife.data.remote.api.model.search.SearchResults
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

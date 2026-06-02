@@ -1,7 +1,7 @@
 package com.drs.auralife.core.network.di
 
 import com.drs.auralife.core.network.BuildConfig
-import com.drs.auralife.data.remote.api.FilmAPI
+import com.drs.auralife.core.network.FilmAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

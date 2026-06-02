@@ -1,10 +1,9 @@
-package com.drs.auralife.data.remote.api
+package com.drs.auralife.core.network.mapper
 
-import com.drs.auralife.data.remote.api.model.film.Episode
-import com.drs.auralife.data.remote.api.model.film.Movie
+import com.drs.auralife.core.network.model.film.Episode
+import com.drs.auralife.core.network.model.film.FilmDetails
+import com.drs.auralife.core.network.model.film.Movie
 import com.drs.auralife.domain.model.Film
-import com.drs.auralife.domain.model.FilmDetails
-import com.drs.auralife.domain.model.Episode as DomainEpisode
 import java.time.Instant
 
 object FilmMapper {
@@ -27,8 +26,8 @@ object FilmMapper {
         )
     }
 
-    fun com.drs.auralife.data.remote.api.model.film.FilmDetails.toDomainFilmDetails(): FilmDetails {
-        return FilmDetails(
+    fun FilmDetails.toDomainFilmDetails(): com.drs.auralife.domain.model.FilmDetails {
+        return com.drs.auralife.domain.model.FilmDetails(
             id = movie.movieID ?: movie.slug,
             slug = movie.slug,
             title = movie.name ?: movie.originName ?: "",
@@ -52,9 +51,9 @@ object FilmMapper {
         )
     }
 
-    private fun mapEpisodeToDomain(episode: Episode): List<DomainEpisode> {
+    private fun mapEpisodeToDomain(episode: Episode): List<com.drs.auralife.domain.model.Episode> {
         return episode.serverData.map { data ->
-            DomainEpisode(
+            com.drs.auralife.domain.model.Episode(
                 name = data.name,
                 filename = data.filename,
                 linkM3u8 = data.linkM3u8,

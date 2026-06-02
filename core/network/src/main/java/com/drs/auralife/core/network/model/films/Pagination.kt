@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.api.model.films
+package com.drs.auralife.core.network.model.films
 
 data class Pagination(
     val currentPage: Int,

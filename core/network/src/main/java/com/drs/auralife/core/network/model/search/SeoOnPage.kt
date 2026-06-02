@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.api.model.search
+package com.drs.auralife.core.network.model.search
 
 import com.google.gson.annotations.SerializedName
 

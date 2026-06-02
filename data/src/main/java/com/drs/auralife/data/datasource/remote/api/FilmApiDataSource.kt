@@ -1,8 +1,8 @@
 package com.drs.auralife.data.datasource.remote.api
 
-import com.drs.auralife.data.remote.api.FilmAPI
-import com.drs.auralife.data.remote.api.FilmMapper.toDomainFilm
-import com.drs.auralife.data.remote.api.FilmMapper.toDomainFilmDetails
+import com.drs.auralife.core.network.FilmAPI
+import com.drs.auralife.core.network.mapper.FilmMapper.toDomainFilm
+import com.drs.auralife.core.network.mapper.FilmMapper.toDomainFilmDetails
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.model.PagedResult

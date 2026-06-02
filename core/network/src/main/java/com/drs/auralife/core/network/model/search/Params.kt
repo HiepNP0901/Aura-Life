@@ -1,6 +1,6 @@
-package com.drs.auralife.data.remote.api.model.search
+package com.drs.auralife.core.network.model.search
 
-import com.drs.auralife.data.remote.api.model.films.Pagination
+import com.drs.auralife.core.network.model.films.Pagination
 import com.google.gson.annotations.SerializedName
 
 data class Params(

@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.api.model.film
+package com.drs.auralife.core.network.model.film
 
 import com.google.gson.annotations.SerializedName
 
