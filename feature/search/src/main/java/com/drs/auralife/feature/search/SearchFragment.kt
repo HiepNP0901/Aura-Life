@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.search
+package com.drs.auralife.feature.search
 
 import android.os.Bundle
 import android.text.Editable
@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.drs.auralife.feature.search.R
 import com.drs.auralife.feature.search.databinding.FragmentSearchBinding
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.navigation.NavRoutes

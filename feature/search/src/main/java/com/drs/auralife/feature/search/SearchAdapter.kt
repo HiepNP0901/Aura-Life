@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.search
+package com.drs.auralife.feature.search
 
 import android.view.LayoutInflater
 import android.view.View

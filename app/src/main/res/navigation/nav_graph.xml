@@ -105,7 +105,7 @@
 
     <fragment
         android:id="@+id/search"
-        android:name="com.drs.auralife.presentation.search.SearchFragment"
+        android:name="com.drs.auralife.feature.search.SearchFragment"
         android:label="Search"
         app:route="search" />
 
