@@ -13,7 +13,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
 import com.drs.auralife.data.remote.api.FilmAPI
-import com.drs.auralife.data.remote.firebase.LibraryDataSource
+import com.drs.auralife.core.firebase.LibraryDataSource
 import com.drs.auralife.core.common.util.AppNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject

@@ -1,7 +1,7 @@
-package com.drs.auralife.data.remote.firebase
+package com.drs.auralife.core.firebase
 
-import com.drs.auralife.data.remote.firebase.model.library.FilmLibrary
-import com.drs.auralife.data.remote.firebase.model.library.Library
+import com.drs.auralife.core.firebase.model.library.FilmLibrary
+import com.drs.auralife.core.firebase.model.library.Library
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await

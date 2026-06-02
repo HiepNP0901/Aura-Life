@@ -1,9 +1,8 @@
-package com.drs.auralife.data.remote.firebase
+package com.drs.auralife.core.firebase
 
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.drs.auralife.core.firebase.R
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await

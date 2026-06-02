@@ -1,10 +1,10 @@
-package com.drs.auralife.data.remote.firebase
+package com.drs.auralife.core.firebase
 
+import com.drs.auralife.core.firebase.model.history.History
+import com.drs.auralife.core.firebase.model.library.FilmLibrary
+import com.drs.auralife.core.firebase.model.library.Library
+import com.drs.auralife.core.firebase.model.premium.Premium
 import com.drs.auralife.data.remote.firebase.model.banner.Banner as BannerFirebase
-import com.drs.auralife.data.remote.firebase.model.history.History as HistoryFirebase
-import com.drs.auralife.data.remote.firebase.model.premium.Premium as PremiumFirebase
-import com.drs.auralife.data.remote.firebase.model.library.Library as LibraryFirebase
-import com.drs.auralife.data.remote.firebase.model.library.FilmLibrary as FilmLibraryFirebase
 import com.drs.auralife.domain.model.Banner as BannerDomain
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.model.PremiumStatus
@@ -24,7 +24,7 @@ object FirebaseMapper {
         return this.map { it.toDomainBanner() }
     }
 
-    fun HistoryFirebase.toDomainHistoryItem(): HistoryItem {
+    fun History.toDomainHistoryItem(): HistoryItem {
         return HistoryItem(
             slug = this.slug,
             title = "", // Title will be populated from film details if needed
@@ -34,7 +34,7 @@ object FirebaseMapper {
         )
     }
 
-    fun PremiumFirebase.toDomainPremiumStatus(): PremiumStatus {
+    fun Premium.toDomainPremiumStatus(): PremiumStatus {
         return PremiumStatus(
             isPremium = this.status,
             expiryTimestamp = try {
@@ -49,14 +49,14 @@ object FirebaseMapper {
         )
     }
 
-    fun FilmLibraryFirebase.toDomainLibraryFilm(): LibraryFilmDomain {
+    fun FilmLibrary.toDomainLibraryFilm(): LibraryFilmDomain {
         return LibraryFilmDomain(
             slug = this.slug,
             currentEpisode = this.episode,
         )
     }
 
-    fun LibraryFirebase.toDomainLibrary(): LibraryDomain {
+    fun Library.toDomainLibrary(): LibraryDomain {
         return LibraryDomain(
             name = this.name,
             posterUrl = this.posterUrl,
@@ -64,11 +64,11 @@ object FirebaseMapper {
         )
     }
 
-    fun List<HistoryFirebase>.toDomainHistoryItems(): List<HistoryItem> {
+    fun List<History>.toDomainHistoryItems(): List<HistoryItem> {
         return this.map { it.toDomainHistoryItem() }
     }
 
-    fun List<LibraryFirebase>.toDomainLibraries(): List<LibraryDomain> {
+    fun List<Library>.toDomainLibraries(): List<LibraryDomain> {
         return this.map { it.toDomainLibrary() }
     }
 }

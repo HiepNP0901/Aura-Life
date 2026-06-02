@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.firebase.model.library
+package com.drs.auralife.core.firebase.model.library
 
 data class Library(
     var name: String,

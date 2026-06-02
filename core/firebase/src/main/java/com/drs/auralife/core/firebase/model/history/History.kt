@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.firebase.model.history
+package com.drs.auralife.core.firebase.model.history
 
 data class History(
     val slug: String,

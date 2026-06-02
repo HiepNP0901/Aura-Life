@@ -1,6 +1,6 @@
-package com.drs.auralife.data.remote.firebase
+package com.drs.auralife.core.firebase
 
-import com.drs.auralife.data.remote.firebase.model.history.History
+import com.drs.auralife.core.firebase.model.history.History
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -37,7 +37,8 @@ class HistoryDataSource @Inject constructor(
                     snap.ref.removeValue().await()
                 }
             }
-            val historyData = History(slug, episode, position, System.currentTimeMillis().toString())
+            val historyData =
+                History(slug, episode, position, System.currentTimeMillis().toString())
             historyRef.push().setValue(historyData).await()
             true
         } catch (e: Exception) {

@@ -1,7 +1,7 @@
-package com.drs.auralife.data.remote.firebase
+package com.drs.auralife.core.firebase
 
 import android.annotation.SuppressLint
-import com.drs.auralife.data.remote.firebase.model.premium.Premium
+import com.drs.auralife.core.firebase.model.premium.Premium
 import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -79,7 +79,11 @@ class PremiumDataSource @Inject constructor(
                     calendar.add(Calendar.MONTH, months)
                     val newExpireDate = dateFormat.format(calendar.time)
 
-                    val newPremium = Premium(status = true, date = dateFormat.format(currentDate), expireDate = newExpireDate)
+                    val newPremium = Premium(
+                        status = true,
+                        date = dateFormat.format(currentDate),
+                        expireDate = newExpireDate
+                    )
 
                     userRef
                         .child(it)

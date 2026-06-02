@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.firebase.model.premium
+package com.drs.auralife.core.firebase.model.premium
 
 data class Premium(
     val status: Boolean = false,

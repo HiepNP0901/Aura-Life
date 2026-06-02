@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.firebase
+package com.drs.auralife.core.firebase
 
 import android.graphics.Bitmap
 import com.drs.auralife.core.common.util.BitmapCodec

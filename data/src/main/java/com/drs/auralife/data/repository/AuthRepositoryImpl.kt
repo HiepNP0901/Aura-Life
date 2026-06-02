@@ -1,7 +1,7 @@
 package com.drs.auralife.data.repository
 
 import android.content.Context
-import com.drs.auralife.data.remote.firebase.Authentication
+import com.drs.auralife.core.firebase.Authentication
 import com.drs.auralife.domain.repository.AuthRepository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth

@@ -5,9 +5,9 @@ import com.drs.auralife.core.database.dao.LibraryFilmCrossRefDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainLibrary
 import com.drs.auralife.core.database.mapper.LocalMapper.toLibraryEntity
 import com.drs.auralife.core.database.mapper.LocalMapper.toLibraryFilmCrossRefs
-import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibraries
-import com.drs.auralife.data.remote.firebase.FirebaseMapper.toDomainLibrary
-import com.drs.auralife.data.remote.firebase.LibraryDataSource
+import com.drs.auralife.core.firebase.FirebaseMapper.toDomainLibraries
+import com.drs.auralife.core.firebase.FirebaseMapper.toDomainLibrary
+import com.drs.auralife.core.firebase.LibraryDataSource
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.repository.LibraryRepository
 import javax.inject.Inject
