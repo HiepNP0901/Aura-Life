@@ -32,11 +32,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class PlayFilmFragment : Fragment() {
+class FilmPlayerFragment : Fragment() {
 
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
-    private val playFilmViewModel: PlayFilmViewModel by viewModels()
+    private val FilmPlayerViewModel: FilmPlayerViewModel by viewModels()
 
     private var exoPlayer: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -57,7 +57,7 @@ class PlayFilmFragment : Fragment() {
     private var film: FilmDetails? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_play_film, container, false)
+        return inflater.inflate(R.layout.fragment_film_player, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -146,12 +146,12 @@ class PlayFilmFragment : Fragment() {
                 }
         }
 
-        playFilmViewModel.loadPremiumStatus()
+        FilmPlayerViewModel.loadPremiumStatus()
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                playFilmViewModel.effect.collect { effect ->
+                FilmPlayerViewModel.effect.collect { effect ->
                     when (effect) {
                         is PlayFilmUiEffect.ShowPremiumDialog -> {
                             exoPlayer?.pause()
@@ -255,7 +255,7 @@ class PlayFilmFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
                 while (true) {
                     exoPlayer?.let { player ->
-                        playFilmViewModel.checkPlaybackThrottle(
+                        FilmPlayerViewModel.checkPlaybackThrottle(
                             position = player.currentPosition,
                             maxPreviewDurationMs = 5L * 60 * 1000,
                         )
@@ -279,7 +279,7 @@ class PlayFilmFragment : Fragment() {
         btnCancel.setOnClickListener { dialog.dismiss() }
         btnCreate.setOnClickListener {
             dialog.dismiss()
-            playFilmViewModel.onUpgradeClicked()
+            FilmPlayerViewModel.onUpgradeClicked()
         }
 
         dialog.show()

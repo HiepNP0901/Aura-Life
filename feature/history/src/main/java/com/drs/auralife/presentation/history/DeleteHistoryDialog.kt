@@ -9,7 +9,6 @@ import androidx.appcompat.widget.AppCompatButton
 import com.drs.auralife.feature.history.R
 
 object DeleteHistoryDialog {
-    @SuppressLint("SetTextI18n")
     fun showDeleteFilmFromHistory(
         context: Context,
         onConfirm: () -> Unit,
