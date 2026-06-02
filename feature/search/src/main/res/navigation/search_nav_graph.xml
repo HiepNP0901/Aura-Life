@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <fragment android:id="@+id/search" android:name="com.drs.auralife.feature.search.SearchFragment" app:route="search" />
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/search_nav_graph"
+    app:startDestination="@id/search">
+
+    <fragment
+        android:id="@+id/search"
+        android:name="com.drs.auralife.feature.search.SearchFragment"
+        android:label="Search"
+        app:route="search" />
 </navigation>

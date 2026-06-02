@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/onboarding_nav_graph"
     app:startDestination="@id/onboarding">
+
     <fragment
         android:id="@+id/onboarding"
         android:name="com.drs.auralife.feature.onboarding.OnboardingFragment"
+        android:label="Onboarding"
         app:route="onboarding" />
 </navigation>

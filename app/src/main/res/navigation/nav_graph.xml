@@ -1,126 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/splash">
 
-    <fragment
-        android:id="@+id/splash"
-        android:name="com.drs.auralife.feature.splash.SplashFragment"
-        android:label="Splash"
-        app:route="splash"
-        tools:layout="@layout/fragment_splash">
-    </fragment>
-
-    <fragment
-        android:id="@+id/onboarding"
-        android:name="com.drs.auralife.feature.onboarding.OnboardingFragment"
-        android:label="Onboarding"
-        app:route="onboarding"
-        tools:layout="@layout/fragment_onboarding">
-    </fragment>
-
-    <fragment
-        android:id="@+id/home"
-        android:name="com.drs.auralife.feature.home.HomeFragment"
-        android:label="Home"
-        app:route="home"
-        tools:layout="@layout/fragment_home" />
-
-    <fragment
-        android:id="@+id/explore"
-        android:name="com.drs.auralife.feature.explore.explore.ExploreFragment"
-        android:label="Explore"
-        app:route="explore"
-        tools:layout="@layout/fragment_explore" />
-
-    <fragment
-        android:id="@+id/library"
-        android:name="com.drs.auralife.feature.library.library.LibraryFragment"
-        android:label="Library"
-        app:route="library"
-        tools:layout="@layout/fragment_library" />
-
-    <fragment
-        android:id="@+id/history"
-        android:name="com.drs.auralife.feature.history.HistoryFragment"
-        android:label="History"
-        app:route="history"
-        tools:layout="@layout/fragment_history" />
-
-    <fragment
-        android:id="@+id/login"
-        android:name="com.drs.auralife.feature.auth.login.LoginFragment"
-        android:label="Login"
-        app:route="login"
-        tools:layout="@layout/fragment_login" />
-
-    <fragment
-        android:id="@+id/register"
-        android:name="com.drs.auralife.feature.auth.register.RegisterFragment"
-        android:label="Register"
-        app:route="register"
-        tools:layout="@layout/fragment_register" />
-
-    <fragment
-        android:id="@+id/film_details"
-        android:name="com.drs.auralife.feature.film_detail.FilmDetailsFragment"
-        android:label="FilmDetails"
-        app:route="film_details/{slug}"
-        tools:layout="@layout/fragment_film_details">
-        <argument
-            android:name="slug"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/library_details"
-        android:name="com.drs.auralife.feature.library.library_details.LibraryDetailsFragment"
-        android:label="LibraryDetails"
-        app:route="library_details/{name}"
-        tools:layout="@layout/fragment_library_details">
-        <argument
-            android:name="name"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/payment"
-        android:name="com.drs.auralife.feature.payment.PaymentFragment"
-        android:label="Payment"
-        app:route="payment"
-        tools:layout="@layout/fragment_payment" />
-
-    <fragment
-        android:id="@+id/play_film"
-        android:name="com.drs.auralife.feature.film_player.FilmPlayerFragment"
-        android:label="PlayFilm"
-        app:route="play_film/{slug}"
-        tools:layout="@layout/fragment_film_player">
-        <argument
-            android:name="slug"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/search"
-        android:name="com.drs.auralife.feature.search.SearchFragment"
-        android:label="Search"
-        app:route="search" />
-
-    <fragment
-        android:id="@+id/explore_details"
-        android:name="com.drs.auralife.feature.explore.explore_details.ExploreDetailFragment"
-        android:label="ExploreDetails"
-        app:route="explore_details/{slug}/{name}"
-        tools:layout="@layout/fragment_explore_details">
-        <argument
-            android:name="slug"
-            app:argType="string" />
-        <argument
-            android:name="name"
-            app:argType="string" />
-    </fragment>
-
+    <include app:graph="@navigation/splash_nav_graph" />
+    <include app:graph="@navigation/onboarding_nav_graph" />
+    <include app:graph="@navigation/auth_nav_graph" />
+    <include app:graph="@navigation/home_nav_graph" />
+    <include app:graph="@navigation/explore_nav_graph" />
+    <include app:graph="@navigation/film_detail_nav_graph" />
+    <include app:graph="@navigation/film_player_nav_graph" />
+    <include app:graph="@navigation/library_nav_graph" />
+    <include app:graph="@navigation/history_nav_graph" />
+    <include app:graph="@navigation/search_nav_graph" />
+    <include app:graph="@navigation/payment_nav_graph" />
 </navigation>
