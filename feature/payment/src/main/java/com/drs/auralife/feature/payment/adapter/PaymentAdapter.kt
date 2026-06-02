@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.payment.adapter
+package com.drs.auralife.feature.payment.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater

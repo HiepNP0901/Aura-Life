@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.payment
+package com.drs.auralife.feature.payment
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

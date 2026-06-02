@@ -87,7 +87,7 @@
 
     <fragment
         android:id="@+id/payment"
-        android:name="com.drs.auralife.presentation.payment.PaymentFragment"
+        android:name="com.drs.auralife.feature.payment.PaymentFragment"
         android:label="Payment"
         app:route="payment"
         tools:layout="@layout/fragment_payment" />

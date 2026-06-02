@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.payment
+package com.drs.auralife.feature.payment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -13,10 +13,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import com.drs.auralife.feature.payment.R
 import com.drs.auralife.feature.payment.databinding.FragmentPaymentBinding
 import com.drs.auralife.domain.model.SubscriptionPlan
-import com.drs.auralife.presentation.payment.adapter.PaymentAdapter
+import com.drs.auralife.feature.payment.adapter.PaymentAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat

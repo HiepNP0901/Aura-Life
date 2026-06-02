@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.payment
+package com.drs.auralife.feature.payment
 
 import com.drs.auralife.domain.model.PremiumStatus
 
