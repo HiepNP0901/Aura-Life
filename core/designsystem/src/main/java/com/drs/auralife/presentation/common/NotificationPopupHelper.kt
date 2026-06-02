@@ -9,7 +9,7 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.core.designsystem.R
-import com.drs.auralife.core.util.AppNotification
+import com.drs.auralife.core.common.util.AppNotification
 import com.drs.auralife.presentation.navigation.NavRoutes
 
 @SuppressLint("InflateParams")

@@ -28,7 +28,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
-import com.drs.auralife.core.util.AppNotification
+import com.drs.auralife.core.common.util.AppNotification
 import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.presentation.common.NotificationPopupHelper

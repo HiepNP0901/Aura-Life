@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.drs.auralife.core.validation
+package com.drs.auralife.core.common.validation
 
 import android.content.Context
 import androidx.core.content.ContextCompat.getString

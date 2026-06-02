@@ -8,9 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.feature.history.R
 import com.drs.auralife.core.designsystem.R as DsR
-import com.drs.auralife.core.util.TimeUtils
+import com.drs.auralife.core.common.util.TimeUtils
 import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Film
 import java.time.Instant

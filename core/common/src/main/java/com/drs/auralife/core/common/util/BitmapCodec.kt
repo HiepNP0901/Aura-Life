@@ -1,4 +1,4 @@
-package com.drs.auralife.core.util
+package com.drs.auralife.core.common.util
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

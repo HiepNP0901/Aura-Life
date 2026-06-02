@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.drs.auralife.core.validation
+package com.drs.auralife.core.common.validation
 
 abstract class EditTextValidator<T>(
     val errorText: String,

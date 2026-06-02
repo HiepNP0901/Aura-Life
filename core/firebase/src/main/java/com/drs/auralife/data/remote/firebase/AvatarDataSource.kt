@@ -1,7 +1,7 @@
 package com.drs.auralife.data.remote.firebase
 
 import android.graphics.Bitmap
-import com.drs.auralife.core.util.BitmapCodec
+import com.drs.auralife.core.common.util.BitmapCodec
 import com.google.firebase.database.FirebaseDatabase
 import javax.inject.Inject
 

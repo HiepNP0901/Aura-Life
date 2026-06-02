@@ -14,7 +14,7 @@ import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.auth.R
 import com.drs.auralife.presentation.navigation.NavRoutes
-import com.drs.auralife.core.validation.Validator
+import com.drs.auralife.core.common.validation.Validator
 import com.drs.auralife.feature.auth.databinding.FragmentLoginBinding
 import com.drs.auralife.presentation.common.LogoFragment
 import dagger.hilt.android.AndroidEntryPoint
