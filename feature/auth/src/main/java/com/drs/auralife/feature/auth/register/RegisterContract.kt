@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.register
+package com.drs.auralife.feature.auth.register
 
 sealed interface RegisterUiState {
     data object Idle : RegisterUiState

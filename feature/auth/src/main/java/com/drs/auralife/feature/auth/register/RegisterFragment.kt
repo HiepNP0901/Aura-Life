@@ -1,11 +1,9 @@
-package com.drs.auralife.presentation.login
+package com.drs.auralife.feature.auth.register
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
@@ -13,20 +11,19 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.auth.R
-import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.core.common.validation.Validator
-import com.drs.auralife.feature.auth.databinding.FragmentLoginBinding
+import com.drs.auralife.feature.auth.databinding.FragmentRegisterBinding
 import com.drs.auralife.designsystem.LogoFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
-    private val loginViewModel: LoginViewModel by viewModels()
-    private var _binding: FragmentLoginBinding? = null
+class RegisterFragment : Fragment() {
+    private val registerViewModel: RegisterViewModel by viewModels()
+    private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        _binding = FragmentRegisterBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -38,20 +35,8 @@ class LoginFragment : Fragment() {
         observeState()
         observeEffect()
 
-        val fragment = LogoFragment.setTitle(getString(R.string.login_title))
+        val fragment = LogoFragment.setTitle(getString(R.string.register_title))
         childFragmentManager.beginTransaction().add(binding.containerFragment.id, fragment).commit()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        @Suppress("DEPRECATION")
-        val display = requireActivity().windowManager.defaultDisplay
-        val orientation = when (display.rotation) {
-            Surface.ROTATION_0, Surface.ROTATION_180 -> LinearLayout.VERTICAL
-            Surface.ROTATION_90, Surface.ROTATION_270 -> LinearLayout.HORIZONTAL
-            else -> LinearLayout.VERTICAL
-        }
-        binding.linearLayout.orientation = orientation
     }
 
     override fun onDestroyView() {
@@ -60,10 +45,15 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupButton() {
-        binding.loginButton.setOnClickListener {
+        binding.createAccount.setOnClickListener {
             val username = binding.username.text.toString()
             val password = binding.password.text.toString()
+            val confirmPassword = binding.confirmPassword.text.toString()
 
+            Validator(requireContext()).confirmPasswordValidator(password).invoke(confirmPassword)?.let {
+                binding.confirmPassword.error = it
+                binding.confirmPassword.requestFocus()
+            }
             Validator(requireContext()).passwordValidator.invoke(password)?.let {
                 binding.password.error = it
                 binding.password.requestFocus()
@@ -72,13 +62,13 @@ class LoginFragment : Fragment() {
                 binding.username.error = it
                 binding.username.requestFocus()
             }
-            if (binding.username.error == null && binding.password.error == null) {
-                loginViewModel.login(username, password)
+            if (binding.confirmPassword.error == null && binding.username.error == null && binding.password.error == null) {
+                registerViewModel.register(username, password)
             }
         }
 
-        binding.dontHaveAccountButton.setOnClickListener {
-            findNavController().navigate(NavRoutes.REGISTER)
+        binding.alreadyHaveAccountButton.setOnClickListener {
+            findNavController().popBackStack()
         }
     }
 
@@ -93,24 +83,29 @@ class LoginFragment : Fragment() {
                 binding.password.error = msg
             } ?: run { binding.password.error = null }
         }
+        binding.confirmPassword.doAfterTextChanged {
+            Validator(requireContext()).confirmPasswordValidator(binding.password.text.toString()).invoke(it?.toString() ?: "")?.let { msg ->
+                binding.confirmPassword.error = msg
+            } ?: run { binding.confirmPassword.error = null }
+        }
     }
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                loginViewModel.state.collect { state ->
+                registerViewModel.state.collect { state ->
                     when (state) {
-                        is LoginUiState.Loading -> {
-                            binding.loginButton.isEnabled = false
+                        is RegisterUiState.Loading -> {
+                            binding.createAccount.isEnabled = false
                             binding.progressBar.visibility = View.VISIBLE
                         }
-                        is LoginUiState.Success -> {
-                            binding.loginButton.isEnabled = true
+                        is RegisterUiState.Success -> {
+                            binding.createAccount.isEnabled = true
                             binding.progressBar.visibility = View.GONE
                         }
-                        is LoginUiState.Error -> {
-                            binding.loginButton.isEnabled = true
+                        is RegisterUiState.Error -> {
+                            binding.createAccount.isEnabled = true
                             binding.progressBar.visibility = View.GONE
-                            loginViewModel.resetState()
+                            registerViewModel.resetState()
                         }
                         else -> {}
                     }
@@ -120,12 +115,12 @@ class LoginFragment : Fragment() {
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                loginViewModel.effect.collect { effect ->
+                registerViewModel.effect.collect { effect ->
                     when (effect) {
-                        is LoginUiEffect.ShowToast -> {
+                        is RegisterUiEffect.ShowToast -> {
                             Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
                         }
-                        is LoginUiEffect.NavigateBackWithResult -> {
+                        is RegisterUiEffect.NavigateBackWithResult -> {
                             findNavController().popBackStack()
                         }
                     }

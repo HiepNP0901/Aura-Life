@@ -51,14 +51,14 @@
 
     <fragment
         android:id="@+id/login"
-        android:name="com.drs.auralife.presentation.login.LoginFragment"
+        android:name="com.drs.auralife.feature.auth.login.LoginFragment"
         android:label="Login"
         app:route="login"
         tools:layout="@layout/fragment_login" />
 
     <fragment
         android:id="@+id/register"
-        android:name="com.drs.auralife.presentation.register.RegisterFragment"
+        android:name="com.drs.auralife.feature.auth.register.RegisterFragment"
         android:label="Register"
         app:route="register"
         tools:layout="@layout/fragment_register" />

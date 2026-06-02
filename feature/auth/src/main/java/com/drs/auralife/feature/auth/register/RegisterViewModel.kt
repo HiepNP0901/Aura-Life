@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.register
+package com.drs.auralife.feature.auth.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
