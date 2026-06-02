@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.history
+package com.drs.auralife.feature.history
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

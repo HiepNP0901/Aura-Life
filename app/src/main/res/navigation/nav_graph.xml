@@ -44,7 +44,7 @@
 
     <fragment
         android:id="@+id/history"
-        android:name="com.drs.auralife.presentation.history.HistoryFragment"
+        android:name="com.drs.auralife.feature.history.HistoryFragment"
         android:label="History"
         app:route="history"
         tools:layout="@layout/fragment_history" />

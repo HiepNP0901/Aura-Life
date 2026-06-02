@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.history.adapter
+package com.drs.auralife.feature.history.adapter
 
 import android.view.LayoutInflater
 import android.view.View

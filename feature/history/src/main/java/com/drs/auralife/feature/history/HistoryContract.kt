@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.history
+package com.drs.auralife.feature.history
 
 import com.drs.auralife.domain.model.Film
 

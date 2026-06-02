@@ -1,11 +1,10 @@
-package com.drs.auralife.presentation.history
+package com.drs.auralife.feature.history
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
-import com.drs.auralife.feature.history.R
 import com.drs.auralife.core.designsystem.R as DsR
 
 object DeleteHistoryDialog {

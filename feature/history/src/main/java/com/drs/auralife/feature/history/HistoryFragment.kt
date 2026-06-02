@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.history
+package com.drs.auralife.feature.history
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +14,7 @@ import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.history.databinding.FragmentHistoryBinding
 import com.drs.auralife.designsystem.AppBarProvider
-import com.drs.auralife.presentation.history.adapter.HistoryFilmAdapter
+import com.drs.auralife.feature.history.adapter.HistoryFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
