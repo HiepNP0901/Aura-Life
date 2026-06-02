@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.play_film
+package com.drs.auralife.feature.film_player
 
 import android.app.AlertDialog
 import android.content.pm.ActivityInfo
@@ -26,8 +26,8 @@ import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.film_detail.FilmDetailsViewModel
-import com.drs.auralife.presentation.history.HistoryViewModel
-import com.drs.auralife.presentation.play_film.adapter.EpisodeAdapter
+import com.drs.auralife.feature.history.HistoryViewModel
+import com.drs.auralife.feature.film_player.adapter.EpisodeAdapter
 import com.drs.auralife.designsystem.SystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay

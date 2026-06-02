@@ -94,7 +94,7 @@
 
     <fragment
         android:id="@+id/play_film"
-        android:name="com.drs.auralife.presentation.play_film.FilmPlayerFragment"
+        android:name="com.drs.auralife.feature.film_player.FilmPlayerFragment"
         android:label="PlayFilm"
         app:route="play_film/{slug}"
         tools:layout="@layout/fragment_film_player">
