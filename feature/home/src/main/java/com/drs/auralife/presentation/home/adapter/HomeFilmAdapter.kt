@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.home.R
+import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.core.util.TimeUtils
 import com.drs.auralife.presentation.common.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Film
@@ -19,14 +20,14 @@ class HomeFilmAdapter(
 ) : ListAdapter<Film, HomeFilmAdapter.ViewHolder>(DiffCallback) {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val ivPoster: ImageView = itemView.findViewById(R.id.posterView)
-        val tvTitle: TextView = itemView.findViewById(R.id.nameFilm)
-        val tvDetails: TextView = itemView.findViewById(R.id.details)
+        val ivPoster: ImageView = itemView.findViewById(DsR.id.posterView)
+        val tvTitle: TextView = itemView.findViewById(DsR.id.nameFilm)
+        val tvDetails: TextView = itemView.findViewById(DsR.id.details)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_film_vertical, parent, false)
+            .inflate(DsR.layout.item_film_vertical, parent, false)
         return ViewHolder(view)
     }
 

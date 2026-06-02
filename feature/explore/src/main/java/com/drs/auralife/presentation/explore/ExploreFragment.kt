@@ -13,6 +13,7 @@ import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.explore.R
+import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.feature.explore.databinding.FragmentExploreBinding
 import com.drs.auralife.presentation.AppBarProvider
@@ -112,9 +113,9 @@ class ExploreFragment : Fragment() {
     private fun buildCategoryViews(categories: List<com.drs.auralife.domain.model.Category>) {
         binding.exploreFragmentBody.removeAllViews()
         categories.forEach { category ->
-            val item = layoutInflater.inflate(R.layout.horizontal_film_list, null)
+            val item = layoutInflater.inflate(DsR.layout.horizontal_film_list, null)
 
-            item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).setOnClickListener {
+            item.findViewById<AppCompatButton>(DsR.id.buttonHorizontalFilmList).setOnClickListener {
                 exploreViewModel.onCategoryClicked(category.slug, category.name)
             }
 
@@ -125,7 +126,7 @@ class ExploreFragment : Fragment() {
             binding.exploreFragmentBody.addView(item)
 
             val buttonText = if (Locale.getDefault().language == "en") category.localizedName else category.name
-            item.findViewById<AppCompatButton>(R.id.buttonHorizontalFilmList).text = buttonText
+            item.findViewById<AppCompatButton>(DsR.id.buttonHorizontalFilmList).text = buttonText
         }
     }
 }

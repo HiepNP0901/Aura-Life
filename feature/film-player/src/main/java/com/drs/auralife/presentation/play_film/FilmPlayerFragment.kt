@@ -21,6 +21,7 @@ import androidx.media3.ui.PlayerView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.feature.film.player.R
+import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.presentation.film_details.FilmDetailsViewModel
@@ -76,7 +77,7 @@ class FilmPlayerFragment : Fragment() {
         btnNext = view.findViewById(R.id.btn_next)
         fullscreenButton = view.findViewById(R.id.btn_fullscreen)
         rotateButton = view.findViewById(R.id.rotate)
-        nameFilm = view.findViewById(R.id.nameFilm)
+        nameFilm = view.findViewById(DsR.id.nameFilm)
 
         numberEpInLine = resources.displayMetrics.widthPixels / resources.displayMetrics.densityDpi
         val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.episodeRecyclerView)
@@ -266,10 +267,10 @@ class FilmPlayerFragment : Fragment() {
     }
 
     private fun showPremiumDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm, null)
-        val title = dialogView.findViewById<TextView>(R.id.title)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
-        val btnCreate = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val dialogView = LayoutInflater.from(requireContext()).inflate(DsR.layout.dialog_confirm, null)
+        val title = dialogView.findViewById<TextView>(DsR.id.title)
+        val btnCancel = dialogView.findViewById<Button>(DsR.id.btnCancel)
+        val btnCreate = dialogView.findViewById<Button>(DsR.id.btnConfirm)
 
         title.text = getString(R.string.watched_more_than_5_minutes)
         btnCreate.text = getString(R.string.upgrade_now)

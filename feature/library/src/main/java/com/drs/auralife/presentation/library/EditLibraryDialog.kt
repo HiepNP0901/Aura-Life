@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import com.drs.auralife.feature.library.R
+import com.drs.auralife.core.designsystem.R as DsR
 
 object EditLibraryDialog {
     fun showEditLibraryDialog(
@@ -36,16 +37,16 @@ object EditLibraryDialog {
         onConfirm: (newName: String) -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
-        val dialogView = layoutInflater.inflate(R.layout.dialog_rename, null)
+        val dialogView = layoutInflater.inflate(DsR.layout.dialog_rename, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
-        dialogView.findViewById<TextView>(R.id.title).text =
+        dialogView.findViewById<TextView>(DsR.id.title).text =
             context.getString(R.string.rename_library)
-        val editText = dialogView.findViewById<TextView>(R.id.editText)
+        val editText = dialogView.findViewById<TextView>(DsR.id.editText)
         editText.text = nameLibrary
-        dialogView.findViewById<AppCompatButton>(R.id.btnCancel).setOnClickListener {
+        dialogView.findViewById<AppCompatButton>(DsR.id.btnCancel).setOnClickListener {
             dialog.dismiss()
         }
-        dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
+        dialogView.findViewById<AppCompatButton>(DsR.id.btnConfirm).setOnClickListener {
             if (editText.text.toString().isNotBlank()) {
                 onConfirm(editText.text.toString())
                 dialog.dismiss()
@@ -66,14 +67,14 @@ object EditLibraryDialog {
         onDelete: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
-        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
+        val dialogView = layoutInflater.inflate(DsR.layout.dialog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
-        dialogView.findViewById<TextView>(R.id.title).text =
+        dialogView.findViewById<TextView>(DsR.id.title).text =
             context.getString(R.string.sure_delete_library)
-        dialogView.findViewById<AppCompatButton>(R.id.btnCancel).setOnClickListener {
+        dialogView.findViewById<AppCompatButton>(DsR.id.btnCancel).setOnClickListener {
             dialog.dismiss()
         }
-        dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
+        dialogView.findViewById<AppCompatButton>(DsR.id.btnConfirm).setOnClickListener {
             onDelete()
             dialog.dismiss()
         }
@@ -86,14 +87,14 @@ object EditLibraryDialog {
         onConfirm: () -> Unit,
     ) {
         val layoutInflater = LayoutInflater.from(context)
-        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm, null)
+        val dialogView = layoutInflater.inflate(DsR.layout.dialog_confirm, null)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()
-        dialogView.findViewById<TextView>(R.id.title).text =
+        dialogView.findViewById<TextView>(DsR.id.title).text =
             context.getString(R.string.sure_delete_film)
-        dialogView.findViewById<AppCompatButton>(R.id.btnCancel).setOnClickListener {
+        dialogView.findViewById<AppCompatButton>(DsR.id.btnCancel).setOnClickListener {
             dialog.dismiss()
         }
-        dialogView.findViewById<AppCompatButton>(R.id.btnConfirm).setOnClickListener {
+        dialogView.findViewById<AppCompatButton>(DsR.id.btnConfirm).setOnClickListener {
             onConfirm()
             dialog.dismiss()
         }

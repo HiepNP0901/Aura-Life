@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.presentation.common.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.library.R
+import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.presentation.navigation.NavRoutes
 import com.drs.auralife.feature.library.databinding.FragmentLibraryBinding
 import com.drs.auralife.presentation.AppBarProvider
@@ -27,8 +28,8 @@ class LibraryFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         (requireActivity() as AppBarProvider).setupAppBar(binding.appBar)
-        binding.appBar.findViewById<ImageButton>(R.id.app_bar_search).visibility = View.GONE
-        binding.appBar.findViewById<ImageButton>(R.id.app_bar_notifications).visibility = View.VISIBLE
+        binding.appBar.findViewById<ImageButton>(DsR.id.app_bar_search).visibility = View.GONE
+        binding.appBar.findViewById<ImageButton>(DsR.id.app_bar_notifications).visibility = View.VISIBLE
         return binding.root
     }
 

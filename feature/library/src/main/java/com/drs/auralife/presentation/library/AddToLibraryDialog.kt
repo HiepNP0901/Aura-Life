@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.util.TypedValueCompat.dpToPx
 import com.drs.auralife.feature.library.R
+import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.Library
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -64,11 +65,11 @@ object AddToLibraryDialog {
         context: Context,
         onCreateLibrary: (name: String) -> Unit,
     ) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_rename, null)
-        val title = dialogView.findViewById<TextView>(R.id.title)
-        val inputLibraryName = dialogView.findViewById<EditText>(R.id.editText)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
-        val btnCreate = dialogView.findViewById<Button>(R.id.btnConfirm)
+        val dialogView = LayoutInflater.from(context).inflate(DsR.layout.dialog_rename, null)
+        val title = dialogView.findViewById<TextView>(DsR.id.title)
+        val inputLibraryName = dialogView.findViewById<EditText>(DsR.id.editText)
+        val btnCancel = dialogView.findViewById<Button>(DsR.id.btnCancel)
+        val btnCreate = dialogView.findViewById<Button>(DsR.id.btnConfirm)
         title.text = context.getString(R.string.create_new_library)
         inputLibraryName.hint = context.getString(R.string.enter_new_library_name)
         val dialog = AlertDialog.Builder(context).setView(dialogView).create()

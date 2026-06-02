@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.feature.search.R
+import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.presentation.common.AuraLifeGlideModule
 
@@ -24,9 +25,9 @@ class SearchAdapter(
     class ViewHolder(
         itemView: View,
     ) : RecyclerView.ViewHolder(itemView) {
-        val posterView: ImageView = itemView.findViewById(R.id.posterView)
-        val tvTitle: TextView = itemView.findViewById(R.id.nameFilm)
-        val tvDetails: TextView = itemView.findViewById(R.id.details)
+        val posterView: ImageView = itemView.findViewById(DsR.id.posterView)
+        val tvTitle: TextView = itemView.findViewById(DsR.id.nameFilm)
+        val tvDetails: TextView = itemView.findViewById(DsR.id.details)
     }
 
     override fun onCreateViewHolder(
@@ -35,7 +36,7 @@ class SearchAdapter(
     ): ViewHolder {
         val view = LayoutInflater
             .from(parent.context)
-            .inflate(R.layout.item_film_horizontal, parent, false)
+            .inflate(DsR.layout.item_film_horizontal, parent, false)
         return ViewHolder(view)
     }
 
