@@ -7,11 +7,11 @@
         android:pathData="M3,0L3,18"
         android:strokeWidth="5"
         android:fillColor="@color/color_icon"
-        android:strokeColor="@color/color_icon"/>
+        android:strokeColor="@color/color_icon" />
 
     <path
         android:pathData="M12,0L12,18"
         android:strokeWidth="5"
         android:fillColor="#00000000"
-        android:strokeColor="@color/color_icon"/>
+        android:strokeColor="@color/color_icon" />
 </vector>

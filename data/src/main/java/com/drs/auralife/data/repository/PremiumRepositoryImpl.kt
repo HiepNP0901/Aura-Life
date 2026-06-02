@@ -1,10 +1,10 @@
 ﻿package com.drs.auralife.data.repository
 
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.firebase.FirebaseMapper.toDomainPremiumStatus
 import com.drs.auralife.core.firebase.PremiumDataSource
 import com.drs.auralife.domain.model.PremiumStatus
 import com.drs.auralife.domain.repository.PremiumRepository
+import com.drs.auralife.domain.result.Result
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume

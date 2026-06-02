@@ -5,6 +5,7 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="colorPrimary">@color/color_background</item>
     </style>
+
     <color name="color_background">@color/black</color>
     <color name="color_button">@color/dark_purple_60</color>
     <color name="color_item_dark">@color/dark_purple_40</color>

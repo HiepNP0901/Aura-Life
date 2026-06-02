@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 inline fun LifecycleOwner.launchAndRepeatOnStarted(
-    crossinline block: suspend CoroutineScope.() -> Unit
+    crossinline block: suspend CoroutineScope.() -> Unit,
 ) {
     lifecycleScope.launch {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -20,7 +20,7 @@ inline fun LifecycleOwner.launchAndRepeatOnStarted(
 
 inline fun Fragment.launchAndRepeatWithViewLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    crossinline block: suspend CoroutineScope.() -> Unit
+    crossinline block: suspend CoroutineScope.() -> Unit,
 ) {
     viewLifecycleOwner.lifecycleScope.launch {
         viewLifecycleOwner.lifecycle.repeatOnLifecycle(minActiveState) {

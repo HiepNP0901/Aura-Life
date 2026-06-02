@@ -1,9 +1,9 @@
 ﻿package com.drs.auralife.domain.usecase
 
-import com.drs.auralife.domain.result.Result
-import com.drs.auralife.domain.model.PagedResult
 import com.drs.auralife.domain.model.Film
+import com.drs.auralife.domain.model.PagedResult
 import com.drs.auralife.domain.repository.FilmRepository
+import com.drs.auralife.domain.result.Result
 
 class GetLatestFilmsUseCase @javax.inject.Inject constructor(
     private val filmRepository: FilmRepository,

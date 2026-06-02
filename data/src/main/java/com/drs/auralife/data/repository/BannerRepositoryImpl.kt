@@ -1,6 +1,5 @@
 ﻿package com.drs.auralife.data.repository
 
-import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.database.dao.BannerCacheDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toBannerCacheEntity
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainBanner
@@ -8,9 +7,10 @@ import com.drs.auralife.core.firebase.BannerDataSource
 import com.drs.auralife.core.firebase.FirebaseMapper.toDomainBanners
 import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.domain.repository.BannerRepository
+import com.drs.auralife.domain.result.Result
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class BannerRepositoryImpl @Inject constructor(
     private val bannerCacheDao: BannerCacheDao,

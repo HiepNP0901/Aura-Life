@@ -2,6 +2,7 @@ package com.drs.auralife.core.database.di
 
 import android.content.Context
 import androidx.room.Room
+import com.drs.auralife.core.database.AppDatabase
 import com.drs.auralife.core.database.dao.BannerCacheDao
 import com.drs.auralife.core.database.dao.CategoryCacheDao
 import com.drs.auralife.core.database.dao.FilmDao
@@ -9,7 +10,6 @@ import com.drs.auralife.core.database.dao.FilmDetailsDao
 import com.drs.auralife.core.database.dao.HistoryDao
 import com.drs.auralife.core.database.dao.LibraryDao
 import com.drs.auralife.core.database.dao.LibraryFilmCrossRefDao
-import com.drs.auralife.core.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,10 +25,10 @@ object DatabaseModule {
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "aura_life.db",
-            ).fallbackToDestructiveMigration(false).build()
+            context,
+            AppDatabase::class.java,
+            "aura_life.db",
+        ).fallbackToDestructiveMigration(false).build()
     }
 
     @Provides
