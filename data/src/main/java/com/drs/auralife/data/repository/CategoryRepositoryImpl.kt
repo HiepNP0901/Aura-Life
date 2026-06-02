@@ -1,5 +1,6 @@
-package com.drs.auralife.data.repository
+﻿package com.drs.auralife.data.repository
 
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.database.dao.CategoryCacheDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toCategoryCacheEntity
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainCategory
@@ -12,7 +13,7 @@ class CategoryRepositoryImpl @Inject constructor(
     private val filmAPI: FilmAPI,
     private val categoryCacheDao: CategoryCacheDao,
 ) : CategoryRepository {
-    override suspend fun getCategories(): List<Category> {
+    override suspend fun getCategories(): Result<List<Category>> {
         return try {
             val categories = filmAPI.getCategories().map { apiCategory ->
                 Category(
@@ -23,9 +24,10 @@ class CategoryRepositoryImpl @Inject constructor(
             }
             categoryCacheDao.clear()
             categoryCacheDao.insertAll(categories.map { it.toCategoryCacheEntity() })
-            categories
+            Result.Success(categories)
         } catch (e: Exception) {
-            categoryCacheDao.getAll().map { it.toDomainCategory() }
+            val cached = categoryCacheDao.getAll().map { it.toDomainCategory() }
+            if (cached.isNotEmpty()) Result.Success(cached) else Result.Error(e)
         }
     }
 }

@@ -1,5 +1,4 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,14 +8,14 @@
     <FrameLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="50dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_film_horizontal"/>
+        tools:listitem="@layout/item_film_horizontal" />
 
     <ProgressBar
         android:id="@+id/loading_indicator"
@@ -31,5 +30,5 @@
         android:layout_height="match_parent"
         android:text="@string/empty"
         android:visibility="gone"
-        android:gravity="center"/>
+        android:gravity="center" />
 </LinearLayout>

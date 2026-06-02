@@ -13,7 +13,6 @@ import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -21,20 +20,23 @@ import androidx.media3.ui.PlayerView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.feature.film.player.R
-import com.drs.auralife.core.designsystem.R as DsR
-import com.drs.auralife.domain.model.FilmDetails
-import com.drs.auralife.navigation.NavRoutes
-import com.drs.auralife.feature.film_detail.FilmDetailsViewModel
-import com.drs.auralife.feature.history.HistoryViewModel
-import com.drs.auralife.feature.film_player.adapter.EpisodeAdapter
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.SystemUiController
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.domain.model.FilmDetails
+import com.drs.auralife.feature.film.player.R
+import com.drs.auralife.feature.film_detail.FilmDetailsViewModel
+import com.drs.auralife.feature.film_player.adapter.EpisodeAdapter
+import com.drs.auralife.feature.history.HistoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.drs.auralife.core.designsystem.R as DsR
 
 @AndroidEntryPoint
 class FilmPlayerFragment : Fragment() {
+
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
 
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
@@ -136,16 +138,16 @@ class FilmPlayerFragment : Fragment() {
 
     private fun observeFilmDetails() {
         launchAndRepeatWithViewLifecycle {
-                filmDetailsViewModel.state.collect { state ->
-                    if (state.film != null) {
-                        film = state.film
-                        playEpisode(currentEpisode)
-                        view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
-                            ?.adapter = EpisodeAdapter(state.film!!.episodes) { ep ->
-                            playEpisode(ep)
-                        }
+            filmDetailsViewModel.state.collect { state ->
+                if (state.film != null) {
+                    film = state.film
+                    playEpisode(currentEpisode)
+                    view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
+                        ?.adapter = EpisodeAdapter(state.film!!.episodes) { ep ->
+                        playEpisode(ep)
                     }
                 }
+            }
         }
 
         filmPlayerViewModel.loadPremiumStatus()
@@ -153,22 +155,24 @@ class FilmPlayerFragment : Fragment() {
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                filmPlayerViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is PlayFilmUiEffect.ShowPremiumDialog -> {
-                            exoPlayer?.pause()
-                            btnPlayPause?.isSelected = false
-                            exoPlayer?.seekTo((5 * 60 * 1000) - 1000)
-                            showPremiumDialog()
-                        }
-                        is PlayFilmUiEffect.NavigateToPayment -> {
-                            findNavController().navigate(NavRoutes.PAYMENT)
-                        }
-                        is PlayFilmUiEffect.NavigateToLogin -> {
-                            findNavController().navigate(NavRoutes.LOGIN)
-                        }
+            filmPlayerViewModel.effect.collect { effect ->
+                when (effect) {
+                    is PlayFilmUiEffect.ShowPremiumDialog -> {
+                        exoPlayer?.pause()
+                        btnPlayPause?.isSelected = false
+                        exoPlayer?.seekTo((5 * 60 * 1000) - 1000)
+                        showPremiumDialog()
+                    }
+
+                    is PlayFilmUiEffect.NavigateToPayment -> {
+                        appNavigator.navigateToPayment()
+                    }
+
+                    is PlayFilmUiEffect.NavigateToLogin -> {
+                        appNavigator.navigateToLogin()
                     }
                 }
+            }
         }
     }
 
@@ -192,13 +196,15 @@ class FilmPlayerFragment : Fragment() {
 
     private fun settingExoPlayer() {
         exoPlayer?.apply {
-            addListener(object : Player.Listener {
-                override fun onPlaybackStateChanged(playbackState: Int) {
-                    if (playbackState == Player.STATE_ENDED) {
-                        playEpisode(currentEpisode + 1)
+            addListener(
+                object : Player.Listener {
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        if (playbackState == Player.STATE_ENDED) {
+                            playEpisode(currentEpisode + 1)
+                        }
                     }
-                }
-            })
+                },
+            )
 
             btnPlayPause?.isSelected = true
             btnPlayPause?.setOnClickListener {
@@ -255,15 +261,15 @@ class FilmPlayerFragment : Fragment() {
 
     private fun startPlaybackMonitor() {
         launchAndRepeatWithViewLifecycle {
-                while (true) {
-                    exoPlayer?.let { player ->
-                        filmPlayerViewModel.checkPlaybackThrottle(
-                            position = player.currentPosition,
-                            maxPreviewDurationMs = 5L * 60 * 1000,
-                        )
-                    }
-                    delay(1000)
+            while (true) {
+                exoPlayer?.let { player ->
+                    filmPlayerViewModel.checkPlaybackThrottle(
+                        position = player.currentPosition,
+                        maxPreviewDurationMs = 5L * 60 * 1000,
+                    )
                 }
+                delay(1000)
+            }
         }
     }
 

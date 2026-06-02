@@ -9,12 +9,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.drs.auralife.feature.search.databinding.FragmentSearchBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import com.drs.auralife.navigation.NavRoutes
+import com.drs.auralife.feature.search.databinding.FragmentSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +26,8 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
+
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
@@ -57,25 +58,24 @@ class SearchFragment : Fragment() {
 
     private fun setupSearch() {
         searchAdapter = SearchAdapter { slug ->
-            val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.search, true)
-                .build()
-            findNavController().navigate(NavRoutes.filmDetails(slug), navOptions)
+            appNavigator.navigateToFilmDetails(slug)
         }
         binding.searchResults.layoutManager = LinearLayoutManager(requireContext())
         binding.searchResults.adapter = searchAdapter
 
-        binding.searchBar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                searchQueryFlow.value = s.toString().trim()
-                if (s.toString().trim().isEmpty()) {
-                    searchViewModel.clearResults()
-                    searchAdapter?.replaceItems(emptyList())
+        binding.searchBar.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    searchQueryFlow.value = s.toString().trim()
+                    if (s.toString().trim().isEmpty()) {
+                        searchViewModel.clearResults()
+                        searchAdapter?.replaceItems(emptyList())
+                    }
                 }
-            }
-        })
+            },
+        )
 
         launchAndRepeatWithViewLifecycle {
             searchViewModel.state.collect { state ->
@@ -84,15 +84,18 @@ class SearchFragment : Fragment() {
                         binding.loadingIndicator.visibility = View.GONE
                         binding.errorText.visibility = View.GONE
                     }
+
                     is SearchUiState.Loading -> {
                         binding.loadingIndicator.visibility = View.VISIBLE
                         binding.errorText.visibility = View.GONE
                     }
+
                     is SearchUiState.Success -> {
                         binding.loadingIndicator.visibility = View.GONE
                         binding.errorText.visibility = View.GONE
                         searchAdapter?.replaceItems(state.films)
                     }
+
                     is SearchUiState.Error -> {
                         binding.loadingIndicator.visibility = View.GONE
                         binding.errorText.apply {
@@ -108,10 +111,7 @@ class SearchFragment : Fragment() {
             searchViewModel.effect.collect { effect ->
                 when (effect) {
                     is SearchUiEffect.NavigateToFilmDetails -> {
-                        val navOptions = NavOptions.Builder()
-                            .setPopUpTo(R.id.search, true)
-                            .build()
-                        findNavController().navigate(NavRoutes.filmDetails(effect.slug), navOptions)
+                        appNavigator.navigateToFilmDetails(effect.slug)
                     }
                 }
             }

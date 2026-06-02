@@ -1,11 +1,11 @@
 plugins {
-    id("com.android.library")
+    id("aura-life.android.library")
 }
 
 android {
     namespace = "com.drs.auralife.core.navigation"
-    compileSdk = 36
-    defaultConfig { minSdk = 26 }
 }
 
-
+dependencies {
+    implementation(libs.navigation.fragment.ktx)
+}

@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
+import com.drs.auralife.core.navigation.AppNavigator
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.domain.model.OnboardingItem
 import com.drs.auralife.feature.onboarding.adapter.OnboardingAdapter
 import com.drs.auralife.navigation.NavRoutes
@@ -19,6 +19,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class OnboardingFragment : Fragment() {
+
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
     private lateinit var onboardingAdapter: OnboardingAdapter
@@ -39,22 +41,24 @@ class OnboardingFragment : Fragment() {
 
         observeEffect()
 
-        onboardingViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                if (position == onboardingAdapter.itemCount - 1) {
-                    btnNext.text = getString(R.string.start)
-                    btnNext.setOnClickListener {
-                        onboardingViewModel.finishOnboarding()
-                    }
-                } else {
-                    btnNext.text = getString(R.string.next)
-                    btnNext.setOnClickListener {
-                        onboardingViewPager.currentItem += 1
+        onboardingViewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    if (position == onboardingAdapter.itemCount - 1) {
+                        btnNext.text = getString(R.string.start)
+                        btnNext.setOnClickListener {
+                            onboardingViewModel.finishOnboarding()
+                        }
+                    } else {
+                        btnNext.text = getString(R.string.next)
+                        btnNext.setOnClickListener {
+                            onboardingViewPager.currentItem += 1
+                        }
                     }
                 }
-            }
-        })
+            },
+        )
     }
 
     private fun setupOnboardingItems() {
@@ -70,16 +74,13 @@ class OnboardingFragment : Fragment() {
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                onboardingViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is OnboardingUiEffect.NavigateToMain -> {
-                            findNavController().navigate(
-                                NavRoutes.HOME,
-                                NavOptions.Builder().setPopUpTo(R.id.onboarding, true).build(),
-                            )
-                        }
+            onboardingViewModel.effect.collect { effect ->
+                when (effect) {
+                    is OnboardingUiEffect.NavigateToMain -> {
+                        appNavigator.navigateTo(NavRoutes.HOME) { popUpTo(NavRoutes.ONBOARDING) { inclusive = true } }
                     }
                 }
+            }
         }
     }
 }

@@ -1,10 +1,12 @@
-package com.drs.auralife.feature.library.library_details
+﻿package com.drs.auralife.feature.library.library_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.repository.LibraryRepository
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetLibraryUseCase
 import com.drs.auralife.domain.usecase.RemoveFilmFromLibraryUseCase
@@ -35,32 +37,42 @@ class LibraryDetailsViewModel @Inject constructor(
     fun loadLibraryFilms(name: String) {
         viewModelScope.launch {
             _state.value = LibraryDetailUiState()
-            try {
-                val lib = getLibraryUseCase().find { it.name == name } ?: return@launch
-                val films = buildFilmsFromLibrary(lib)
-                _state.value = LibraryDetailUiState(films = films)
-            } catch (e: Exception) {
-                _state.value = LibraryDetailUiState(errorMessage = e.message)
+            when (val result = getLibraryUseCase()) {
+                is Result.Success -> {
+                    val lib = result.data.find { it.name == name } ?: return@launch
+                    val films = buildFilmsFromLibrary(lib)
+                    _state.value = LibraryDetailUiState(films = films)
+                }
+
+                is Result.Error -> _state.value = LibraryDetailUiState(errorMessage = result.errorMessage)
+                is Result.Loading -> {}
             }
         }
     }
 
     private suspend fun buildFilmsFromLibrary(lib: Library): List<Film> {
         val slugs = lib.films.map { it.slug }
-        val detailsMap = getFilmDetailsUseCase.batch(slugs)
-        return lib.films.mapNotNull { filmLib ->
-            detailsMap[filmLib.slug]?.let { fd ->
-                Film(
-                    id = fd.slug,
-                    slug = fd.slug,
-                    title = fd.title,
-                    posterUrl = fd.posterUrl,
-                    thumbUrl = fd.thumbUrl,
-                    description = fd.description,
-                    category = fd.categories?.firstOrNull() ?: "",
-                    episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
-                )
+        return when (val result = getFilmDetailsUseCase.batch(slugs)) {
+            is Result.Success -> {
+                val detailsMap = result.data
+                lib.films.mapNotNull { filmLib ->
+                    detailsMap[filmLib.slug]?.let { fd ->
+                        Film(
+                            id = fd.slug,
+                            slug = fd.slug,
+                            title = fd.title,
+                            posterUrl = fd.posterUrl,
+                            thumbUrl = fd.thumbUrl,
+                            description = fd.description,
+                            category = fd.categories?.firstOrNull() ?: "",
+                            episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                        )
+                    }
+                }
             }
+
+            is Result.Error -> emptyList()
+            is Result.Loading -> emptyList()
         }
     }
 
@@ -69,14 +81,26 @@ class LibraryDetailsViewModel @Inject constructor(
             try {
                 removeFilmFromLibraryUseCase(libraryName, slug)
 
-                val lib = getLibraryUseCase().find { it.name == libraryName }
-                if (lib != null && lib.films.isNotEmpty()) {
-                    val slugs = lib.films.map { it.slug }
-                    val detailsMap = getFilmDetailsUseCase.batch(slugs)
-                    val firstFilmDetail = detailsMap[slugs.first()]
-                    if (firstFilmDetail != null) {
-                        libraryRepository.updatePosterUrl(libraryName, firstFilmDetail.posterUrl)
+                when (val result = getLibraryUseCase()) {
+                    is Result.Success -> {
+                        val lib = result.data.find { it.name == libraryName }
+                        if (lib != null && lib.films.isNotEmpty()) {
+                            val slugs = lib.films.map { it.slug }
+                            when (val batchResult = getFilmDetailsUseCase.batch(slugs)) {
+                                is Result.Success -> {
+                                    val detailsMap = batchResult.data
+                                    val firstFilmDetail = detailsMap[slugs.first()]
+                                    if (firstFilmDetail != null) {
+                                        libraryRepository.updatePosterUrl(libraryName, firstFilmDetail.posterUrl)
+                                    }
+                                }
+
+                                else -> {}
+                            }
+                        }
                     }
+
+                    else -> {}
                 }
 
                 loadLibraryFilms(libraryName)
@@ -93,3 +117,4 @@ class LibraryDetailsViewModel @Inject constructor(
         }
     }
 }
+

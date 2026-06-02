@@ -29,6 +29,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.drs.auralife.R
 import com.drs.auralife.core.common.util.AppNotification
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.designsystem.AppBarProvider
 import com.drs.auralife.designsystem.AuraLifeGlideModule
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     }
 
     private var navController: NavController? = null
+    private lateinit var appNavigator: AppNavigator
     private var drawerLayout: DrawerLayout? = null
     private var navigationView: NavigationView? = null
     private var bottomNavigationView: BottomNavigationView? = null
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+        appNavigator = AppNavigator(navController!!)
 
         drawerLayout = findViewById(R.id.main_layout)
         navigationView = findViewById(R.id.navigation_view)
@@ -99,10 +102,9 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 else -> null
             }
             if (route != null) {
-                navController?.navigate(route) {
-                    popUpTo(NavRoutes.HOME) { saveState = true }
+                appNavigator.navigateTo(route) {
+                    popUpTo(NavRoutes.HOME) { inclusive = false }
                     launchSingleTop = true
-                    restoreState = true
                 }
                 true
             } else {
@@ -156,7 +158,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 if (mainViewModel.authState.value) {
                     photoPermissionHandler?.checkAndRequestPermissions()
                 } else {
-                    navController?.navigate(NavRoutes.LOGIN)
+                    appNavigator.navigateToLogin()
                 }
             }
     }
@@ -203,7 +205,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 navPremiumStatus?.text =
                     if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
                 navPremiumStatus?.setOnClickListener {
-                    navController?.navigate(NavRoutes.PAYMENT)
+                    appNavigator.navigateToPayment()
                 }
             }
         }
@@ -250,7 +252,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun handleDrawerItemSelection() {
         navigationView?.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navLogin -> navController?.navigate(NavRoutes.LOGIN)
+                R.id.navLogin -> appNavigator.navigateToLogin()
                 R.id.navLogout -> {
                     mainViewModel.logout()
                     AppNotification.removeAllNotification(this)
@@ -272,10 +274,8 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private fun setupBackPressed() {
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                navController?.popBackStack()?.let {
-                    if (!it) {
-                        finish()
-                    }
+                if (!appNavigator.navigateBack()) {
+                    finish()
                 }
             }
         }
@@ -300,7 +300,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         }
 
         appBarProfile.setOnClickListener { navigationView?.let { drawerView -> drawerLayout?.openDrawer(drawerView) } }
-        appBarSearch.setOnClickListener { navController?.navigate(NavRoutes.SEARCH) }
-        appBarNotifications.setOnClickListener { navController?.let { it1 -> NotificationPopupHelper(it1) }?.show(it) }
+        appBarSearch.setOnClickListener { appNavigator.navigateToSearch() }
+        appBarNotifications.setOnClickListener { NotificationPopupHelper(appNavigator).show(it) }
     }
 }

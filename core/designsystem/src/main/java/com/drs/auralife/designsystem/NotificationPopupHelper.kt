@@ -6,16 +6,15 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.core.designsystem.R
 import com.drs.auralife.core.common.util.AppNotification
-import com.drs.auralife.navigation.NavRoutes
+import com.drs.auralife.core.navigation.AppNavigator
 
 @SuppressLint("InflateParams")
 class NotificationPopupHelper(
-    private val navController: NavController,
+    private val appNavigator: AppNavigator,
 ) {
     fun show(anchor: View) {
         val context = anchor.context
@@ -31,7 +30,7 @@ class NotificationPopupHelper(
 
         val adapter = NotificationAdapter(
             notifications,
-            { navController.navigate(NavRoutes.filmDetails(it.first)) },
+            { appNavigator.navigateToFilmDetails(it.first) },
             { AppNotification.removeNotification(context, it) },
         )
 

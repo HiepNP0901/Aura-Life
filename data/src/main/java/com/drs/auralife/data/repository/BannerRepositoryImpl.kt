@@ -1,5 +1,6 @@
-package com.drs.auralife.data.repository
+﻿package com.drs.auralife.data.repository
 
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.database.dao.BannerCacheDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toBannerCacheEntity
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainBanner
@@ -15,7 +16,7 @@ class BannerRepositoryImpl @Inject constructor(
     private val bannerCacheDao: BannerCacheDao,
     private val bannerDataSource: BannerDataSource,
 ) : BannerRepository {
-    override suspend fun getBanners(): List<Banner> {
+    override suspend fun getBanners(): Result<List<Banner>> {
         return try {
             val banners = suspendCancellableCoroutine { continuation ->
                 bannerDataSource.getBannerData { firebaseBanners ->
@@ -24,9 +25,10 @@ class BannerRepositoryImpl @Inject constructor(
             }
             bannerCacheDao.clear()
             bannerCacheDao.insertAll(banners.map { it.toBannerCacheEntity() })
-            banners
+            Result.Success(banners)
         } catch (e: Exception) {
-            bannerCacheDao.getAll().map { it.toDomainBanner() }
+            val cached = bannerCacheDao.getAll().map { it.toDomainBanner() }
+            if (cached.isNotEmpty()) Result.Success(cached) else Result.Error(e)
         }
     }
 }

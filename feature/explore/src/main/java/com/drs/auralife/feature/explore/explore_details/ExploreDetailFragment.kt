@@ -7,17 +7,19 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.navigation.NavRoutes
+import com.drs.auralife.core.navigation.AppNavigator
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.feature.explore.databinding.FragmentExploreDetailsBinding
 import com.drs.auralife.feature.explore.explore_details.adapter.ExploreDetailFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ExploreDetailFragment : Fragment() {
+
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
 
     private val exploreDetailViewModel: ExploreDetailViewModel by viewModels()
     private var _binding: FragmentExploreDetailsBinding? = null
@@ -43,7 +45,7 @@ class ExploreDetailFragment : Fragment() {
         name = requireArguments().getString("name") ?: return
 
         binding.backButton.setOnClickListener {
-            findNavController().navigateUp()
+            appNavigator.navigateBack()
         }
 
         binding.tvCategoryName.text = name
@@ -68,24 +70,25 @@ class ExploreDetailFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                exploreDetailViewModel.state.collect { state ->
-                    filmAdapter.submitList(state.films)
-                }
+            exploreDetailViewModel.state.collect { state ->
+                filmAdapter.submitList(state.films)
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                exploreDetailViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is ExploreDetailUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is ExploreDetailUiEffect.NavigateToFilm -> {
-                            findNavController().navigate(NavRoutes.filmDetails(effect.slug))
-                        }
+            exploreDetailViewModel.effect.collect { effect ->
+                when (effect) {
+                    is ExploreDetailUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ExploreDetailUiEffect.NavigateToFilm -> {
+                        appNavigator.navigateToFilmDetails(effect.slug)
                     }
                 }
+            }
         }
     }
 

@@ -20,7 +20,7 @@
             android:paddingEnd="15dp"
             android:src="@drawable/ic_arrow_back_24"
             android:background="@color/transparent"
-            android:contentDescription="@string/back"/>
+            android:contentDescription="@string/back" />
 
         <TextView
             android:id="@+id/tv_category_name"

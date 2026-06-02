@@ -1,5 +1,6 @@
-package com.drs.auralife.data.repository
+﻿package com.drs.auralife.data.repository
 
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.core.database.dao.LibraryDao
 import com.drs.auralife.core.database.dao.LibraryFilmCrossRefDao
 import com.drs.auralife.core.database.mapper.LocalMapper.toDomainLibrary
@@ -17,7 +18,7 @@ class LibraryRepositoryImpl @Inject constructor(
     private val libraryFilmCrossRefDao: LibraryFilmCrossRefDao,
     private val libraryDataSource: LibraryDataSource,
 ) : LibraryRepository {
-    override suspend fun getLibraries(): List<Library> {
+    override suspend fun getLibraries(): Result<List<Library>> {
         return try {
             val libraries = libraryDataSource.getLibrary().toDomainLibraries()
             libraryDao.clear()
@@ -26,22 +27,24 @@ class LibraryRepositoryImpl @Inject constructor(
                 libraryDao.insertLibrary(lib.toLibraryEntity())
                 libraryFilmCrossRefDao.insertAll(lib.toLibraryFilmCrossRefs())
             }
-            libraries
+            Result.Success(libraries)
         } catch (e: Exception) {
-            libraryDao.getAllWithFilms().map { it.toDomainLibrary() }
+            val cached = libraryDao.getAllWithFilms().map { it.toDomainLibrary() }
+            if (cached.isNotEmpty()) Result.Success(cached) else Result.Error(e)
         }
     }
 
-    override suspend fun getLibrary(name: String): Library? {
+    override suspend fun getLibrary(name: String): Result<Library?> {
         return try {
             val library = libraryDataSource.getLibraryData(name)?.toDomainLibrary()
             if (library != null) {
                 libraryDao.insertLibrary(library.toLibraryEntity())
                 libraryFilmCrossRefDao.insertAll(library.toLibraryFilmCrossRefs())
             }
-            library
+            Result.Success(library)
         } catch (e: Exception) {
-            libraryDao.getAllWithFilms().find { it.library.name == name }?.toDomainLibrary()
+            val cached = libraryDao.getAllWithFilms().find { it.library.name == name }?.toDomainLibrary()
+            if (cached != null) Result.Success(cached) else Result.Error(e)
         }
     }
 

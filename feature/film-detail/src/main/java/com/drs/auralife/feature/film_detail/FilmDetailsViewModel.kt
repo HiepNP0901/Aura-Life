@@ -1,7 +1,9 @@
-package com.drs.auralife.feature.film_detail
+﻿package com.drs.auralife.feature.film_detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,12 +29,14 @@ class FilmDetailsViewModel @Inject constructor(
     fun getFilmDetails(slug: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            try {
-                val details = getFilmDetailsUseCase(slug)
-                _state.value = _state.value.copy(film = details, isLoading = false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
-                _effect.emit(FilmDetailsUiEffect.ShowToast(e.message ?: "Unknown error"))
+            when (val result = getFilmDetailsUseCase(slug)) {
+                is Result.Success -> _state.value = _state.value.copy(film = result.data, isLoading = false)
+                is Result.Error -> {
+                    _state.value = _state.value.copy(isLoading = false, errorMessage = result.errorMessage)
+                    _effect.emit(FilmDetailsUiEffect.ShowToast(result.errorMessage ?: "Unknown error"))
+                }
+
+                is Result.Loading -> {}
             }
         }
     }
@@ -49,3 +53,4 @@ class FilmDetailsViewModel @Inject constructor(
         }
     }
 }
+

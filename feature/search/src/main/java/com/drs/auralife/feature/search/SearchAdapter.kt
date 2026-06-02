@@ -8,18 +8,21 @@ import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.core.designsystem.R as DsR
-import com.drs.auralife.domain.model.Film
 import com.drs.auralife.designsystem.AuraLifeGlideModule
+import com.drs.auralife.domain.model.Film
+import com.drs.auralife.core.designsystem.R as DsR
 
 class SearchAdapter(
     private val onItemClick: (String) -> Unit,
 ) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
-    private val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Film>() {
-        override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
-        override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem == newItem
-    })
+    private val differ = AsyncListDiffer(
+        this,
+        object : DiffUtil.ItemCallback<Film>() {
+            override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
+            override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem == newItem
+        },
+    )
 
     class ViewHolder(
         itemView: View,

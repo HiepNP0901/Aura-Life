@@ -8,18 +8,20 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.feature.library.R
-import com.drs.auralife.core.designsystem.R as DsR
-import com.drs.auralife.navigation.NavRoutes
-import com.drs.auralife.feature.library.databinding.FragmentLibraryBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.AppBarProvider
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.feature.library.R
+import com.drs.auralife.feature.library.databinding.FragmentLibraryBinding
 import com.drs.auralife.feature.library.library.adapter.LibraryAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import com.drs.auralife.core.designsystem.R as DsR
 
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
+
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
     private val libraryViewModel: LibraryViewModel by viewModels()
@@ -59,40 +61,41 @@ class LibraryFragment : Fragment() {
 
     private fun observeLibraries() {
         launchAndRepeatWithViewLifecycle {
-                libraryViewModel.librariesState.collect { state ->
-                    if (_binding == null) return@collect
-                    binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                    libraryAdapter.submitList(state.libraries)
+            libraryViewModel.librariesState.collect { state ->
+                if (_binding == null) return@collect
+                binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                libraryAdapter.submitList(state.libraries)
 
-                    if (!libraryViewModel.isLoggedIn()) {
-                        binding.text.visibility = View.VISIBLE
-                        binding.text.text = getString(R.string.function_must_login)
-                    } else if (state.libraries.isEmpty()) {
-                        binding.text.visibility = View.VISIBLE
-                        binding.text.text = getString(R.string.empty)
-                    } else {
-                        binding.text.visibility = View.GONE
-                    }
-                    if (state.errorMessage != null) {
-                        binding.text.visibility = View.VISIBLE
-                        binding.text.text = state.errorMessage
-                    }
+                if (!libraryViewModel.isLoggedIn()) {
+                    binding.text.visibility = View.VISIBLE
+                    binding.text.text = getString(R.string.function_must_login)
+                } else if (state.libraries.isEmpty()) {
+                    binding.text.visibility = View.VISIBLE
+                    binding.text.text = getString(R.string.empty)
+                } else {
+                    binding.text.visibility = View.GONE
                 }
+                if (state.errorMessage != null) {
+                    binding.text.visibility = View.VISIBLE
+                    binding.text.text = state.errorMessage
+                }
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                libraryViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is LibraryUiEffect.ShowToast -> {
-                            Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is LibraryUiEffect.NavigateToDetails -> {
-                            findNavController().navigate(NavRoutes.libraryDetails(effect.name))
-                        }
+            libraryViewModel.effect.collect { effect ->
+                when (effect) {
+                    is LibraryUiEffect.ShowToast -> {
+                        Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is LibraryUiEffect.NavigateToDetails -> {
+                        appNavigator.navigateToLibraryDetails(effect.name)
                     }
                 }
+            }
         }
     }
 

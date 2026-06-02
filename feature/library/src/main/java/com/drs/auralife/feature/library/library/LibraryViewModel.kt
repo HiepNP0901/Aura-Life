@@ -1,10 +1,12 @@
-package com.drs.auralife.feature.library.library
+﻿package com.drs.auralife.feature.library.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Library
 import com.drs.auralife.domain.model.LibraryFilm
 import com.drs.auralife.domain.repository.AuthRepository
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.AddToLibraryUseCase
 import com.drs.auralife.domain.usecase.CreateLibraryUseCase
 import com.drs.auralife.domain.usecase.DeleteLibraryUseCase
@@ -41,11 +43,10 @@ class LibraryViewModel @Inject constructor(
     fun getLibraries() {
         viewModelScope.launch {
             _librariesState.value = _librariesState.value.copy(isLoading = true)
-            try {
-                val libs = getLibraryUseCase()
-                _librariesState.value = _librariesState.value.copy(libraries = libs, isLoading = false)
-            } catch (e: Exception) {
-                _librariesState.value = _librariesState.value.copy(isLoading = false, errorMessage = e.message)
+            when (val result = getLibraryUseCase()) {
+                is Result.Success -> _librariesState.value = _librariesState.value.copy(libraries = result.data, isLoading = false)
+                is Result.Error -> _librariesState.value = _librariesState.value.copy(isLoading = false, errorMessage = result.errorMessage)
+                is Result.Loading -> {}
             }
         }
     }
@@ -104,3 +105,4 @@ class LibraryViewModel @Inject constructor(
         }
     }
 }
+

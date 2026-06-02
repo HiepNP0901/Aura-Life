@@ -1,10 +1,11 @@
-package com.drs.auralife.presentation
+﻿package com.drs.auralife.presentation
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.model.PremiumStatus
 import com.drs.auralife.domain.repository.AuthRepository
 import com.drs.auralife.domain.repository.AvatarRepository
@@ -48,24 +49,28 @@ class MainViewModel @Inject constructor(
 
     fun loadPremiumStatus() {
         viewModelScope.launch {
-            try {
-                _premiumStatus.value = getPremiumStatusUseCase()
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "loadPremiumStatus failed", e)
+            when (val result = getPremiumStatusUseCase()) {
+                is Result.Success -> _premiumStatus.value = result.data
+                is Result.Error -> Log.e("MainViewModel", "loadPremiumStatus failed", result.exception)
+                is Result.Loading -> { }
             }
         }
     }
 
     fun loadAvatar() {
         viewModelScope.launch {
-            try {
-                val bytes = avatarRepository.getAvatar()
-                _avatarState.value = if (bytes != null) {
-                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                } else null
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "loadAvatar failed", e)
-                _avatarState.value = null
+            when (val result = avatarRepository.getAvatar()) {
+                is Result.Success -> {
+                    val bytes = result.data
+                    _avatarState.value = if (bytes != null) {
+                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    } else null
+                }
+                is Result.Error -> {
+                    Log.e("MainViewModel", "loadAvatar failed", result.exception)
+                    _avatarState.value = null
+                }
+                is Result.Loading -> { }
             }
         }
     }

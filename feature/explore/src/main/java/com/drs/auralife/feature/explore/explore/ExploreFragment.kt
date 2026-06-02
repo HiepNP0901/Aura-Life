@@ -9,23 +9,25 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.feature.explore.R
-import com.drs.auralife.core.designsystem.R as DsR
-import com.drs.auralife.navigation.NavRoutes
-import com.drs.auralife.feature.explore.databinding.FragmentExploreBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.AppBarProvider
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.domain.model.Category
+import com.drs.auralife.feature.explore.R
+import com.drs.auralife.feature.explore.databinding.FragmentExploreBinding
 import com.drs.auralife.feature.explore.explore.adapter.ExploreFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import com.drs.auralife.core.designsystem.R as DsR
 
 @AndroidEntryPoint
 class ExploreFragment : Fragment() {
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
+
     private val exploreViewModel: ExploreViewModel by viewModels()
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
@@ -63,51 +65,53 @@ class ExploreFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                exploreViewModel.state.collect { state ->
-                    if (_binding == null) return@collect
-                    if (state.isLoading) {
-                        binding.loadingIndicator.visibility = View.VISIBLE
-                    } else {
-                        binding.loadingIndicator.visibility = View.GONE
+            exploreViewModel.state.collect { state ->
+                if (_binding == null) return@collect
+                if (state.isLoading) {
+                    binding.loadingIndicator.visibility = View.VISIBLE
+                } else {
+                    binding.loadingIndicator.visibility = View.GONE
+                }
+                if (state.errorMessage != null) {
+                    binding.errorText.apply {
+                        visibility = View.VISIBLE
+                        text = state.errorMessage
                     }
-                    if (state.errorMessage != null) {
-                        binding.errorText.apply {
-                            visibility = View.VISIBLE
-                            text = state.errorMessage
-                        }
-                    } else {
-                        binding.errorText.visibility = View.GONE
-                    }
-                    if (state.categories.isNotEmpty()) {
-                        buildCategoryViews(state.categories)
-                    }
-                    state.filmsByCategory.forEach { (slug, films) ->
-                        val index = state.categories.indexOfFirst { it.slug == slug }
-                        if (index >= 0) {
-                            val child = binding.exploreFragmentBody.getChildAt(index)
-                            val rv = child?.findViewById<RecyclerView>(R.id.recyclerView)
-                            (rv?.adapter as? ExploreFilmAdapter)?.addItem(films)
-                        }
+                } else {
+                    binding.errorText.visibility = View.GONE
+                }
+                if (state.categories.isNotEmpty()) {
+                    buildCategoryViews(state.categories)
+                }
+                state.filmsByCategory.forEach { (slug, films) ->
+                    val index = state.categories.indexOfFirst { it.slug == slug }
+                    if (index >= 0) {
+                        val child = binding.exploreFragmentBody.getChildAt(index)
+                        val rv = child?.findViewById<RecyclerView>(R.id.recyclerView)
+                        (rv?.adapter as? ExploreFilmAdapter)?.addItem(films)
                     }
                 }
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                exploreViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is ExploreUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is ExploreUiEffect.NavigateToCategory -> {
-                            findNavController().navigate(NavRoutes.exploreDetails(effect.slug, effect.name))
-                        }
-                        is ExploreUiEffect.NavigateToFilm -> {
-                            findNavController().navigate(NavRoutes.filmDetails(effect.slug))
-                        }
+            exploreViewModel.effect.collect { effect ->
+                when (effect) {
+                    is ExploreUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ExploreUiEffect.NavigateToCategory -> {
+                        appNavigator.navigateToExploreDetails(effect.slug, effect.name)
+                    }
+
+                    is ExploreUiEffect.NavigateToFilm -> {
+                        appNavigator.navigateToFilmDetails(effect.slug)
                     }
                 }
+            }
         }
     }
 
