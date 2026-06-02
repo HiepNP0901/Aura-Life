@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.onboarding
+package com.drs.auralife.feature.onboarding
 
 import android.app.Application
 import androidx.lifecycle.ViewModel

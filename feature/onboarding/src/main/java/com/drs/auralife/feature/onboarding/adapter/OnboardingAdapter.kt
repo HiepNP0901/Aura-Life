@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.onboarding.adapter
+package com.drs.auralife.feature.onboarding.adapter
 
 import android.view.LayoutInflater
 import android.view.View

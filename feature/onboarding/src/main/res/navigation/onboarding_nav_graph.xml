@@ -4,6 +4,6 @@
     app:startDestination="@id/onboarding">
     <fragment
         android:id="@+id/onboarding"
-        android:name="com.drs.auralife.presentation.onboarding.OnboardingFragment"
+        android:name="com.drs.auralife.feature.onboarding.OnboardingFragment"
         app:route="onboarding" />
 </navigation>

@@ -15,7 +15,7 @@
 
     <fragment
         android:id="@+id/onboarding"
-        android:name="com.drs.auralife.presentation.onboarding.OnboardingFragment"
+        android:name="com.drs.auralife.feature.onboarding.OnboardingFragment"
         android:label="Onboarding"
         app:route="onboarding"
         tools:layout="@layout/fragment_onboarding">
