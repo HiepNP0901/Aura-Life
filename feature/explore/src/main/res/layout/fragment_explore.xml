@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:contentDescription="@string/explore"
-    tools:context=".presentation.explore.ExploreFragment">
+    android:contentDescription="@string/explore">
 
     <LinearLayout
         android:layout_width="match_parent"

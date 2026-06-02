@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.explore_details
+package com.drs.auralife.feature.explore.explore_details
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +10,10 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.explore.databinding.FragmentExploreDetailsBinding
-import com.drs.auralife.presentation.explore_details.adapter.ExploreDetailFilmAdapter
+import com.drs.auralife.feature.explore.explore_details.adapter.ExploreDetailFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -28,7 +29,7 @@ class ExploreDetailFragment : Fragment() {
         exploreDetailViewModel.onFilmClicked(slug)
     }
 
-    private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
+    private var scrollListener: RecyclerView.OnScrollListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentExploreDetailsBinding.inflate(inflater, container, false)
@@ -89,8 +90,8 @@ class ExploreDetailFragment : Fragment() {
     }
 
     private fun setupPagination() {
-        scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+        scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 val lastVisibleItemPosition = (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
                 if (lastVisibleItemPosition >= filmAdapter.itemCount - 1) {
                     exploreDetailViewModel.onScrolledToBottom(slug)

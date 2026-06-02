@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.explore
+package com.drs.auralife.feature.explore.explore
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

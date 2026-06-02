@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.explore
+package com.drs.auralife.feature.explore.explore
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,7 +17,8 @@ import com.drs.auralife.core.designsystem.R as DsR
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.explore.databinding.FragmentExploreBinding
 import com.drs.auralife.designsystem.AppBarProvider
-import com.drs.auralife.presentation.explore.adapter.ExploreFilmAdapter
+import com.drs.auralife.domain.model.Category
+import com.drs.auralife.feature.explore.explore.adapter.ExploreFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -110,7 +111,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    private fun buildCategoryViews(categories: List<com.drs.auralife.domain.model.Category>) {
+    private fun buildCategoryViews(categories: List<Category>) {
         binding.exploreFragmentBody.removeAllViews()
         categories.forEach { category ->
             val item = layoutInflater.inflate(DsR.layout.horizontal_film_list, null)

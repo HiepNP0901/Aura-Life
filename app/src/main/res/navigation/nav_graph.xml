@@ -10,7 +10,7 @@
         android:name="com.drs.auralife.presentation.splash.SplashFragment"
         android:label="Splash"
         app:route="splash"
-        tools:layout="@layout/fragment_splash_screen">
+        tools:layout="@layout/fragment_splash">
     </fragment>
 
     <fragment
@@ -30,7 +30,7 @@
 
     <fragment
         android:id="@+id/explore"
-        android:name="com.drs.auralife.presentation.explore.ExploreFragment"
+        android:name="com.drs.auralife.feature.explore.explore.ExploreFragment"
         android:label="Explore"
         app:route="explore"
         tools:layout="@layout/fragment_explore" />
@@ -97,7 +97,7 @@
         android:name="com.drs.auralife.presentation.play_film.FilmPlayerFragment"
         android:label="PlayFilm"
         app:route="play_film/{slug}"
-        tools:layout="@layout/fragment_play_film">
+        tools:layout="@layout/fragment_film_player">
         <argument
             android:name="slug"
             app:argType="string" />
@@ -111,7 +111,7 @@
 
     <fragment
         android:id="@+id/explore_details"
-        android:name="com.drs.auralife.presentation.explore_details.ExploreDetailFragment"
+        android:name="com.drs.auralife.feature.explore.explore_details.ExploreDetailFragment"
         android:label="ExploreDetails"
         app:route="explore_details/{slug}/{name}"
         tools:layout="@layout/fragment_explore_details">

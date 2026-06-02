@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.explore
+package com.drs.auralife.feature.explore.explore
 
 import com.drs.auralife.domain.model.Category
 import com.drs.auralife.domain.model.Film
