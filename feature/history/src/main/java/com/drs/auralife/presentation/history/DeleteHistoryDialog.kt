@@ -1,6 +1,5 @@
 package com.drs.auralife.presentation.history
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.TextView
