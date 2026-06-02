@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.home
+package com.drs.auralife.feature.home
 
 import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.domain.model.Film

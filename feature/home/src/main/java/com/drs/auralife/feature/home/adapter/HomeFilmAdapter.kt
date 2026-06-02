@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.home.adapter
+package com.drs.auralife.feature.home.adapter
 
 import android.view.LayoutInflater
 import android.view.View

@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.home
+package com.drs.auralife.feature.home
 
 import android.content.Context
 import android.net.ConnectivityManager

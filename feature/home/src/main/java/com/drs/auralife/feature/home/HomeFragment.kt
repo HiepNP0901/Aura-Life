@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.home
+package com.drs.auralife.feature.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,12 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.feature.home.R
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.home.databinding.FragmentHomeBinding
 import com.drs.auralife.designsystem.AppBarProvider
-import com.drs.auralife.presentation.home.adapter.BannerAdapter
-import com.drs.auralife.presentation.home.adapter.HomeFilmAdapter
+import com.drs.auralife.feature.home.adapter.BannerAdapter
+import com.drs.auralife.feature.home.adapter.HomeFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +34,7 @@ class HomeFragment : Fragment() {
     }
 
     private var autoScrollJob: Job? = null
-    private var scrollListener: androidx.recyclerview.widget.RecyclerView.OnScrollListener? = null
+    private var scrollListener: RecyclerView.OnScrollListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -123,8 +124,8 @@ class HomeFragment : Fragment() {
 
         homeViewModel.loadLatestFilms()
 
-        scrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+        scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 if (_binding == null) return
                 val layoutManager = recyclerView.layoutManager as GridLayoutManager
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
@@ -143,7 +144,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun startAutoScroll(bannerViewPager: androidx.viewpager2.widget.ViewPager2, count: Int) {
+    private fun startAutoScroll(bannerViewPager: ViewPager2, count: Int) {
         autoScrollJob?.cancel()
         autoScrollJob = viewLifecycleOwner.lifecycleScope.launch {
             while (true) {

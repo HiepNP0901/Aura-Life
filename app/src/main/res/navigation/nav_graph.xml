@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/home"
-        android:name="com.drs.auralife.presentation.home.HomeFragment"
+        android:name="com.drs.auralife.feature.home.HomeFragment"
         android:label="Home"
         app:route="home"
         tools:layout="@layout/fragment_home" />
