@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.feature.onboarding.R
 import com.drs.auralife.domain.model.OnboardingItem
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.presentation.onboarding.adapter.OnboardingAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint

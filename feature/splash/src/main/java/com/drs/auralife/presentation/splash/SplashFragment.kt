@@ -11,7 +11,7 @@ import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.splash.R
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

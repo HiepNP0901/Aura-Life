@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation.navigation
+package com.drs.auralife.navigation
 
 object NavRoutes {
     const val SPLASH = "splash"

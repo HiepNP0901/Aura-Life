@@ -17,7 +17,7 @@ import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.film.detail.R
 import com.drs.auralife.designsystem.AuraLifeGlideModule
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.film.detail.databinding.FragmentFilmDetailsBinding
 import com.drs.auralife.presentation.library.AddToLibraryDialog
 import com.drs.auralife.presentation.library.LibraryUiEffect

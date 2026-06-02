@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.explore.databinding.FragmentExploreDetailsBinding
 import com.drs.auralife.presentation.explore_details.adapter.ExploreDetailFilmAdapter
 import dagger.hilt.android.AndroidEntryPoint

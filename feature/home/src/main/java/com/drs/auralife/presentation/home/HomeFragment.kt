@@ -12,7 +12,7 @@ import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.drs.auralife.feature.home.R
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.home.databinding.FragmentHomeBinding
 import com.drs.auralife.designsystem.AppBarProvider
 import com.drs.auralife.presentation.home.adapter.BannerAdapter

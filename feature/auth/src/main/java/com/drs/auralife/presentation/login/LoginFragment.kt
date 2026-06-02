@@ -13,7 +13,7 @@ import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import com.drs.auralife.feature.auth.R
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.core.common.validation.Validator
 import com.drs.auralife.feature.auth.databinding.FragmentLoginBinding
 import com.drs.auralife.designsystem.LogoFragment

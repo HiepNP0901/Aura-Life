@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.presentation.navigation.NavRoutes
+import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.feature.library.databinding.FragmentLibraryDetailsBinding
 import com.drs.auralife.presentation.library.EditLibraryDialog
 import com.drs.auralife.presentation.library_details.adapter.LibraryFilmAdapter
