@@ -1,4 +1,4 @@
-package com.drs.auralife.presentation
+package com.drs.auralife
 
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
@@ -27,10 +27,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.drs.auralife.R
 import com.drs.auralife.core.common.util.AppNotification
 import com.drs.auralife.core.navigation.AppNavigator
-import com.drs.auralife.core.worker.UpdateLibraryWorker
 import com.drs.auralife.designsystem.AppBarProvider
 import com.drs.auralife.designsystem.AuraLifeGlideModule
 import com.drs.auralife.designsystem.NotificationPopupHelper

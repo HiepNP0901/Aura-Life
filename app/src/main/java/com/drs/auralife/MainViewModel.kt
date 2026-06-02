@@ -1,4 +1,4 @@
-﻿package com.drs.auralife.presentation
+﻿package com.drs.auralife
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
