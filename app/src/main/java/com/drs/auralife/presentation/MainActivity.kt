@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
     private var drawerLayout: DrawerLayout? = null
     private var navigationView: NavigationView? = null
     private var bottomNavigationView: BottomNavigationView? = null
-    private var PhotoPermissionHandler: PhotoPermissionHandler? = null
+    private var photoPermissionHandler: PhotoPermissionHandler? = null
     private var actionBarDrawerToggle: ActionBarDrawerToggle? = null
 
     private val mainViewModel: MainViewModel by viewModels()
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        PhotoPermissionHandler?.handlePermissionsResult(requestCode, grantResults)
+        photoPermissionHandler?.handlePermissionsResult(requestCode, grantResults)
     }
 
     private fun setupBottomNav() {
@@ -146,14 +146,14 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                 }
             }
 
-        PhotoPermissionHandler = PhotoPermissionHandler(this, activityResultLauncher)
+        photoPermissionHandler = PhotoPermissionHandler(this, activityResultLauncher)
 
         navigationView
             ?.getHeaderView(0)
             ?.findViewById<ImageFilterView>(R.id.navProfilePic)
             ?.setOnClickListener {
                 if (mainViewModel.authState.value) {
-                    PhotoPermissionHandler?.checkAndRequestPermissions()
+                    photoPermissionHandler?.checkAndRequestPermissions()
                 } else {
                     navController?.navigate(NavRoutes.LOGIN)
                 }
