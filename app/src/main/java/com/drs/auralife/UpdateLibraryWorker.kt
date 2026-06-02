@@ -1,4 +1,4 @@
-package com.drs.auralife.core.worker
+package com.drs.auralife
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -6,12 +6,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.drs.auralife.R
 import com.drs.auralife.core.common.dispatcher.DispatcherProvider
 import com.drs.auralife.core.common.util.AppNotification
 import com.drs.auralife.core.firebase.LibraryDataSource
@@ -93,7 +93,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel =
                 NotificationChannel(
                     CHANNEL_ID,
