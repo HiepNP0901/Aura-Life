@@ -1,4 +1,4 @@
-package com.drs.auralife.di
+package com.drs.auralife.core.database.di
 
 import android.content.Context
 import androidx.room.Room

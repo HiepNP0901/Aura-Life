@@ -1,15 +1,7 @@
 package com.drs.auralife.data.repository
 
-import android.util.Log
-import com.drs.auralife.data.local.dao.FilmDao
-import com.drs.auralife.data.local.dao.FilmDetailsDao
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilm
-import com.drs.auralife.data.local.mapper.LocalMapper.toDomainFilmDetails
-import com.drs.auralife.data.local.mapper.LocalMapper.toFilmDetailsEntity
-import com.drs.auralife.data.local.mapper.LocalMapper.toFilmEntity
-import com.drs.auralife.data.remote.api.FilmAPI
-import com.drs.auralife.data.remote.api.FilmMapper.toDomainFilm as apiToDomainFilm
-import com.drs.auralife.data.remote.api.FilmMapper.toDomainFilmDetails as apiToDomainFilmDetails
+import com.drs.auralife.data.datasource.local.FilmLocalDataSource
+import com.drs.auralife.data.datasource.remote.api.FilmApiDataSource
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.domain.model.PagedResult
@@ -18,23 +10,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 class FilmRepositoryImpl @javax.inject.Inject constructor(
-    private val api: FilmAPI,
-    private val filmDao: FilmDao,
-    private val filmDetailsDao: FilmDetailsDao,
+    private val apiDataSource: FilmApiDataSource,
+    private val localDataSource: FilmLocalDataSource,
 ) : FilmRepository {
     override suspend fun getLatestFilms(page: Int): PagedResult<Film> {
         return try {
-            val response = api.getLatestFilms(page)
-            val films = response.items.map { it.apiToDomainFilm() }
-            filmDao.clearFilms()
-            filmDao.insertFilms(films.map { it.toFilmEntity() })
-            PagedResult(
-                data = films,
-                currentPage = response.pagination.currentPage,
-                totalPages = response.pagination.totalPages,
-            )
+            val result = apiDataSource.getLatestFilms(page)
+            localDataSource.clearAndInsertFilms(result.data)
+            result
         } catch (e: Exception) {
-            val cachedFilms = filmDao.getAllFilms().map { it.toDomainFilm() }
+            val cachedFilms = localDataSource.getAllFilms()
             PagedResult(
                 data = cachedFilms,
                 currentPage = page,
@@ -45,23 +30,11 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
 
     override suspend fun getFilmsByCategory(slug: String, page: Int): PagedResult<Film> {
         return try {
-            val response = api.getFilmsByCategory(slug, page)
-            val cdn = response.data.appDomainCdnImage
-            val films = response.data.items.map { movie ->
-                movie.apiToDomainFilm().copy(
-                    posterUrl = "$cdn/${movie.posterUrl}",
-                    thumbUrl = "$cdn/${movie.thumbUrl}",
-                )
-            }
-            filmDao.clearFilms()
-            filmDao.insertFilms(films.map { it.toFilmEntity() })
-            PagedResult(
-                data = films,
-                currentPage = response.data.params.pagination.currentPage,
-                totalPages = response.data.params.pagination.totalPages,
-            )
+            val result = apiDataSource.getFilmsByCategory(slug, page)
+            localDataSource.clearAndInsertFilms(result.data)
+            result
         } catch (e: Exception) {
-            val cachedFilms = filmDao.getAllFilms().map { it.toDomainFilm() }
+            val cachedFilms = localDataSource.getAllFilms()
             PagedResult(
                 data = cachedFilms,
                 currentPage = page,
@@ -72,44 +45,35 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
 
     override suspend fun searchFilms(keyword: String, limit: Int): List<Film> {
         return try {
-            val response = api.searchFilms(keyword, limit)
-            val cdn = response.data.appDomainCdnImage
-            val films = response.data.items.map { movie ->
-                movie.apiToDomainFilm().copy(
-                    posterUrl = "$cdn/${movie.posterUrl}",
-                    thumbUrl = "$cdn/${movie.thumbUrl}",
-                )
-            }
-            filmDao.insertFilms(films.map { it.toFilmEntity() })
+            val films = apiDataSource.searchFilms(keyword, limit)
+            localDataSource.insertFilms(films)
             films
         } catch (e: Exception) {
-            filmDao.getAllFilms().map { it.toDomainFilm() }
+            localDataSource.getAllFilms()
         }
     }
 
     override suspend fun getFilmDetails(slug: String): FilmDetails {
         return try {
-            val details = api.getFilmDetails(slug).apiToDomainFilmDetails()
-            filmDetailsDao.insertFilmDetails(details.toFilmDetailsEntity())
+            val details = apiDataSource.getFilmDetails(slug)
+            localDataSource.insertFilmDetails(details)
             details
         } catch (e: Exception) {
-            val cached = filmDetailsDao.getFilmDetails(slug)
-            cached?.toDomainFilmDetails() ?: throw e
+            localDataSource.getFilmDetails(slug) ?: throw e
         }
     }
 
     override suspend fun getFilmDetailsBatch(slugs: List<String>): Map<String, FilmDetails> {
-        val cached = filmDetailsDao.getFilmDetailsBatch(slugs)
-        val cachedMap = cached.associateBy { it.slug }
-        val uncachedSlugs = slugs.filter { it !in cachedMap }
+        val cached = localDataSource.getFilmDetailsBatch(slugs)
+        val uncachedSlugs = slugs.filter { it !in cached }
 
         val uncachedMap = if (uncachedSlugs.isNotEmpty()) {
             coroutineScope {
                 uncachedSlugs.map { slug ->
                     async {
                         try {
-                            val details = api.getFilmDetails(slug).apiToDomainFilmDetails()
-                            filmDetailsDao.insertFilmDetails(details.toFilmDetailsEntity())
+                            val details = apiDataSource.getFilmDetails(slug)
+                            localDataSource.insertFilmDetails(details)
                             slug to details
                         } catch (_: Exception) {
                             null
@@ -121,7 +85,7 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
             emptyMap()
         }
 
-        val all = cachedMap.mapValues { it.value.toDomainFilmDetails() } + uncachedMap
+        val all = cached + uncachedMap
         return slugs.mapNotNull { slug -> all[slug]?.let { slug to it } }.toMap()
     }
 }

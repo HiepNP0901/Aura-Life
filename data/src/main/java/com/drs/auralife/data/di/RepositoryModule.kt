@@ -1,4 +1,4 @@
-package com.drs.auralife.di
+package com.drs.auralife.data.di
 
 import com.drs.auralife.data.repository.AuthRepositoryImpl
 import com.drs.auralife.data.repository.AvatarRepositoryImpl

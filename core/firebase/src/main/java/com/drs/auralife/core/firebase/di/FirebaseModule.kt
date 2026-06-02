@@ -1,4 +1,4 @@
-package com.drs.auralife.di
+package com.drs.auralife.core.firebase.di
 
 import com.google.firebase.database.FirebaseDatabase
 import dagger.Module
