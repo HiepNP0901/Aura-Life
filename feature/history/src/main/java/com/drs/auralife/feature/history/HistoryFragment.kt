@@ -8,17 +8,19 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.core.designsystem.R as DsR
-import com.drs.auralife.navigation.NavRoutes
-import com.drs.auralife.feature.history.databinding.FragmentHistoryBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.AppBarProvider
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.feature.history.adapter.HistoryFilmAdapter
+import com.drs.auralife.feature.history.databinding.FragmentHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
+import com.drs.auralife.core.designsystem.R as DsR
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
+
     private val historyViewModel: HistoryViewModel by viewModels()
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
@@ -52,36 +54,37 @@ class HistoryFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                historyViewModel.state.collect { state ->
-                    if (_binding == null) return@collect
-                    binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                    if (state.films.isEmpty()) {
-                        binding.text.visibility = View.VISIBLE
-                    } else {
-                        binding.text.visibility = View.GONE
-                        binding.recyclerView.adapter = filmAdapter
-                        filmAdapter.submitList(state.films)
-                    }
-                    if (state.errorMessage != null) {
-                        binding.text.visibility = View.VISIBLE
-                        binding.text.text = state.errorMessage
-                    }
+            historyViewModel.state.collect { state ->
+                if (_binding == null) return@collect
+                binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                if (state.films.isEmpty()) {
+                    binding.text.visibility = View.VISIBLE
+                } else {
+                    binding.text.visibility = View.GONE
+                    binding.recyclerView.adapter = filmAdapter
+                    filmAdapter.submitList(state.films)
                 }
+                if (state.errorMessage != null) {
+                    binding.text.visibility = View.VISIBLE
+                    binding.text.text = state.errorMessage
+                }
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                historyViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is HistoryUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is HistoryUiEffect.NavigateToFilm -> {
-                            findNavController().navigate(NavRoutes.filmDetails(effect.slug))
-                        }
+            historyViewModel.effect.collect { effect ->
+                when (effect) {
+                    is HistoryUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is HistoryUiEffect.NavigateToFilm -> {
+                        appNavigator.navigateToFilmDetails(effect.slug)
                     }
                 }
+            }
         }
     }
 

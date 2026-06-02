@@ -13,22 +13,23 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.feature.film.detail.R
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.AuraLifeGlideModule
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.domain.model.FilmDetails
-import com.drs.auralife.navigation.NavRoutes
+import com.drs.auralife.feature.film.detail.R
 import com.drs.auralife.feature.film.detail.databinding.FragmentFilmDetailsBinding
 import com.drs.auralife.feature.library.library.AddToLibraryDialog
 import com.drs.auralife.feature.library.library.LibraryUiEffect
 import com.drs.auralife.feature.library.library.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlin.collections.iterator
 
 @AndroidEntryPoint
 class FilmDetailsFragment : Fragment() {
+
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
 
     private val filmDetailsViewModel: FilmDetailsViewModel by viewModels()
     private val libraryViewModel: LibraryViewModel by viewModels(ownerProducer = { requireActivity() })
@@ -56,37 +57,40 @@ class FilmDetailsFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                filmDetailsViewModel.state.collect { state ->
-                    when {
-                        state.isLoading -> binding.root.visibility = View.GONE
-                        state.film != null -> {
-                            binding.root.visibility = View.VISIBLE
-                            updateUI(state.film)
-                        }
-                        state.errorMessage != null -> {
-                            binding.root.visibility = View.GONE
-                            Toast.makeText(context, state.errorMessage, Toast.LENGTH_SHORT).show()
-                        }
+            filmDetailsViewModel.state.collect { state ->
+                when {
+                    state.isLoading -> binding.root.visibility = View.GONE
+                    state.film != null -> {
+                        binding.root.visibility = View.VISIBLE
+                        updateUI(state.film)
+                    }
+
+                    state.errorMessage != null -> {
+                        binding.root.visibility = View.GONE
+                        Toast.makeText(context, state.errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                filmDetailsViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is FilmDetailsUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is FilmDetailsUiEffect.NavigateToPlayFilm -> {
-                            findNavController().navigate(NavRoutes.playFilm(effect.slug))
-                        }
-                        is FilmDetailsUiEffect.NavigateToLogin -> {
-                            findNavController().navigate(NavRoutes.LOGIN)
-                        }
+            filmDetailsViewModel.effect.collect { effect ->
+                when (effect) {
+                    is FilmDetailsUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is FilmDetailsUiEffect.NavigateToPlayFilm -> {
+                        appNavigator.navigateToPlayFilm(effect.slug)
+                    }
+
+                    is FilmDetailsUiEffect.NavigateToLogin -> {
+                        appNavigator.navigateToLogin()
                     }
                 }
+            }
         }
     }
 
@@ -137,14 +141,15 @@ class FilmDetailsFragment : Fragment() {
 
     private fun observeOperationResult() {
         launchAndRepeatWithViewLifecycle {
-                libraryViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is LibraryUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        else -> {}
+            libraryViewModel.effect.collect { effect ->
+                when (effect) {
+                    is LibraryUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                     }
+
+                    else -> {}
                 }
+            }
         }
     }
 

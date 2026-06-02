@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.feature.payment.R
 import com.drs.auralife.domain.model.SubscriptionPlan
+import com.drs.auralife.feature.payment.R
 
 class PaymentAdapter(
     private val paymentItems: List<SubscriptionPlan>,

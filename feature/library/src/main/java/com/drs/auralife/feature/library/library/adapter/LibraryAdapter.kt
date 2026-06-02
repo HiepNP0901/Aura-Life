@@ -8,9 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.drs.auralife.feature.library.R
 import com.drs.auralife.designsystem.AuraLifeGlideModule
 import com.drs.auralife.domain.model.Library
+import com.drs.auralife.feature.library.R
 import com.drs.auralife.feature.library.library.EditLibraryDialog
 
 class LibraryAdapter(

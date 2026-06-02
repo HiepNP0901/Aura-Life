@@ -1,6 +1,8 @@
-package com.drs.auralife.domain.repository
+﻿package com.drs.auralife.domain.repository
+
+import com.drs.auralife.domain.result.Result
 
 interface AvatarRepository {
-    suspend fun getAvatar(): ByteArray?
+    suspend fun getAvatar(): Result<ByteArray?>
     suspend fun uploadAvatar(imageBytes: ByteArray): Boolean
 }

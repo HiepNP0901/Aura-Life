@@ -21,7 +21,7 @@
                 <FrameLayout
                     android:id="@+id/appBar"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"/>
+                    android:layout_height="50dp" />
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/bannerViewPager"

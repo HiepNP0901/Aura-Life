@@ -1,8 +1,9 @@
-package com.drs.auralife.feature.payment
+﻿package com.drs.auralife.feature.payment
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.usecase.GetPremiumStatusUseCase
 import com.drs.auralife.domain.usecase.SetPremiumUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,11 +30,10 @@ class PaymentViewModel @Inject constructor(
 
     fun loadPremiumStatus() {
         viewModelScope.launch {
-            try {
-                val status = getPremiumStatusUseCase()
-                _state.value = _state.value.copy(premiumStatus = status)
-            } catch (e: Exception) {
-                Log.e("PremiumViewModel", "loadPremiumStatus failed", e)
+            when (val result = getPremiumStatusUseCase()) {
+                is Result.Success -> _state.value = _state.value.copy(premiumStatus = result.data)
+                is Result.Error -> Log.e("PremiumViewModel", "loadPremiumStatus failed", result.exception)
+                is Result.Loading -> {}
             }
         }
     }

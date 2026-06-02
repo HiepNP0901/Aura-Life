@@ -1,7 +1,9 @@
-package com.drs.auralife.feature.explore.explore_details
+﻿package com.drs.auralife.feature.explore.explore_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,15 +29,18 @@ class ExploreDetailViewModel @Inject constructor(
     fun getFilmsByCategory(slug: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, currentPage = 1)
-            try {
-                val result = getFilmsByCategoryUseCase(slug, 1)
-                _state.value = ExploreDetailUiState(
-                    films = result.data,
-                    totalPages = result.totalPages,
-                    currentPage = 1,
-                )
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
+            when (val result = getFilmsByCategoryUseCase(slug, 1)) {
+                is Result.Success -> {
+                    val paged = result.data
+                    _state.value = ExploreDetailUiState(
+                        films = paged.data,
+                        totalPages = paged.totalPages,
+                        currentPage = 1,
+                    )
+                }
+
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, errorMessage = result.errorMessage)
+                is Result.Loading -> {}
             }
         }
     }
@@ -46,12 +51,15 @@ class ExploreDetailViewModel @Inject constructor(
         val nextPage = current.currentPage + 1
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingMore = true)
-            try {
-                val result = getFilmsByCategoryUseCase(slug, nextPage)
-                val appended = _state.value.films + result.data
-                _state.value = _state.value.copy(films = appended, totalPages = result.totalPages, currentPage = nextPage, isLoadingMore = false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(isLoadingMore = false, errorMessage = e.message)
+            when (val result = getFilmsByCategoryUseCase(slug, nextPage)) {
+                is Result.Success -> {
+                    val paged = result.data
+                    val appended = _state.value.films + paged.data
+                    _state.value = _state.value.copy(films = appended, totalPages = paged.totalPages, currentPage = nextPage, isLoadingMore = false)
+                }
+
+                is Result.Error -> _state.value = _state.value.copy(isLoadingMore = false, errorMessage = result.errorMessage)
+                is Result.Loading -> {}
             }
         }
     }
@@ -62,3 +70,4 @@ class ExploreDetailViewModel @Inject constructor(
         }
     }
 }
+

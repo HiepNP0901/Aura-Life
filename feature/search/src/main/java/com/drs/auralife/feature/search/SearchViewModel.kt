@@ -1,7 +1,9 @@
-package com.drs.auralife.feature.search
+﻿package com.drs.auralife.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.SearchFilmsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,11 +33,10 @@ class SearchViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _state.value = SearchUiState.Loading
-            try {
-                val films = searchFilmsUseCase(keyword, limit)
-                _state.value = SearchUiState.Success(films)
-            } catch (e: Exception) {
-                _state.value = SearchUiState.Error(e.message ?: "Search failed")
+            when (val result = searchFilmsUseCase(keyword, limit)) {
+                is Result.Success -> _state.value = SearchUiState.Success(result.data)
+                is Result.Error -> _state.value = SearchUiState.Error(result.errorMessage ?: "Search failed")
+                is Result.Loading -> {}
             }
         }
     }
@@ -48,3 +49,4 @@ class SearchViewModel @Inject constructor(
         _effect.tryEmit(SearchUiEffect.NavigateToFilmDetails(slug))
     }
 }
+

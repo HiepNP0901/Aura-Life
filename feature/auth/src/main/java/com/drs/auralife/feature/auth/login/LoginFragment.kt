@@ -10,17 +10,19 @@ import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.feature.auth.R
-import com.drs.auralife.navigation.NavRoutes
 import com.drs.auralife.core.common.validation.Validator
-import com.drs.auralife.feature.auth.databinding.FragmentLoginBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.LogoFragment
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.feature.auth.R
+import com.drs.auralife.feature.auth.databinding.FragmentLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
+
     private val loginViewModel: LoginViewModel by viewModels()
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
@@ -78,7 +80,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.dontHaveAccountButton.setOnClickListener {
-            findNavController().navigate(NavRoutes.REGISTER)
+            appNavigator.navigateToRegister()
         }
     }
 
@@ -97,39 +99,43 @@ class LoginFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                loginViewModel.state.collect { state ->
-                    when (state) {
-                        is LoginUiState.Loading -> {
-                            binding.loginButton.isEnabled = false
-                            binding.progressBar.visibility = View.VISIBLE
-                        }
-                        is LoginUiState.Success -> {
-                            binding.loginButton.isEnabled = true
-                            binding.progressBar.visibility = View.GONE
-                        }
-                        is LoginUiState.Error -> {
-                            binding.loginButton.isEnabled = true
-                            binding.progressBar.visibility = View.GONE
-                            loginViewModel.resetState()
-                        }
-                        else -> {}
+            loginViewModel.state.collect { state ->
+                when (state) {
+                    is LoginUiState.Loading -> {
+                        binding.loginButton.isEnabled = false
+                        binding.progressBar.visibility = View.VISIBLE
                     }
+
+                    is LoginUiState.Success -> {
+                        binding.loginButton.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                    }
+
+                    is LoginUiState.Error -> {
+                        binding.loginButton.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        loginViewModel.resetState()
+                    }
+
+                    else -> {}
                 }
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                loginViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is LoginUiEffect.ShowToast -> {
-                            Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is LoginUiEffect.NavigateBackWithResult -> {
-                            findNavController().popBackStack()
-                        }
+            loginViewModel.effect.collect { effect ->
+                when (effect) {
+                    is LoginUiEffect.ShowToast -> {
+                        Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is LoginUiEffect.NavigateBackWithResult -> {
+                        appNavigator.navigateBack()
                     }
                 }
+            }
         }
     }
 }

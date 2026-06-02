@@ -8,16 +8,19 @@ import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
-import com.drs.auralife.feature.auth.R
 import com.drs.auralife.core.common.validation.Validator
-import com.drs.auralife.feature.auth.databinding.FragmentRegisterBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.LogoFragment
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
+import com.drs.auralife.feature.auth.R
+import com.drs.auralife.feature.auth.databinding.FragmentRegisterBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class RegisterFragment : Fragment() {
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
+
     private val registerViewModel: RegisterViewModel by viewModels()
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
@@ -68,7 +71,7 @@ class RegisterFragment : Fragment() {
         }
 
         binding.alreadyHaveAccountButton.setOnClickListener {
-            findNavController().popBackStack()
+            appNavigator.navigateBack()
         }
     }
 
@@ -92,39 +95,43 @@ class RegisterFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                registerViewModel.state.collect { state ->
-                    when (state) {
-                        is RegisterUiState.Loading -> {
-                            binding.createAccount.isEnabled = false
-                            binding.progressBar.visibility = View.VISIBLE
-                        }
-                        is RegisterUiState.Success -> {
-                            binding.createAccount.isEnabled = true
-                            binding.progressBar.visibility = View.GONE
-                        }
-                        is RegisterUiState.Error -> {
-                            binding.createAccount.isEnabled = true
-                            binding.progressBar.visibility = View.GONE
-                            registerViewModel.resetState()
-                        }
-                        else -> {}
+            registerViewModel.state.collect { state ->
+                when (state) {
+                    is RegisterUiState.Loading -> {
+                        binding.createAccount.isEnabled = false
+                        binding.progressBar.visibility = View.VISIBLE
                     }
+
+                    is RegisterUiState.Success -> {
+                        binding.createAccount.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                    }
+
+                    is RegisterUiState.Error -> {
+                        binding.createAccount.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
+                        registerViewModel.resetState()
+                    }
+
+                    else -> {}
                 }
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                registerViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is RegisterUiEffect.ShowToast -> {
-                            Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is RegisterUiEffect.NavigateBackWithResult -> {
-                            findNavController().popBackStack()
-                        }
+            registerViewModel.effect.collect { effect ->
+                when (effect) {
+                    is RegisterUiEffect.ShowToast -> {
+                        Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is RegisterUiEffect.NavigateBackWithResult -> {
+                        appNavigator.navigateBack()
                     }
                 }
+            }
         }
     }
 }

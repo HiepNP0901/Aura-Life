@@ -1,8 +1,9 @@
-package com.drs.auralife.feature.film_player
+﻿package com.drs.auralife.feature.film_player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.repository.AuthRepository
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.usecase.GetPremiumStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,11 +31,10 @@ class FilmPlayerViewModel @Inject constructor(
 
     fun loadPremiumStatus() {
         viewModelScope.launch {
-            try {
-                val status = getPremiumStatusUseCase()
-                _isPremium.value = status.isPremium
-            } catch (_: Exception) {
-                _isPremium.value = true
+            when (val result = getPremiumStatusUseCase()) {
+                is Result.Success -> _isPremium.value = result.data.isPremium
+                is Result.Error -> _isPremium.value = true
+                is Result.Loading -> {}
             }
         }
     }

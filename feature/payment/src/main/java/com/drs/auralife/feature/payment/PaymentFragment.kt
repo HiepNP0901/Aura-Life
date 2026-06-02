@@ -13,9 +13,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import com.drs.auralife.feature.payment.databinding.FragmentPaymentBinding
 import com.drs.auralife.domain.model.SubscriptionPlan
 import com.drs.auralife.feature.payment.adapter.PaymentAdapter
+import com.drs.auralife.feature.payment.databinding.FragmentPaymentBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -55,9 +55,12 @@ class PaymentFragment : Fragment() {
 
                 dialogView.findViewById<Button>(R.id.btnPay).setOnClickListener {
                     bottomSheet.dismiss()
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        paymentViewModel.purchasePremium(selectedItem.month)
-                    }, 1500)
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        {
+                            paymentViewModel.purchasePremium(selectedItem.month)
+                        },
+                        1500,
+                    )
                 }
                 bottomSheet.show()
             } ?: Toast.makeText(context, getString(R.string.payment_select_plan), Toast.LENGTH_SHORT).show()
@@ -71,40 +74,42 @@ class PaymentFragment : Fragment() {
 
     private fun observePremiumStatus() {
         launchAndRepeatWithViewLifecycle {
-                paymentViewModel.state.collect { state ->
-                    val status = state.premiumStatus ?: return@collect
-                    binding.apply {
-                        if (status.isPremium) {
-                            tvPremium.text = getString(R.string.premium_status)
-                            val formattedDate = status.expiryTimestamp?.let {
-                                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it))
-                            } ?: ""
-                            tvDate.text = getString(R.string.registration_date, formattedDate)
-                            tvExpireDate.text = getString(R.string.expiry_date, formattedDate)
-                            tvDate.visibility = View.VISIBLE
-                            tvExpireDate.visibility = View.VISIBLE
-                        } else {
-                            tvPremium.text = getString(R.string.free_status)
-                            tvDate.visibility = View.GONE
-                            tvExpireDate.visibility = View.GONE
-                        }
+            paymentViewModel.state.collect { state ->
+                val status = state.premiumStatus ?: return@collect
+                binding.apply {
+                    if (status.isPremium) {
+                        tvPremium.text = getString(R.string.premium_status)
+                        val formattedDate = status.expiryTimestamp?.let {
+                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it))
+                        } ?: ""
+                        tvDate.text = getString(R.string.registration_date, formattedDate)
+                        tvExpireDate.text = getString(R.string.expiry_date, formattedDate)
+                        tvDate.visibility = View.VISIBLE
+                        tvExpireDate.visibility = View.VISIBLE
+                    } else {
+                        tvPremium.text = getString(R.string.free_status)
+                        tvDate.visibility = View.GONE
+                        tvExpireDate.visibility = View.GONE
                     }
                 }
+            }
         }
         launchAndRepeatWithViewLifecycle {
-                paymentViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is PaymentUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is PaymentUiEffect.PurchaseSuccess -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is PaymentUiEffect.PurchaseError -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
+            paymentViewModel.effect.collect { effect ->
+                when (effect) {
+                    is PaymentUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is PaymentUiEffect.PurchaseSuccess -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is PaymentUiEffect.PurchaseError -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
         }
     }
 

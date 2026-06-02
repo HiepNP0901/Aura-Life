@@ -12,12 +12,12 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.drs.auralife.R
-import com.drs.auralife.core.network.FilmAPI
-import com.drs.auralife.core.firebase.LibraryDataSource
+import com.drs.auralife.core.common.dispatcher.DispatcherProvider
 import com.drs.auralife.core.common.util.AppNotification
+import com.drs.auralife.core.firebase.LibraryDataSource
+import com.drs.auralife.core.network.FilmAPI
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -31,6 +31,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val api: FilmAPI,
     private val libraryDataSource: LibraryDataSource,
+    private val dispatcherProvider: DispatcherProvider,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -48,7 +49,7 @@ class UpdateLibraryWorker @AssistedInject constructor(
         coroutineScope {
             library.flatMap { libraryItem ->
                 libraryItem.listFilm.map { filmItem ->
-                    async(Dispatchers.IO) {
+                    async(dispatcherProvider.io) {
                         try {
                             val filmDetails = api.getFilmDetails(filmItem.slug)
                             if (filmItem.episode != filmDetails.movie.episodeCurrent) {

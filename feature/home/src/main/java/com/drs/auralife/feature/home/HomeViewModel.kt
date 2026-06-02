@@ -1,4 +1,4 @@
-package com.drs.auralife.feature.home
+﻿package com.drs.auralife.feature.home
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -6,6 +6,8 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.GetBannersUseCase
 import com.drs.auralife.domain.usecase.GetLatestFilmsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,12 +35,14 @@ class HomeViewModel @Inject constructor(
     fun loadBanners() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingBanners = true)
-            try {
-                val banners = getBannersUseCase()
-                _state.value = _state.value.copy(banners = banners, isLoadingBanners = false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(isLoadingBanners = false)
-                _effect.emit(HomeUiEffect.ShowToast(e.message ?: "Failed to load banners"))
+            when (val result = getBannersUseCase()) {
+                is Result.Success -> _state.value = _state.value.copy(banners = result.data, isLoadingBanners = false)
+                is Result.Error -> {
+                    _state.value = _state.value.copy(isLoadingBanners = false)
+                    _effect.emit(HomeUiEffect.ShowToast(result.errorMessage ?: "Failed to load banners"))
+                }
+
+                is Result.Loading -> {}
             }
         }
     }
@@ -47,17 +51,23 @@ class HomeViewModel @Inject constructor(
         val page = 1
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingFilms = true, errorMessage = null)
-            try {
-                val result = getLatestFilmsUseCase(page)
-                _state.value = _state.value.copy(
-                    films = result.data,
-                    totalPages = result.totalPages,
-                    currentPage = page,
-                    isLoadingFilms = false,
-                )
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(isLoadingFilms = false, errorMessage = e.message)
-                _effect.emit(HomeUiEffect.ShowToast(e.message ?: "Failed to load films"))
+            when (val result = getLatestFilmsUseCase(page)) {
+                is Result.Success -> {
+                    val paged = result.data
+                    _state.value = _state.value.copy(
+                        films = paged.data,
+                        totalPages = paged.totalPages,
+                        currentPage = page,
+                        isLoadingFilms = false,
+                    )
+                }
+
+                is Result.Error -> {
+                    _state.value = _state.value.copy(isLoadingFilms = false, errorMessage = result.errorMessage)
+                    _effect.emit(HomeUiEffect.ShowToast(result.errorMessage ?: "Failed to load films"))
+                }
+
+                is Result.Loading -> {}
             }
         }
     }
@@ -68,19 +78,25 @@ class HomeViewModel @Inject constructor(
         val nextPage = current.currentPage + 1
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoadingMore = true)
-            try {
-                val result = getLatestFilmsUseCase(nextPage)
-                val allFilms = _state.value.films + result.data
-                _state.value = _state.value.copy(
-                    films = allFilms,
-                    totalPages = result.totalPages,
-                    currentPage = nextPage,
-                    isLoadingMore = false,
-                )
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "loadMoreLatestFilms failed", e)
-                _state.value = _state.value.copy(isLoadingMore = false)
-                _effect.emit(HomeUiEffect.ShowToast(e.message ?: "Failed to load more films"))
+            when (val result = getLatestFilmsUseCase(nextPage)) {
+                is Result.Success -> {
+                    val paged = result.data
+                    val allFilms = _state.value.films + paged.data
+                    _state.value = _state.value.copy(
+                        films = allFilms,
+                        totalPages = paged.totalPages,
+                        currentPage = nextPage,
+                        isLoadingMore = false,
+                    )
+                }
+
+                is Result.Error -> {
+                    Log.e("HomeViewModel", "loadMoreLatestFilms failed", result.exception)
+                    _state.value = _state.value.copy(isLoadingMore = false)
+                    _effect.emit(HomeUiEffect.ShowToast(result.errorMessage ?: "Failed to load more films"))
+                }
+
+                is Result.Loading -> {}
             }
         }
     }
@@ -100,3 +116,4 @@ class HomeViewModel @Inject constructor(
         return connected
     }
 }
+

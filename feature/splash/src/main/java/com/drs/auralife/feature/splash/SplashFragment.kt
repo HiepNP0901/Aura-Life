@@ -7,15 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.drs.auralife.core.navigation.AppNavigator
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.navigation.NavRoutes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashFragment : Fragment() {
+
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
 
     private val splashViewModel: SplashViewModel by viewModels()
 
@@ -31,22 +33,17 @@ class SplashFragment : Fragment() {
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                splashViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is SplashUiEffect.NavigateToOnboarding -> {
-                            findNavController().navigate(
-                                NavRoutes.ONBOARDING,
-                                NavOptions.Builder().setPopUpTo(R.id.splash, true).build(),
-                            )
-                        }
-                        is SplashUiEffect.NavigateToHome -> {
-                            findNavController().navigate(
-                                NavRoutes.HOME,
-                                NavOptions.Builder().setPopUpTo(R.id.splash, true).build(),
-                            )
-                        }
+            splashViewModel.effect.collect { effect ->
+                when (effect) {
+                    is SplashUiEffect.NavigateToOnboarding -> {
+                        appNavigator.navigateTo(NavRoutes.ONBOARDING) { popUpTo(NavRoutes.SPLASH) { inclusive = true } }
+                    }
+
+                    is SplashUiEffect.NavigateToHome -> {
+                        appNavigator.navigateTo(NavRoutes.HOME) { popUpTo(NavRoutes.SPLASH) { inclusive = true } }
                     }
                 }
+            }
         }
     }
 }

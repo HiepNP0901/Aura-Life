@@ -1,8 +1,10 @@
-package com.drs.auralife.feature.explore.explore
+﻿package com.drs.auralife.feature.explore.explore
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.GetCategoriesUseCase
 import com.drs.auralife.domain.usecase.GetFilmsByCategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,28 +32,38 @@ class ExploreViewModel @Inject constructor(
     fun loadCategories() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            try {
-                val categories = getCategoriesUseCase()
-                _state.value = _state.value.copy(categories = categories, isLoading = false)
-                categories.forEach { category ->
-                    loadFilmsForCategory(category.slug)
+            when (val result = getCategoriesUseCase()) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(categories = result.data, isLoading = false)
+                    result.data.forEach { category ->
+                        loadFilmsForCategory(category.slug)
+                    }
                 }
-            } catch (e: Exception) {
-                Log.e("ExploreViewModel", "loadCategories failed", e)
-                _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
+
+                is Result.Error -> {
+                    Log.e("ExploreViewModel", "loadCategories failed", result.exception)
+                    _state.value = _state.value.copy(isLoading = false, errorMessage = result.errorMessage)
+                }
+
+                is Result.Loading -> {}
             }
         }
     }
 
     private suspend fun loadFilmsForCategory(slug: String) {
-        try {
-            val result = getFilmsByCategoryUseCase(slug, 1)
-            val current = _state.value.filmsByCategory.toMutableMap()
-            current[slug] = result.data
-            _state.value = _state.value.copy(filmsByCategory = current)
-        } catch (e: Exception) {
-            Log.e("ExploreViewModel", "loadFilmsForCategory failed for $slug", e)
-            _effect.emit(ExploreUiEffect.ShowToast("Failed to load films for category"))
+        when (val result = getFilmsByCategoryUseCase(slug, 1)) {
+            is Result.Success -> {
+                val current = _state.value.filmsByCategory.toMutableMap()
+                current[slug] = result.data.data
+                _state.value = _state.value.copy(filmsByCategory = current)
+            }
+
+            is Result.Error -> {
+                Log.e("ExploreViewModel", "loadFilmsForCategory failed for $slug", result.exception)
+                _effect.emit(ExploreUiEffect.ShowToast("Failed to load films for category"))
+            }
+
+            is Result.Loading -> {}
         }
     }
 
@@ -67,3 +79,4 @@ class ExploreViewModel @Inject constructor(
         }
     }
 }
+

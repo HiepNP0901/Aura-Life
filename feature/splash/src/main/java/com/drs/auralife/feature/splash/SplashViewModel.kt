@@ -27,7 +27,7 @@ class SplashViewModel @Inject constructor(
             delay(delayMs)
             _effect.emit(
                 if (isFirstTime) SplashUiEffect.NavigateToOnboarding
-                else SplashUiEffect.NavigateToHome
+                else SplashUiEffect.NavigateToHome,
             )
         }
     }

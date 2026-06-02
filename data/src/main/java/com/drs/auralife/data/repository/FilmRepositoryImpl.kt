@@ -1,5 +1,6 @@
-package com.drs.auralife.data.repository
+﻿package com.drs.auralife.data.repository
 
+import com.drs.auralife.domain.result.Result
 import com.drs.auralife.data.datasource.local.FilmLocalDataSource
 import com.drs.auralife.data.datasource.remote.api.FilmApiDataSource
 import com.drs.auralife.domain.model.Film
@@ -13,79 +14,87 @@ class FilmRepositoryImpl @javax.inject.Inject constructor(
     private val apiDataSource: FilmApiDataSource,
     private val localDataSource: FilmLocalDataSource,
 ) : FilmRepository {
-    override suspend fun getLatestFilms(page: Int): PagedResult<Film> {
+    override suspend fun getLatestFilms(page: Int): Result<PagedResult<Film>> {
         return try {
             val result = apiDataSource.getLatestFilms(page)
             localDataSource.clearAndInsertFilms(result.data)
-            result
+            Result.Success(result)
         } catch (e: Exception) {
             val cachedFilms = localDataSource.getAllFilms()
-            PagedResult(
-                data = cachedFilms,
-                currentPage = page,
-                totalPages = page,
-            )
+            if (cachedFilms.isNotEmpty()) {
+                Result.Success(PagedResult(data = cachedFilms, currentPage = page, totalPages = page))
+            } else {
+                Result.Error(e)
+            }
         }
     }
 
-    override suspend fun getFilmsByCategory(slug: String, page: Int): PagedResult<Film> {
+    override suspend fun getFilmsByCategory(slug: String, page: Int): Result<PagedResult<Film>> {
         return try {
             val result = apiDataSource.getFilmsByCategory(slug, page)
             localDataSource.clearAndInsertFilms(result.data)
-            result
+            Result.Success(result)
         } catch (e: Exception) {
             val cachedFilms = localDataSource.getAllFilms()
-            PagedResult(
-                data = cachedFilms,
-                currentPage = page,
-                totalPages = page,
-            )
+            if (cachedFilms.isNotEmpty()) {
+                Result.Success(PagedResult(data = cachedFilms, currentPage = page, totalPages = page))
+            } else {
+                Result.Error(e)
+            }
         }
     }
 
-    override suspend fun searchFilms(keyword: String, limit: Int): List<Film> {
+    override suspend fun searchFilms(keyword: String, limit: Int): Result<List<Film>> {
         return try {
             val films = apiDataSource.searchFilms(keyword, limit)
             localDataSource.insertFilms(films)
-            films
+            Result.Success(films)
         } catch (e: Exception) {
-            localDataSource.getAllFilms()
+            val cached = localDataSource.getAllFilms()
+            if (cached.isNotEmpty()) Result.Success(cached) else Result.Error(e)
         }
     }
 
-    override suspend fun getFilmDetails(slug: String): FilmDetails {
+    override suspend fun getFilmDetails(slug: String): Result<FilmDetails> {
         return try {
             val details = apiDataSource.getFilmDetails(slug)
             localDataSource.insertFilmDetails(details)
-            details
+            Result.Success(details)
         } catch (e: Exception) {
-            localDataSource.getFilmDetails(slug) ?: throw e
+            val cached = localDataSource.getFilmDetails(slug)
+            if (cached != null) Result.Success(cached) else Result.Error(e)
         }
     }
 
-    override suspend fun getFilmDetailsBatch(slugs: List<String>): Map<String, FilmDetails> {
-        val cached = localDataSource.getFilmDetailsBatch(slugs)
-        val uncachedSlugs = slugs.filter { it !in cached }
+    override suspend fun getFilmDetailsBatch(slugs: List<String>): Result<Map<String, FilmDetails>> {
+        return try {
+            val cached = localDataSource.getFilmDetailsBatch(slugs)
+            val uncachedSlugs = slugs.filter { it !in cached }
 
-        val uncachedMap = if (uncachedSlugs.isNotEmpty()) {
-            coroutineScope {
-                uncachedSlugs.map { slug ->
-                    async {
-                        try {
-                            val details = apiDataSource.getFilmDetails(slug)
-                            localDataSource.insertFilmDetails(details)
-                            slug to details
-                        } catch (_: Exception) {
-                            null
+            val uncachedMap = if (uncachedSlugs.isNotEmpty()) {
+                coroutineScope {
+                    uncachedSlugs.map { slug ->
+                        async {
+                            try {
+                                val details = apiDataSource.getFilmDetails(slug)
+                                localDataSource.insertFilmDetails(details)
+                                slug to details
+                            } catch (_: Exception) {
+                                null
+                            }
                         }
-                    }
-                }.mapNotNull { it.await() }.toMap()
+                    }.mapNotNull { it.await() }.toMap()
+                }
+            } else {
+                emptyMap()
             }
-        } else {
-            emptyMap()
-        }
 
-        val all = cached + uncachedMap
-        return slugs.mapNotNull { slug -> all[slug]?.let { slug to it } }.toMap()
+            val all = cached + uncachedMap
+            val result = slugs.mapNotNull { slug -> all[slug]?.let { slug to it } }.toMap()
+            Result.Success(result)
+        } catch (e: Exception) {
+            val cached = localDataSource.getFilmDetailsBatch(slugs)
+            if (cached.isNotEmpty()) Result.Success(cached) else Result.Error(e)
+        }
     }
 }

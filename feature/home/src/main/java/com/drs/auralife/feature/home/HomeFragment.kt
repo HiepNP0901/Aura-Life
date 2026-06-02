@@ -8,16 +8,16 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.drs.auralife.navigation.NavRoutes
-import com.drs.auralife.feature.home.databinding.FragmentHomeBinding
+import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.AppBarProvider
+import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.feature.home.adapter.BannerAdapter
 import com.drs.auralife.feature.home.adapter.HomeFilmAdapter
+import com.drs.auralife.feature.home.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,6 +25,8 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
+    private val appNavigator by lazy { AppNavigator(findNavController()) }
+
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
@@ -64,48 +66,49 @@ class HomeFragment : Fragment() {
 
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
-                homeViewModel.state.collect { state ->
-                    if (_binding == null) return@collect
+            homeViewModel.state.collect { state ->
+                if (_binding == null) return@collect
 
-                    if (state.isLoadingBanners || state.isLoadingFilms) {
-                        binding.loadingIndicator.visibility = View.VISIBLE
-                    } else {
-                        binding.loadingIndicator.visibility = View.GONE
-                    }
-                    if (state.errorMessage != null) {
-                        binding.errorText.apply {
-                            visibility = View.VISIBLE
-                            text = state.errorMessage
-                        }
-                    } else {
-                        binding.errorText.visibility = View.GONE
-                    }
-
-                    if (state.banners.isNotEmpty()) {
-                        val bannerViewPager = binding.bannerViewPager
-                        bannerViewPager.adapter = BannerAdapter(state.banners) { slug ->
-                            homeViewModel.onFilmClicked(slug)
-                        }
-                        startAutoScroll(bannerViewPager, state.banners.size)
-                    }
-
-                    filmAdapter.submitList(state.films)
+                if (state.isLoadingBanners || state.isLoadingFilms) {
+                    binding.loadingIndicator.visibility = View.VISIBLE
+                } else {
+                    binding.loadingIndicator.visibility = View.GONE
                 }
+                if (state.errorMessage != null) {
+                    binding.errorText.apply {
+                        visibility = View.VISIBLE
+                        text = state.errorMessage
+                    }
+                } else {
+                    binding.errorText.visibility = View.GONE
+                }
+
+                if (state.banners.isNotEmpty()) {
+                    val bannerViewPager = binding.bannerViewPager
+                    bannerViewPager.adapter = BannerAdapter(state.banners) { slug ->
+                        homeViewModel.onFilmClicked(slug)
+                    }
+                    startAutoScroll(bannerViewPager, state.banners.size)
+                }
+
+                filmAdapter.submitList(state.films)
+            }
         }
     }
 
     private fun observeEffect() {
         launchAndRepeatWithViewLifecycle {
-                homeViewModel.effect.collect { effect ->
-                    when (effect) {
-                        is HomeUiEffect.ShowToast -> {
-                            Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                        }
-                        is HomeUiEffect.NavigateToFilm -> {
-                            findNavController().navigate(NavRoutes.filmDetails(effect.slug))
-                        }
+            homeViewModel.effect.collect { effect ->
+                when (effect) {
+                    is HomeUiEffect.ShowToast -> {
+                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is HomeUiEffect.NavigateToFilm -> {
+                        appNavigator.navigateToFilmDetails(effect.slug)
                     }
                 }
+            }
         }
     }
 
@@ -156,6 +159,5 @@ class HomeFragment : Fragment() {
             }
         }
     }
-
 }
 

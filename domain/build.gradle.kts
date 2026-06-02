@@ -1,8 +1,12 @@
 plugins {
-    kotlin("jvm")
+    id("aura-life.android.library")
+}
+
+android {
+    namespace = "com.drs.auralife.domain"
 }
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-    implementation("javax.inject:javax.inject:1")
+    implementation(libs.javax.inject)
 }

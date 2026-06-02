@@ -1,10 +1,12 @@
-package com.drs.auralife.feature.history
+﻿package com.drs.auralife.feature.history
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.HistoryItem
+import com.drs.auralife.domain.result.Result
+import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.AddToHistoryUseCase
 import com.drs.auralife.domain.usecase.DeleteHistoryUseCase
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
@@ -36,33 +38,42 @@ class HistoryViewModel @Inject constructor(
     fun loadHistory() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            try {
-                val historyItems = getHistoryUseCase()
-                val films = buildFilmsFromHistory(historyItems)
-                _state.value = _state.value.copy(films = films, isLoading = false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)
+            when (val result = getHistoryUseCase()) {
+                is Result.Success -> {
+                    val films = buildFilmsFromHistory(result.data)
+                    _state.value = _state.value.copy(films = films, isLoading = false)
+                }
+
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, errorMessage = result.errorMessage)
+                is Result.Loading -> {}
             }
         }
     }
 
     private suspend fun buildFilmsFromHistory(historyItems: List<HistoryItem>): List<Film> {
         val slugs = historyItems.map { it.slug }
-        val detailsMap = getFilmDetailsUseCase.batch(slugs)
-        return historyItems.mapNotNull { item ->
-            detailsMap[item.slug]?.let { fd ->
-                Film(
-                    id = fd.slug,
-                    slug = fd.slug,
-                    title = fd.title,
-                    posterUrl = fd.posterUrl,
-                    thumbUrl = fd.thumbUrl,
-                    description = fd.description,
-                    category = fd.categories?.firstOrNull() ?: "",
-                    episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
-                    watchedAt = item.watchedAt,
-                )
+        return when (val result = getFilmDetailsUseCase.batch(slugs)) {
+            is Result.Success -> {
+                val detailsMap = result.data
+                historyItems.mapNotNull { item ->
+                    detailsMap[item.slug]?.let { fd ->
+                        Film(
+                            id = fd.slug,
+                            slug = fd.slug,
+                            title = fd.title,
+                            posterUrl = fd.posterUrl,
+                            thumbUrl = fd.thumbUrl,
+                            description = fd.description,
+                            category = fd.categories?.firstOrNull() ?: "",
+                            episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
+                            watchedAt = item.watchedAt,
+                        )
+                    }
+                }
             }
+
+            is Result.Error -> emptyList()
+            is Result.Loading -> emptyList()
         }
     }
 
@@ -85,11 +96,14 @@ class HistoryViewModel @Inject constructor(
     }
 
     suspend fun getHistoryItem(slug: String): HistoryItem? {
-        return try {
-            getHistoryUseCase().find { it.slug == slug }
-        } catch (e: Exception) {
-            Log.e("HistoryViewModel", "getHistoryItem failed", e)
-            null
+        return when (val result = getHistoryUseCase()) {
+            is Result.Success -> result.data.find { it.slug == slug }
+            is Result.Error -> {
+                Log.e("HistoryViewModel", "getHistoryItem failed", result.exception)
+                null
+            }
+
+            is Result.Loading -> null
         }
     }
 
@@ -99,3 +113,4 @@ class HistoryViewModel @Inject constructor(
         }
     }
 }
+
