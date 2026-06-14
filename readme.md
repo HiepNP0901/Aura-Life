@@ -12,7 +12,6 @@
   <img src="docs/screenshots/home.png" width="200" />
   <img src="docs/screenshots/detail.png" width="200" />
   <img src="docs/screenshots/player.png" width="200" />
-  <img src="docs/screenshots/library.png" width="200" />
 </p>
 
 ## Features
