@@ -2,6 +2,15 @@
 
 Android movie streaming application built with **Clean Architecture** and **multi-module** structure.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshot/home.png" width="200" alt="Home" />
+  <img src="screenshot/film-detail.png" width="200" alt="Film Details" />
+  <img src="screenshot/film-player.png" width="200" alt="Player" />
+  <img src="screenshot/login.png" width="200" alt="Login" />
+</p>
+
 ## Module structure
 
 ```
