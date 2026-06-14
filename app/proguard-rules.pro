@@ -1,23 +1,24 @@
-# Keep Retrofit interfaces
+# --- Retrofit ---
+# Keep service interface (created via dynamic proxy)
 -keep,allowobfuscation interface com.drs.auralife.core.network.FilmAPI
+# Keep methods with Retrofit annotations
+-keep,allowobfuscation,allowshrinking interface * {
+    @retrofit2.http.* <methods>;
+}
 
-# Keep network DTOs (Gson deserialization)
+# --- Gson / Model deserialization ---
+-keepattributes Signature, RuntimeVisibleAnnotations
 -keep,allowobfuscation class com.drs.auralife.core.network.model.** { *; }
-
-# Keep Firebase models
 -keep,allowobfuscation class com.drs.auralife.core.firebase.model.** { *; }
-
-# Keep Room entities
 -keep,allowobfuscation class com.drs.auralife.core.database.entity.** { *; }
 
-# Keep Retrofit
--keep class retrofit2.** { *; }
-
-# Keep Gson
--keep class com.google.gson.** { *; }
--keepattributes Signature
--keepattributes *Annotation*
-
-# Keep Coroutines
--keepclassmembers class kotlinx.coroutines.** { *; }
+# --- Coroutines ---
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
 -dontwarn kotlinx.coroutines.**
+
+# --- R8 full mode helpers ---
+-keepclassmembernames class * {
+    java.lang.Class class$;
+    java.lang.Class class$(java.lang.String);
+}
