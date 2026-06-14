@@ -3,7 +3,6 @@
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.drs.auralife.domain.model.Film
 import com.drs.auralife.domain.model.HistoryItem
 import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.result.errorMessage
@@ -11,6 +10,7 @@ import com.drs.auralife.domain.usecase.AddToHistoryUseCase
 import com.drs.auralife.domain.usecase.DeleteHistoryUseCase
 import com.drs.auralife.domain.usecase.GetFilmDetailsUseCase
 import com.drs.auralife.domain.usecase.GetHistoryUseCase
+import com.drs.auralife.feature.history.model.HistoryFilm
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,22 +50,18 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    private suspend fun buildFilmsFromHistory(historyItems: List<HistoryItem>): List<Film> {
+    private suspend fun buildFilmsFromHistory(historyItems: List<HistoryItem>): List<HistoryFilm> {
         val slugs = historyItems.map { it.slug }
         return when (val result = getFilmDetailsUseCase.batch(slugs)) {
             is Result.Success -> {
                 val detailsMap = result.data
                 historyItems.mapNotNull { item ->
                     detailsMap[item.slug]?.let { fd ->
-                        Film(
-                            id = fd.slug,
+                        HistoryFilm(
                             slug = fd.slug,
                             title = fd.title,
                             posterUrl = fd.posterUrl,
-                            thumbUrl = fd.thumbUrl,
                             description = fd.description,
-                            category = fd.categories?.firstOrNull() ?: "",
-                            episodeCount = fd.episodeTotal?.toIntOrNull() ?: 0,
                             watchedAt = item.watchedAt,
                         )
                     }

@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.firebase.model.banner
+package com.drs.auralife.core.firebase.model
 
 data class Banner(
     val imageUrl: String,

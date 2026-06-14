@@ -10,14 +10,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.core.common.util.TimeUtils
 import com.drs.auralife.designsystem.AuraLifeGlideModule
-import com.drs.auralife.domain.model.Film
+import com.drs.auralife.feature.history.model.HistoryFilm
 import java.time.Instant
 import com.drs.auralife.core.designsystem.R as DsR
 
 class HistoryFilmAdapter(
     private val onItemClick: (String) -> Unit,
     private val onLongClick: (String) -> Unit,
-) : ListAdapter<Film, HistoryFilmAdapter.ViewHolder>(DiffCallback) {
+) : ListAdapter<HistoryFilm, HistoryFilmAdapter.ViewHolder>(DiffCallback) {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivPoster: ImageView = itemView.findViewById(DsR.id.posterView)
@@ -52,8 +52,8 @@ class HistoryFilmAdapter(
 
     override fun getItemCount(): Int = currentList.size
 
-    private object DiffCallback : DiffUtil.ItemCallback<Film>() {
-        override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem.slug == newItem.slug
-        override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = oldItem == newItem
+    private object DiffCallback : DiffUtil.ItemCallback<HistoryFilm>() {
+        override fun areItemsTheSame(oldItem: HistoryFilm, newItem: HistoryFilm): Boolean = oldItem.slug == newItem.slug
+        override fun areContentsTheSame(oldItem: HistoryFilm, newItem: HistoryFilm): Boolean = oldItem == newItem
     }
 }

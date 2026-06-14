@@ -1,8 +1,7 @@
 package com.drs.auralife.core.network.mapper
 
-import com.drs.auralife.core.network.model.film.Episode
-import com.drs.auralife.core.network.model.film.FilmDetails
-import com.drs.auralife.core.network.model.film.Movie
+import com.drs.auralife.core.network.model.FilmDetails
+import com.drs.auralife.core.network.model.Movie
 import com.drs.auralife.domain.model.Film
 import java.time.Instant
 
@@ -51,7 +50,7 @@ object FilmMapper {
         )
     }
 
-    private fun mapEpisodeToDomain(episode: Episode): List<com.drs.auralife.domain.model.Episode> {
+    private fun mapEpisodeToDomain(episode: FilmDetails.Episode): List<com.drs.auralife.domain.model.Episode> {
         return episode.serverData.map { data ->
             com.drs.auralife.domain.model.Episode(
                 name = data.name,
