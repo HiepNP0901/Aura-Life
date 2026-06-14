@@ -18,7 +18,7 @@ Android movie streaming application built with **Clean Architecture** and **mult
 │   └── di/RepositoryModule.kt    — Binds impls to interfaces
 ├── core/
 │   ├── common/                   — Utils, validators, DispatcherProvider
-│   ├── network/                  — Retrofit, OkHttp, FilmAPI, DTOs
+│   ├── network/                  — Retrofit, OkHttp, FilmAPI, DTOs (nested inner classes)
 │   ├── firebase/                 — Firebase Auth, Realtime DB data sources
 │   ├── database/                 — Room DB, DAOs, entities
 │   ├── navigation/               — NavRoutes, AppNavigator

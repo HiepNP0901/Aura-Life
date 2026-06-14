@@ -1,17 +1,23 @@
-# Keep interface
--keep interface com.drs.auralife.data.FilmAPI
+# Keep Retrofit interfaces
+-keep,allowobfuscation interface com.drs.auralife.core.network.FilmAPI
 
-# Keep the classes of Model
--keep class com.drs.auralife.data.model.** { *; }
+# Keep network DTOs (Gson deserialization)
+-keep,allowobfuscation class com.drs.auralife.core.network.model.** { *; }
 
-# Keep the classes of Retrofit
+# Keep Firebase models
+-keep,allowobfuscation class com.drs.auralife.core.firebase.model.** { *; }
+
+# Keep Room entities
+-keep,allowobfuscation class com.drs.auralife.core.database.entity.** { *; }
+
+# Keep Retrofit
 -keep class retrofit2.** { *; }
 
-# Keep the classes of Gson
+# Keep Gson
 -keep class com.google.gson.** { *; }
 -keepattributes Signature
 -keepattributes *Annotation*
 
-# Keep the classes of Coroutines
+# Keep Coroutines
 -keepclassmembers class kotlinx.coroutines.** { *; }
 -dontwarn kotlinx.coroutines.**
