@@ -1,4 +1,4 @@
-package com.drs.auralife.data.remote.api.model.category
+package com.drs.auralife.core.network.model
 
 import com.google.gson.annotations.SerializedName
 
