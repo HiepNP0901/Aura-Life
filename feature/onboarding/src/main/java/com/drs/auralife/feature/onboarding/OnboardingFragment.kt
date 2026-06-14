@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import com.drs.auralife.domain.model.OnboardingItem
+import com.drs.auralife.feature.onboarding.model.OnboardingItem
 import com.drs.auralife.feature.onboarding.adapter.OnboardingAdapter
 import com.drs.auralife.navigation.NavRoutes
 import com.google.android.material.tabs.TabLayoutMediator

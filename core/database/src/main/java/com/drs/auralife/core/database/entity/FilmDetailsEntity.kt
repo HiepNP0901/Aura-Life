@@ -19,8 +19,8 @@ data class FilmDetailsEntity(
     val duration: String?,
     val year: Int?,
     val status: String?,
-    val directors: String?, // JSON
-    val actors: String?, // JSON
-    val categories: String?, // JSON
-    val countries: String?, // JSON
+    val directors: List<String>?,
+    val actors: List<String>?,
+    val categories: List<String>?,
+    val countries: List<String>?,
 )

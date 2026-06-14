@@ -2,6 +2,8 @@ package com.drs.auralife.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.drs.auralife.core.database.converter.StringListConverter
 import com.drs.auralife.core.database.dao.BannerCacheDao
 import com.drs.auralife.core.database.dao.CategoryCacheDao
 import com.drs.auralife.core.database.dao.FilmDao
@@ -17,6 +19,7 @@ import com.drs.auralife.core.database.entity.HistoryEntity
 import com.drs.auralife.core.database.entity.LibraryEntity
 import com.drs.auralife.core.database.entity.LibraryFilmCrossRef
 
+@TypeConverters(StringListConverter::class)
 @Database(
     entities = [
         FilmEntity::class,

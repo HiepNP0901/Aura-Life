@@ -7,6 +7,7 @@ import com.drs.auralife.core.database.entity.FilmEntity
 import com.drs.auralife.core.database.entity.HistoryEntity
 import com.drs.auralife.core.database.entity.LibraryEntity
 import com.drs.auralife.core.database.entity.LibraryFilmCrossRef
+import com.drs.auralife.core.database.entity.FilmWithCurrentEpisode
 import com.drs.auralife.core.database.entity.LibraryWithFilms
 import com.drs.auralife.domain.model.Banner
 import com.drs.auralife.domain.model.Category
@@ -60,10 +61,10 @@ object LocalMapper {
         duration = duration,
         year = year,
         status = status,
-        directors = directors?.joinToString(","),
-        actors = actors?.joinToString(","),
-        categories = categories?.joinToString(","),
-        countries = countries?.joinToString(","),
+        directors = directors,
+        actors = actors,
+        categories = categories,
+        countries = countries,
     )
 
     fun FilmDetailsEntity.toDomainFilmDetails() = FilmDetails(
@@ -82,10 +83,10 @@ object LocalMapper {
         duration = duration,
         year = year,
         status = status,
-        directors = directors?.split(",")?.filter { it.isNotBlank() },
-        actors = actors?.split(",")?.filter { it.isNotBlank() },
-        categories = categories?.split(",")?.filter { it.isNotBlank() },
-        countries = countries?.split(",")?.filter { it.isNotBlank() },
+        directors = directors,
+        actors = actors,
+        categories = categories,
+        countries = countries,
         episodes = emptyList(),
     )
 
@@ -154,8 +155,22 @@ object LocalMapper {
         films = films.map { filmEntity ->
             LibraryFilm(
                 slug = filmEntity.slug,
-                currentEpisode = filmEntity.episodeCount.toString(),
+                currentEpisode = "1",
             )
         },
     )
+
+    fun LibraryWithFilms.toDomainLibrary(episodes: List<FilmWithCurrentEpisode>): Library {
+        val episodeMap = episodes.associate { it.slug to it.currentEpisode }
+        return Library(
+            name = library.name,
+            posterUrl = library.posterUrl,
+            films = films.map { filmEntity ->
+                LibraryFilm(
+                    slug = filmEntity.slug,
+                    currentEpisode = episodeMap[filmEntity.slug] ?: "1",
+                )
+            },
+        )
+    }
 }
