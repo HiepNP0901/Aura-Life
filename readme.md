@@ -89,7 +89,7 @@ feature/
 git clone https://github.com/HiepNP0901/Aura-Life.git
 
 # 2. Add secrets.properties (gitignored)
-echo "baseUrl=https://phimapi.com" > secrets.properties
+echo "baseUrl=https://your-api.com" > secrets.properties
 
 # 3. Build
 ./gradlew assembleDebug
@@ -110,10 +110,6 @@ echo "keyPassword=..." >> secrets.properties
 # Build signed APK
 ./gradlew :app:assembleRelease
 ```
-
-## API
-
-Data sourced from [phimapi.com](https://phimapi.com) — Vietnamese film API.
 
 ## License
 
