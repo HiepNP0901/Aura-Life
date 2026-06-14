@@ -1,109 +1,123 @@
 # AuraLife
 
-Android movie streaming application built with **Clean Architecture** and **multi-module** structure.
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-blue?logo=kotlin)](https://kotlinlang.org)
+[![API](https://img.shields.io/badge/API-26%2B-brightgreen)](https://developer.android.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+
+> Android movie streaming app with Clean Architecture, multi-module, and premium throttling.
 
 ## Screenshots
 
-<p align="center">
-  <img src="screenshot/home.png" width="200" alt="Home" />
-  <img src="screenshot/film-detail.png" width="200" alt="Film Details" />
-  <img src="screenshot/film-player.png" width="200" alt="Player" />
-  <img src="screenshot/login.png" width="200" alt="Login" />
+<p align="middle">
+  <img src="docs/screenshots/home.png" width="200" />
+  <img src="docs/screenshots/detail.png" width="200" />
+  <img src="docs/screenshots/player.png" width="200" />
 </p>
 
-## Module structure
+## Features
+
+- Browse latest films, categories, and search with debounced input
+- Film details with episode list, quality info, cast, and trailers
+- Video player with HLS streaming and premium throttle
+- Personal library (CRUD) with film collections
+- Watch history tracking with position resume
+- Premium subscription management
+- Offline caching via Room + Firebase Realtime DB sync
+- Pagination, error handling, loading states
+
+## Tech Stack
+
+| Category | Libraries |
+|----------|-----------|
+| Language | Kotlin 2.0 |
+| Architecture | Clean Architecture + Multi-module (27 modules) |
+| DI | Dagger Hilt |
+| UI | ViewBinding, Jetpack Compose, Material 3 |
+| Navigation | Jetpack Navigation (fragment-ktx) |
+| Networking | Retrofit + OkHttp + Gson |
+| Local DB | Room (with TypeConverters) |
+| Backend | Firebase Auth + Realtime DB |
+| Player | AndroidX Media3 ExoPlayer (HLS) |
+| Images | Glide |
+| Async | Kotlinx Coroutines + Flow |
+| Lint | KtLint |
+
+## Architecture
 
 ```
-├── app/                          — DI graph, navigation host, Application class
-├── domain/                       — Pure Kotlin, no platform dependencies
-│   ├── model/                    — Domain entities (Film, FilmDetails, etc.)
-│   ├── repository/               — Repository interfaces returning Result<T>
-│   └── usecase/                  — Business use cases
-├── data/                         — Repository implementations, datasources
-│   ├── datasource/
-│   │   ├── remote/api/           — FilmApiDataSource
-│   │   └── local/                — FilmLocalDataSource
-│   ├── repository/               — Concrete repository impls
-│   └── di/RepositoryModule.kt    — Binds impls to interfaces
-├── core/
-│   ├── common/                   — Utils, validators, DispatcherProvider
-│   ├── network/                  — Retrofit, OkHttp, FilmAPI, DTOs
-│   ├── firebase/                 — Firebase Auth, Realtime DB data sources
-│   ├── database/                 — Room DB, DAOs, entities
-│   ├── navigation/               — NavRoutes, AppNavigator
-│   └── designsystem/             — Shared resources, themes, custom views
-└── feature/                      — Feature modules (each with own nav_graph)
-    ├── splash/
-    ├── onboarding/
-    ├── auth/                     — Login + Register
-    ├── home/                     — Banners + latest films
-    ├── explore/                  — Categories + detail grid
-    ├── film-detail/              — Film details page
-    ├── film-player/              — ExoPlayer with premium throttle
-    ├── library/                  — Library CRUD
-    ├── history/                  — Watch history
-    ├── search/                   — Debounced search
-    └── payment/                  — Premium purchase
+:app  →  :feature/*  →  :data  →  :domain  ←  :core/*
+                                    ↕
+                                pure Kotlin
 ```
 
-## Architecture principles
+Layered dependency rule: **outer layers depend on inner layers**, never the reverse.
 
-- **Domain layer** has zero Android/Retrofit/Firebase dependencies
-- **Data layer** implements domain interfaces, uses datasource pattern (API + Local)
-- **Feature modules** depend on `domain`, `core:designsystem`, `core:navigation`, `core:common`, `data`
-- **App module** depends on all features + core, provides DI graph and NavHost
-- All repository read methods return `Result<T>` (success/error/loading) from `domain/result/Result.kt`
-- Navigation goes through `AppNavigator` (type-safe wrapper over NavController)
-- Coroutine dispatchers are injected via `DispatcherProvider` (testable)
-- Resources are centralized in `core:designsystem` with `android.nonTransitiveRClass=false`
+- **`:domain`** — zero platform dependencies. Contains `model/`, `repository/` (interfaces), `usecase/`.
+- **`:data`** — implements domain repository interfaces. Orchestrates remote API + local Room cache + Firebase.
+- **`:core/*`** — shared infrastructure: networking, DI, navigation, design system.
+- **`:feature/*`** — one module per screen. Each has its own `nav_graph.xml`.
+- **`:app`** — root DI graph and `NavHost`.
 
-## Navigation
+## Modules
 
-Each feature owns its own `nav_graph.xml`. The main `nav_graph.xml` in `:app` uses `<include>`:
-
-```xml
-<navigation app:startDestination="@id/splash_nav_graph">
-    <include app:graph="@navigation/splash_nav_graph" />
-    <include app:graph="@navigation/home_nav_graph" />
-    ...
-</navigation>
+```
+app/
+domain/          — Business logic, pure Kotlin
+data/            — Repository implementations, data sources
+core/
+├── common/      — Utils, validators, DispatcherProvider
+├── network/     — Retrofit, OkHttp, FilmAPI, DTOs
+├── firebase/    — Firebase Auth, Realtime DB
+├── database/    — Room, DAOs, entities
+├── navigation/  — NavRoutes, AppNavigator
+└── designsystem/— Shared resources, themes, custom views
+feature/
+├── splash/      → onboarding/ → auth/ → home/
+├── explore/     — Categories + detail grid
+├── film-detail/ — Film info, episodes
+├── film-player/ — ExoPlayer with premium throttle
+├── library/     — Film collections CRUD
+├── history/     — Watch history
+├── search/      — Debounced search
+└── payment/     — Premium purchase
 ```
 
-## Dependency injection (Hilt)
+## Setup
 
-| Module | Provides |
-|--------|----------|
-| `core:network/di/` | OkHttpClient, Retrofit, FilmAPI |
-| `core:firebase/di/` | FirebaseDatabase |
-| `core:database/di/` | Room DB, all DAOs |
-| `core:common/di/` | DispatcherProvider |
-| `data/di/` | Repository bindings (impl → interface) |
+```bash
+# 1. Clone
+git clone https://github.com/HiepNP0901/Aura-Life.git
 
-## ViewModels
+# 2. Add secrets.properties (gitignored)
+echo "baseUrl=https://your-api.com" > secrets.properties
 
-| Feature | ViewModel | Responsibility |
-|---------|-----------|----------------|
-| splash | SplashViewModel | First-time check, delayed navigation |
-| onboarding | OnboardingViewModel | First-time flow completion |
-| auth | LoginViewModel / RegisterViewModel | Firebase Auth login/register |
-| home | HomeViewModel | Banners + latest films with pagination |
-| explore | ExploreViewModel | Categories + film rows |
-| explore detail | ExploreDetailViewModel | Category film grid with pagination |
-| film-detail | FilmDetailsViewModel | Film info, episodes, add to library |
-| film-player | FilmPlayerViewModel | Premium throttle check |
-| library | LibraryViewModel | Library CRUD operations |
-| library detail | LibraryDetailsViewModel | Library films list |
-| history | HistoryViewModel | Watch history |
-| search | SearchViewModel | Debounced search |
-| payment | PaymentViewModel | Premium status + purchase |
-| app | MainViewModel | Auth state, avatar, premium status |
+# 3. Build
+./gradlew assembleDebug
 
-## Build and run
+# 4. Install on device / emulator
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
 
-1. Open in Android Studio.
-2. Create `secrets.properties` in project root:
-   ```properties
-   baseUrl=https://your-api-url.com
-   ```
-3. Build: `./gradlew assembleDebug`
-4. Lint: `./gradlew ktlintCheck`
+### Release build
+
+```bash
+# Add signing config to secrets.properties
+echo "keystorePath=C:\\\\.android\\\\aura-life.release.keystore" >> secrets.properties
+echo "keystorePassword=..." >> secrets.properties
+echo "keyAlias=aura-life" >> secrets.properties
+echo "keyPassword=..." >> secrets.properties
+
+# Build signed APK
+./gradlew :app:assembleRelease
+```
+
+## License
+
+```
+MIT License
+
+Copyright (c) 2026 HiepNP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files...
+```
