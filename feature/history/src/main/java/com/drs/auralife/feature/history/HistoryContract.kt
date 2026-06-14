@@ -1,9 +1,9 @@
 package com.drs.auralife.feature.history
 
-import com.drs.auralife.domain.model.Film
+import com.drs.auralife.feature.history.model.HistoryFilm
 
 data class HistoryUiState(
-    val films: List<Film> = emptyList(),
+    val films: List<HistoryFilm> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )
