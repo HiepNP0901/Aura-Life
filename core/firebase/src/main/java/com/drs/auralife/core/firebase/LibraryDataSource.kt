@@ -25,7 +25,7 @@ class LibraryDataSource @Inject constructor(
             val slug = it.key ?: return@mapNotNull null
             val episode = it.value?.toString() ?: return@mapNotNull null
             FilmLibrary(slug = slug, episode = episode)
-        }.toMutableList()
+        }.toList()
         return Library(name = name, posterUrl = posterUrl, listFilm = listFilm)
     }
 

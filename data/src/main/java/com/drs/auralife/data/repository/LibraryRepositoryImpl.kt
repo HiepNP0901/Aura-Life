@@ -29,7 +29,10 @@ class LibraryRepositoryImpl @Inject constructor(
             }
             Result.Success(libraries)
         } catch (e: Exception) {
-            val cached = libraryDao.getAllWithFilms().map { it.toDomainLibrary() }
+            val cached = libraryDao.getAllWithFilms().map { lib ->
+                val episodes = libraryDao.getFilmsWithEpisode(lib.library.name)
+                lib.toDomainLibrary(episodes)
+            }
             if (cached.isNotEmpty()) Result.Success(cached) else Result.Error(e)
         }
     }
@@ -43,7 +46,10 @@ class LibraryRepositoryImpl @Inject constructor(
             }
             Result.Success(library)
         } catch (e: Exception) {
-            val cached = libraryDao.getAllWithFilms().find { it.library.name == name }?.toDomainLibrary()
+            val cached = libraryDao.getAllWithFilms().find { it.library.name == name }?.let { lib ->
+                val episodes = libraryDao.getFilmsWithEpisode(lib.library.name)
+                lib.toDomainLibrary(episodes)
+            }
             if (cached != null) Result.Success(cached) else Result.Error(e)
         }
     }
