@@ -1,6 +1,6 @@
 package com.drs.auralife.core.firebase
 
-import com.drs.auralife.data.remote.firebase.model.banner.Banner
+import com.drs.auralife.core.firebase.model.Banner
 import com.google.firebase.database.FirebaseDatabase
 import javax.inject.Inject
 
