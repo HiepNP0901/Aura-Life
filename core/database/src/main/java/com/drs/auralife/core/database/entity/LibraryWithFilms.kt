@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 data class LibraryWithFilms(
-    @Embedded var library: LibraryEntity,
+    @Embedded val library: LibraryEntity,
     @Relation(
         parentColumn = "name",
         entityColumn = "slug",
@@ -14,5 +14,10 @@ data class LibraryWithFilms(
             entityColumn = "filmSlug",
         ),
     )
-    var films: List<FilmEntity>,
+    val films: List<FilmEntity>,
+)
+
+data class FilmWithCurrentEpisode(
+    val slug: String,
+    val currentEpisode: String,
 )

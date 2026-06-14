@@ -4,5 +4,5 @@ data class History(
     val slug: String,
     val episode: Int,
     val position: Long,
-    var date: String,
+    val date: String,
 )
