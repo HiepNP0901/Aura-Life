@@ -1,4 +1,14 @@
+import java.io.FileInputStream
+import java.util.Properties
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+
+fun getSecret(key: String, default: String): String {
+    val secretsFile = rootProject.file("secrets.properties")
+    if (!secretsFile.exists()) return default
+    val props = Properties()
+    props.load(FileInputStream(secretsFile))
+    return props.getProperty(key) ?: default
+}
 
 plugins {
     alias(libs.plugins.android.application)
@@ -32,6 +42,15 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(getSecret("keystorePath", ""))
+            storePassword = getSecret("keystorePassword", "")
+            keyAlias = getSecret("keyAlias", "")
+            keyPassword = getSecret("keyPassword", "")
+        }
+    }
+
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
@@ -43,6 +62,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
