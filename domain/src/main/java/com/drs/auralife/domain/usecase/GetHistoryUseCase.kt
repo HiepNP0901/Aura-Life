@@ -10,4 +10,8 @@ class GetHistoryUseCase @javax.inject.Inject constructor(
     suspend operator fun invoke(): Result<List<HistoryItem>> {
         return historyRepository.getHistory()
     }
+
+    suspend fun getHistoryItem(slug: String): HistoryItem? {
+        return historyRepository.getHistoryItem(slug)
+    }
 }

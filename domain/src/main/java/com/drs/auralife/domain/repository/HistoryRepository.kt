@@ -5,6 +5,7 @@ import com.drs.auralife.domain.result.Result
 
 interface HistoryRepository {
     suspend fun getHistory(): Result<List<HistoryItem>>
+    suspend fun getHistoryItem(slug: String): HistoryItem?
     suspend fun addHistory(slug: String, episode: Int, position: Long): Boolean
     suspend fun deleteHistory(slug: String): Boolean
 }

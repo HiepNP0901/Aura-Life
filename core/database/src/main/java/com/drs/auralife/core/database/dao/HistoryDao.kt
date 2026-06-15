@@ -11,6 +11,9 @@ interface HistoryDao {
     @Query("SELECT * FROM history_entity ORDER BY watchedAt DESC")
     suspend fun getAll(): List<HistoryEntity>
 
+    @Query("SELECT * FROM history_entity WHERE slug = :slug")
+    suspend fun getHistoryItem(slug: String): HistoryEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistory(history: HistoryEntity)
 

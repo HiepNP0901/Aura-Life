@@ -130,6 +130,11 @@ class FilmPlayerFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        currentPosition = exoPlayer?.currentPosition ?: currentPosition
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         exoPlayer?.release()
