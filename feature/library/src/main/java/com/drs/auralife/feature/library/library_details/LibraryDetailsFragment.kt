@@ -1,7 +1,9 @@
 package com.drs.auralife.feature.library.library_details
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -22,6 +24,7 @@ class LibraryDetailsFragment : Fragment() {
     private val libraryDetailsViewModel: LibraryDetailsViewModel by viewModels()
     private var _binding: FragmentLibraryDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
+    private var libraryName: String = ""
 
     private val filmAdapter = LibraryFilmAdapter(
         onItemClick = { slug -> libraryDetailsViewModel.onFilmClicked(slug) },
@@ -33,18 +36,22 @@ class LibraryDetailsFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
+    @SuppressLint("SetTextI18n")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.recyclerView.adapter = filmAdapter
+        libraryName = requireArguments().getString("name") ?: return
 
         binding.backButton.setOnClickListener {
             appNavigator.navigateBack()
         }
 
+        binding.tvCategoryName.text = libraryName
+
         observeLibraryFilms()
         observeEffect()
-        libraryDetailsViewModel.loadLibraryFilms()
+        libraryDetailsViewModel.loadLibraryFilms(libraryName)
     }
 
     override fun onDestroyView() {
@@ -55,7 +62,6 @@ class LibraryDetailsFragment : Fragment() {
     private fun observeLibraryFilms() {
         launchAndRepeatWithViewLifecycle {
             libraryDetailsViewModel.state.collect { state ->
-                binding.tvCategoryName.text = state.name
                 if (state.films.isNotEmpty()) {
                     filmAdapter.submitList(state.films)
                 }
@@ -84,7 +90,7 @@ class LibraryDetailsFragment : Fragment() {
 
     private fun onLongClick(slug: String) {
         EditLibraryDialog.showDeleteFilmFromLibrary(requireContext()) {
-            libraryDetailsViewModel.removeFilm(slug)
+            libraryDetailsViewModel.removeFilm(libraryName, slug)
         }
     }
 }

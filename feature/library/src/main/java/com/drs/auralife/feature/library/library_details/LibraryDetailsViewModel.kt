@@ -1,6 +1,5 @@
 ﻿package com.drs.auralife.feature.library.library_details
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.drs.auralife.domain.model.Film
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,29 +26,25 @@ class LibraryDetailsViewModel @Inject constructor(
     private val getFilmDetailsUseCase: GetFilmDetailsUseCase,
     private val removeFilmFromLibraryUseCase: RemoveFilmFromLibraryUseCase,
     private val libraryRepository: LibraryRepository,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        LibraryDetailUiState(name = savedStateHandle.get<String>("name") ?: ""),
-    )
+    private val _state = MutableStateFlow(LibraryDetailUiState())
     val state: StateFlow<LibraryDetailUiState> = _state.asStateFlow()
 
     private val _effect = MutableSharedFlow<LibraryDetailUiEffect>()
     val effect: SharedFlow<LibraryDetailUiEffect> = _effect.asSharedFlow()
 
-    fun loadLibraryFilms() {
+    fun loadLibraryFilms(name: String) {
         viewModelScope.launch {
-            val name = _state.value.name
-            _state.update { LibraryDetailUiState(name = name) }
+            _state.value = LibraryDetailUiState()
             when (val result = getLibraryUseCase()) {
                 is Result.Success -> {
                     val lib = result.data.find { it.name == name } ?: return@launch
                     val films = buildFilmsFromLibrary(lib)
-                    _state.update { it.copy(films = films) }
+                    _state.value = LibraryDetailUiState(films = films)
                 }
 
-                is Result.Error -> _state.update { it.copy(errorMessage = result.errorMessage) }
+                is Result.Error -> _state.value = LibraryDetailUiState(errorMessage = result.errorMessage)
                 is Result.Loading -> {}
             }
         }
@@ -82,10 +76,9 @@ class LibraryDetailsViewModel @Inject constructor(
         }
     }
 
-    fun removeFilm(slug: String) {
+    fun removeFilm(libraryName: String, slug: String) {
         viewModelScope.launch {
             try {
-                val libraryName = _state.value.name
                 removeFilmFromLibraryUseCase(libraryName, slug)
 
                 when (val result = getLibraryUseCase()) {
@@ -110,7 +103,7 @@ class LibraryDetailsViewModel @Inject constructor(
                     else -> {}
                 }
 
-                loadLibraryFilms()
+                loadLibraryFilms(libraryName)
                 _effect.emit(LibraryDetailUiEffect.ShowToast("Removed from library"))
             } catch (e: Exception) {
                 _effect.emit(LibraryDetailUiEffect.ShowToast(e.message ?: "Remove failed"))

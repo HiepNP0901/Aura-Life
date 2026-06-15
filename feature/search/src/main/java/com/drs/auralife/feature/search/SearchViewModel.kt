@@ -6,21 +6,15 @@ import com.drs.auralife.domain.result.Result
 import com.drs.auralife.domain.result.errorMessage
 import com.drs.auralife.domain.usecase.SearchFilmsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(FlowPreview::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchFilmsUseCase: SearchFilmsUseCase,
@@ -31,28 +25,6 @@ class SearchViewModel @Inject constructor(
 
     private val _effect = MutableSharedFlow<SearchUiEffect>(extraBufferCapacity = 1)
     val effect: SharedFlow<SearchUiEffect> = _effect.asSharedFlow()
-
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            _searchQuery
-                .debounce(500)
-                .distinctUntilChanged()
-                .filter { it.isNotEmpty() }
-                .collectLatest { query ->
-                    searchFilms(query, 5)
-                }
-        }
-    }
-
-    fun setSearchQuery(query: String) {
-        _searchQuery.value = query
-        if (query.isEmpty()) {
-            clearResults()
-        }
-    }
 
     fun searchFilms(keyword: String, limit: Int) {
         if (keyword.isBlank()) {
@@ -77,3 +49,4 @@ class SearchViewModel @Inject constructor(
         _effect.tryEmit(SearchUiEffect.NavigateToFilmDetails(slug))
     }
 }
+
