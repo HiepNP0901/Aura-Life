@@ -10,5 +10,5 @@ data class HistoryUiState(
 
 sealed interface HistoryUiEffect {
     data class ShowToast(val message: String) : HistoryUiEffect
-    data class NavigateToFilm(val slug: String) : HistoryUiEffect
+    data class NavigateToFilmPlayer(val slug: String) : HistoryUiEffect
 }

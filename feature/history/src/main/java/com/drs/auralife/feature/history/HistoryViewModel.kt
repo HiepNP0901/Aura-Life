@@ -18,7 +18,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,6 +65,8 @@ class HistoryViewModel @Inject constructor(
                             posterUrl = fd.posterUrl,
                             description = fd.description,
                             watchedAt = item.watchedAt,
+                            episode = item.episode,
+                            position = item.position,
                         )
                     }
                 }
@@ -87,25 +91,23 @@ class HistoryViewModel @Inject constructor(
 
     fun addToHistory(slug: String, episode: Int, position: Long) {
         viewModelScope.launch {
-            addToHistoryUseCase(slug, episode, position)
+            try {
+                withContext(NonCancellable) {
+                    addToHistoryUseCase(slug, episode, position)
+                }
+            } catch (e: Exception) {
+                Log.e("HistoryVM", "addToHistory crashed", e)
+            }
         }
     }
 
     suspend fun getHistoryItem(slug: String): HistoryItem? {
-        return when (val result = getHistoryUseCase()) {
-            is Result.Success -> result.data.find { it.slug == slug }
-            is Result.Error -> {
-                Log.e("HistoryViewModel", "getHistoryItem failed", result.exception)
-                null
-            }
-
-            is Result.Loading -> null
-        }
+        return getHistoryUseCase.getHistoryItem(slug)
     }
 
     fun onFilmClicked(slug: String) {
         viewModelScope.launch {
-            _effect.emit(HistoryUiEffect.NavigateToFilm(slug))
+            _effect.emit(HistoryUiEffect.NavigateToFilmPlayer(slug))
         }
     }
 }

@@ -12,18 +12,22 @@ class HistoryDataSource @Inject constructor(
 
     suspend fun getHistoryData(): List<History> {
         val userId = Authentication.getUserId() ?: return emptyList()
-        val snapshot = userRef.child(userId).child("history").get().await()
-        return snapshot.children.mapNotNull { snap ->
-            val slug = snap.child("slug").value?.toString() ?: return@mapNotNull null
-            val episodeStr = snap.child("episode").value?.toString() ?: return@mapNotNull null
-            val positionStr = snap.child("position").value?.toString() ?: return@mapNotNull null
-            val date = snap.child("date").value?.toString() ?: return@mapNotNull null
-            History(
-                slug = slug,
-                episode = episodeStr.toIntOrNull() ?: return@mapNotNull null,
-                position = positionStr.toLongOrNull() ?: return@mapNotNull null,
-                date = date,
-            )
+        return try {
+            val snapshot = userRef.child(userId).child("history").get().await()
+            snapshot.children.mapNotNull { snap ->
+                val slug = snap.child("slug").value?.toString() ?: return@mapNotNull null
+                val episodeStr = snap.child("episode").value?.toString() ?: return@mapNotNull null
+                val positionStr = snap.child("position").value?.toString() ?: return@mapNotNull null
+                val date = snap.child("date").value?.toString() ?: return@mapNotNull null
+                History(
+                    slug = slug,
+                    episode = episodeStr.toIntOrNull() ?: return@mapNotNull null,
+                    position = positionStr.toLongOrNull() ?: return@mapNotNull null,
+                    date = date,
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 

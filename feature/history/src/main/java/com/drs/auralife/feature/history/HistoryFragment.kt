@@ -80,8 +80,8 @@ class HistoryFragment : Fragment() {
                         Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                     }
 
-                    is HistoryUiEffect.NavigateToFilm -> {
-                        appNavigator.navigateToFilmDetails(effect.slug)
+                    is HistoryUiEffect.NavigateToFilmPlayer -> {
+                        appNavigator.navigateToPlayFilm(effect.slug)
                     }
                 }
             }
