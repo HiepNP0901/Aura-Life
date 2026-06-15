@@ -3,6 +3,8 @@ package com.drs.auralife.feature.explore.explore_details
 import com.drs.auralife.domain.model.Film
 
 data class ExploreDetailUiState(
+    val slug: String = "",
+    val name: String = "",
     val films: List<Film> = emptyList(),
     val currentPage: Int = 1,
     val totalPages: Int = 0,
