@@ -157,6 +157,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     photoPermissionHandler?.checkAndRequestPermissions()
                 } else {
                     appNavigator.navigateToLogin()
+                    drawerLayout?.closeDrawers()
                 }
             }
     }
@@ -204,6 +205,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     if (status.isPremium) getString(R.string.premium) else getString(R.string.freemium)
                 navPremiumStatus?.setOnClickListener {
                     appNavigator.navigateToPayment()
+                    drawerLayout?.closeDrawers()
                 }
             }
         }
@@ -258,6 +260,7 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
                 R.id.navExit -> finish()
             }
+            drawerLayout?.closeDrawers()
             true
         }
     }
