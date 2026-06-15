@@ -12,7 +12,9 @@ import android.widget.TextView
 import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -23,13 +25,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.SystemUiController
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
-import com.drs.auralife.domain.model.FilmDetails
 import com.drs.auralife.feature.film.player.R
 import com.drs.auralife.feature.film_detail.FilmDetailsViewModel
 import com.drs.auralife.feature.film_player.adapter.EpisodeAdapter
 import com.drs.auralife.feature.history.HistoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.drs.auralife.core.designsystem.R as DsR
 
@@ -54,11 +56,6 @@ class FilmPlayerFragment : Fragment() {
     private var rotateButton: ImageButton? = null
 
     private var numberEpInLine = 3
-    private var currentEpisode = 0
-    private var currentPosition: Long = 0
-    private var isFullscreen = false
-    private var slug: String? = null
-    private var film: FilmDetails? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_film_player, container, false)
@@ -66,8 +63,6 @@ class FilmPlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        slug = requireArguments().getString("slug")
 
         exoPlayer = ExoPlayer.Builder(requireContext()).build()
         playerView = view.findViewById(R.id.player_view)
@@ -87,16 +82,15 @@ class FilmPlayerFragment : Fragment() {
         recyclerView?.layoutManager = GridLayoutManager(requireContext(), ++numberEpInLine)
 
         observeFilmDetails()
+        observeState()
         observeEffect()
 
-        slug?.let { s ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                historyViewModel.getHistoryItem(s)?.let {
-                    currentEpisode = it.episode
-                    currentPosition = it.position
-                }
-                filmDetailsViewModel.getFilmDetails(s)
+        val slug = filmPlayerViewModel.slug
+        viewLifecycleOwner.lifecycleScope.launch {
+            historyViewModel.getHistoryItem(slug)?.let {
+                filmPlayerViewModel.restoreState(it.episode, it.position, false)
             }
+            filmDetailsViewModel.getFilmDetails(slug)
         }
 
         startPlaybackMonitor()
@@ -105,26 +99,28 @@ class FilmPlayerFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("currentEpisode", currentEpisode)
-        outState.putBoolean("isFullscreen", isFullscreen)
+        val state = filmPlayerViewModel.state.value
+        outState.putInt("currentEpisode", state.currentEpisode)
+        outState.putBoolean("isFullscreen", state.isFullscreen)
         exoPlayer?.let { outState.putLong("exoPlayerPosition", it.currentPosition) }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         if (savedInstanceState != null) {
-            isFullscreen = savedInstanceState.getBoolean("isFullscreen", false)
-            toggleFullscreen()
-            currentEpisode = savedInstanceState.getInt("currentEpisode", 0)
-            currentPosition = (savedInstanceState.getLong("exoPlayerPosition", 0) - 1000).coerceAtLeast(0)
-            playEpisode(currentEpisode)
+            val episode = savedInstanceState.getInt("currentEpisode", 0)
+            val position = (savedInstanceState.getLong("exoPlayerPosition", 0) - 1000).coerceAtLeast(0)
+            val fullscreen = savedInstanceState.getBoolean("isFullscreen", false)
+            filmPlayerViewModel.restoreState(episode, position, fullscreen)
+            playEpisode(episode)
         }
     }
 
     override fun onStop() {
         super.onStop()
+        val state = filmPlayerViewModel.state.value
         exoPlayer?.apply {
-            historyViewModel.addToHistory(slug.toString(), currentEpisode, currentPosition)
+            historyViewModel.addToHistory(state.slug, state.currentEpisode, state.currentPosition)
             pause()
             btnPlayPause?.isSelected = false
         }
@@ -132,7 +128,7 @@ class FilmPlayerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        currentPosition = exoPlayer?.currentPosition ?: currentPosition
+        exoPlayer?.let { filmPlayerViewModel.setCurrentPosition(it.currentPosition) }
     }
 
     override fun onDestroyView() {
@@ -145,10 +141,10 @@ class FilmPlayerFragment : Fragment() {
         launchAndRepeatWithViewLifecycle {
             filmDetailsViewModel.state.collect { state ->
                 if (state.film != null) {
-                    film = state.film
-                    playEpisode(currentEpisode)
+                    val ep = filmPlayerViewModel.state.value.currentEpisode
+                    playEpisode(ep)
                     view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
-                        ?.adapter = EpisodeAdapter(state.film!!.episodes) { ep ->
+                        ?.adapter = EpisodeAdapter(state.film.episodes) { ep ->
                         playEpisode(ep)
                     }
                 }
@@ -156,6 +152,20 @@ class FilmPlayerFragment : Fragment() {
         }
 
         filmPlayerViewModel.loadPremiumStatus()
+    }
+
+    private fun observeState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                filmPlayerViewModel.state.collect { state ->
+                    if (state.isFullscreen) {
+                        enterFullscreen()
+                    } else {
+                        exitFullscreen()
+                    }
+                }
+            }
+        }
     }
 
     private fun observeEffect() {
@@ -182,20 +192,21 @@ class FilmPlayerFragment : Fragment() {
     }
 
     private fun playEpisode(episodeIndex: Int) {
-        film?.let { filmDetails ->
-            if (episodeIndex in filmDetails.episodes.indices) {
-                val episode = filmDetails.episodes[episodeIndex]
-                exoPlayer?.setMediaItem(MediaItem.fromUri(episode.linkM3u8))
-                exoPlayer?.prepare()
-                exoPlayer?.seekTo(currentPosition)
-                exoPlayer?.play()
-                nameFilm?.text = episode.filename
-                if (currentEpisode != episodeIndex) {
-                    currentPosition = 0
-                }
-                currentEpisode = episodeIndex
-                btnPlayPause?.isSelected = true
+        val state = filmDetailsViewModel.state.value
+        val film = state.film ?: return
+        if (episodeIndex in film.episodes.indices) {
+            val episode = film.episodes[episodeIndex]
+            exoPlayer?.setMediaItem(MediaItem.fromUri(episode.linkM3u8))
+            exoPlayer?.prepare()
+            val playerState = filmPlayerViewModel.state.value
+            exoPlayer?.seekTo(playerState.currentPosition)
+            exoPlayer?.play()
+            nameFilm?.text = episode.filename
+            if (filmPlayerViewModel.state.value.currentEpisode != episodeIndex) {
+                filmPlayerViewModel.setCurrentPosition(0)
             }
+            filmPlayerViewModel.setCurrentEpisode(episodeIndex)
+            btnPlayPause?.isSelected = true
         }
     }
 
@@ -205,7 +216,7 @@ class FilmPlayerFragment : Fragment() {
                 object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         if (playbackState == Player.STATE_ENDED) {
-                            playEpisode(currentEpisode + 1)
+                            playEpisode(filmPlayerViewModel.state.value.currentEpisode + 1)
                         }
                     }
                 },
@@ -223,19 +234,18 @@ class FilmPlayerFragment : Fragment() {
             }
 
             btnRewind?.setOnClickListener {
-                val rewindPosition = currentPosition - 5000
+                val rewindPosition = filmPlayerViewModel.state.value.currentPosition - 5000
                 exoPlayer?.seekTo(rewindPosition.coerceAtLeast(0))
             }
             btnForward?.setOnClickListener {
-                val forwardPosition = currentPosition + 15000
+                val forwardPosition = filmPlayerViewModel.state.value.currentPosition + 15000
                 seekTo(forwardPosition.coerceAtMost(duration))
             }
-            btnPrevious?.setOnClickListener { playEpisode(currentEpisode - 1) }
-            btnNext?.setOnClickListener { playEpisode(currentEpisode + 1) }
+            btnPrevious?.setOnClickListener { playEpisode(filmPlayerViewModel.state.value.currentEpisode - 1) }
+            btnNext?.setOnClickListener { playEpisode(filmPlayerViewModel.state.value.currentEpisode + 1) }
 
             fullscreenButton?.setOnClickListener {
-                isFullscreen = !isFullscreen
-                toggleFullscreen()
+                filmPlayerViewModel.toggleFullscreen()
             }
 
             rotateButton?.setOnClickListener {
@@ -249,18 +259,27 @@ class FilmPlayerFragment : Fragment() {
     }
 
     private fun toggleFullscreen() {
+        val fullscreen = filmPlayerViewModel.state.value.isFullscreen
+        if (fullscreen) enterFullscreen() else exitFullscreen()
+    }
+
+    private fun enterFullscreen() {
         val recyclerView = view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
         val otherViews = listOf(recyclerView, nameFilm)
         playerView?.apply {
-            if (!isFullscreen) {
-                SystemUiController.showSystemUI(requireActivity().window)
-                otherViews.forEach { it?.visibility = View.VISIBLE }
-                layoutParams.height = dpToPx(250f, resources.displayMetrics).toInt()
-            } else {
-                SystemUiController.autoHideSystemUI(requireActivity().window)
-                otherViews.forEach { it?.visibility = View.GONE }
-                layoutParams.height = resources.displayMetrics.heightPixels
-            }
+            SystemUiController.autoHideSystemUI(requireActivity().window)
+            otherViews.forEach { it?.visibility = View.GONE }
+            layoutParams.height = resources.displayMetrics.heightPixels
+        }
+    }
+
+    private fun exitFullscreen() {
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
+        val otherViews = listOf(recyclerView, nameFilm)
+        playerView?.apply {
+            SystemUiController.showSystemUI(requireActivity().window)
+            otherViews.forEach { it?.visibility = View.VISIBLE }
+            layoutParams.height = dpToPx(250f, resources.displayMetrics).toInt()
         }
     }
 
@@ -298,4 +317,3 @@ class FilmPlayerFragment : Fragment() {
         dialog.show()
     }
 }
-

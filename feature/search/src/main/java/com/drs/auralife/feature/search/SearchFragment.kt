@@ -8,22 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.drs.auralife.core.navigation.AppNavigator
 import com.drs.auralife.designsystem.launchAndRepeatWithViewLifecycle
 import com.drs.auralife.feature.search.databinding.FragmentSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 
-@OptIn(FlowPreview::class)
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
 
@@ -33,7 +24,6 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
 
     private val searchViewModel: SearchViewModel by viewModels()
-    private val searchQueryFlow = MutableStateFlow("")
     private var searchAdapter: SearchAdapter? = null
 
     override fun onCreateView(
@@ -68,11 +58,7 @@ class SearchFragment : Fragment() {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable?) {
-                    searchQueryFlow.value = s.toString().trim()
-                    if (s.toString().trim().isEmpty()) {
-                        searchViewModel.clearResults()
-                        searchAdapter?.replaceItems(emptyList())
-                    }
+                    searchViewModel.setSearchQuery(s.toString().trim())
                 }
             },
         )
@@ -115,16 +101,6 @@ class SearchFragment : Fragment() {
                     }
                 }
             }
-        }
-
-        lifecycleScope.launch {
-            searchQueryFlow
-                .debounce(500)
-                .distinctUntilChanged()
-                .filter { it.isNotEmpty() }
-                .collectLatest { query ->
-                    searchViewModel.searchFilms(query, 5)
-                }
         }
     }
 }
