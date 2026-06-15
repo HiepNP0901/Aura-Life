@@ -24,8 +24,6 @@ class ExploreDetailFragment : Fragment() {
     private val exploreDetailViewModel: ExploreDetailViewModel by viewModels()
     private var _binding: FragmentExploreDetailsBinding? = null
     private val binding get() = _binding ?: error("Binding accessed after onDestroyView")
-    private var slug: String = ""
-    private var name: String = ""
 
     private val filmAdapter = ExploreDetailFilmAdapter { slug ->
         exploreDetailViewModel.onFilmClicked(slug)
@@ -41,14 +39,9 @@ class ExploreDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        slug = requireArguments().getString("slug") ?: return
-        name = requireArguments().getString("name") ?: return
-
         binding.backButton.setOnClickListener {
             appNavigator.navigateBack()
         }
-
-        binding.tvCategoryName.text = name
 
         binding.recyclerView.apply {
             val displayMetrics = resources.displayMetrics
@@ -59,7 +52,7 @@ class ExploreDetailFragment : Fragment() {
 
         observeState()
         observeEffect()
-        exploreDetailViewModel.getFilmsByCategory(slug)
+        exploreDetailViewModel.getFilmsByCategory()
         setupPagination()
     }
 
@@ -71,6 +64,7 @@ class ExploreDetailFragment : Fragment() {
     private fun observeState() {
         launchAndRepeatWithViewLifecycle {
             exploreDetailViewModel.state.collect { state ->
+                binding.tvCategoryName.text = state.name
                 filmAdapter.submitList(state.films)
             }
         }
@@ -96,9 +90,9 @@ class ExploreDetailFragment : Fragment() {
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 val lastVisibleItemPosition = (recyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
-                if (lastVisibleItemPosition >= filmAdapter.itemCount - 1) {
-                    exploreDetailViewModel.onScrolledToBottom(slug)
-                }
+                    if (lastVisibleItemPosition >= filmAdapter.itemCount - 1) {
+                        exploreDetailViewModel.onScrolledToBottom()
+                    }
             }
         }
         scrollListener?.let { binding.recyclerView.addOnScrollListener(it) }
