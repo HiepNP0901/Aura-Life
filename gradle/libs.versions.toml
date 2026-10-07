@@ -1,6 +1,6 @@
 [versions]
 agp = "9.1.1"
-compose = "1.0.0-beta09"
+compose = "1.0.0-beta10"
 composeBomVersion = "2026.05.01"
 credentials = "1.6.0"
 glide = "5.0.7"
