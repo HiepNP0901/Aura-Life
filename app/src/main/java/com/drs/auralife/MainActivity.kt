@@ -43,7 +43,9 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), AppBarProvider {
+class MainActivity :
+    AppCompatActivity(),
+    AppBarProvider {
     companion object {
         private const val PREF_NAME = "PREFERENCE"
     }
@@ -114,7 +116,10 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
 
         navController?.addOnDestinationChangedListener { _, destination, _ ->
             val show = destination.route in setOf(
-                NavRoutes.HOME, NavRoutes.EXPLORE, NavRoutes.LIBRARY, NavRoutes.HISTORY,
+                NavRoutes.HOME,
+                NavRoutes.EXPLORE,
+                NavRoutes.LIBRARY,
+                NavRoutes.HISTORY,
             )
             bottomNavigationView?.visibility = if (show) View.VISIBLE else View.GONE
             val navHost = findViewById<View>(R.id.nav_host_fragment)
@@ -243,7 +248,8 @@ class MainActivity : AppCompatActivity(), AppBarProvider {
                     ExistingPeriodicWorkPolicy.KEEP,
                     PeriodicWorkRequestBuilder<UpdateLibraryWorker>(6, TimeUnit.HOURS).build(),
                 )
-                WorkManager.getInstance(this@MainActivity)
+                WorkManager
+                    .getInstance(this@MainActivity)
                     .enqueue(OneTimeWorkRequestBuilder<UpdateLibraryWorker>().build())
             }
         }
