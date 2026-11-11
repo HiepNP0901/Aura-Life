@@ -144,7 +144,7 @@ class FilmPlayerFragment : Fragment() {
                     val ep = filmPlayerViewModel.state.value.currentEpisode
                     playEpisode(ep)
                     view?.findViewById<RecyclerView>(R.id.episodeRecyclerView)
-                        ?.adapter = EpisodeAdapter(state.film.episodes) { ep ->
+                        ?.adapter = EpisodeAdapter(state.film!!.episodes) { ep ->
                         playEpisode(ep)
                     }
                 }
