@@ -1,6 +1,6 @@
 package com.drs.auralife.core.network
 
-import com.drs.auralife.core.network.model.CategoryResponse
+import com.drs.auralife.core.network.model.CategoriesResponse
 import com.drs.auralife.core.network.model.FilmDetails
 import com.drs.auralife.core.network.model.Films
 import com.drs.auralife.core.network.model.SearchResults
@@ -10,7 +10,7 @@ import retrofit2.http.Query
 
 interface FilmAPI {
     @GET("the-loai")
-    suspend fun getCategories(): List<CategoryResponse>
+    suspend fun getCategories(): CategoriesResponse
 
     @GET("danh-sach/phim-moi-cap-nhat")
     suspend fun getLatestFilms(

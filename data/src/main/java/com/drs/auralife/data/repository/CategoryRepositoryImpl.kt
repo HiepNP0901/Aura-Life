@@ -15,7 +15,7 @@ class CategoryRepositoryImpl @Inject constructor(
 ) : CategoryRepository {
     override suspend fun getCategories(): Result<List<Category>> {
         return try {
-            val categories = filmAPI.getCategories().map { apiCategory ->
+            val categories = filmAPI.getCategories().data.items.map { apiCategory ->
                 Category(
                     slug = apiCategory.slug,
                     name = apiCategory.name,
