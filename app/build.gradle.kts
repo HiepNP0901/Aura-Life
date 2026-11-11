@@ -1,8 +1,11 @@
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 import java.io.FileInputStream
 import java.util.Properties
-import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
-fun getSecret(key: String, default: String): String {
+fun getSecret(
+    key: String,
+    default: String,
+): String {
     val secretsFile = rootProject.file("secrets.properties")
     if (!secretsFile.exists()) return default
     val props = Properties()
@@ -44,7 +47,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(getSecret("keystorePath", ""))
+            storeFile = getSecret("keystorePath", "").takeIf { it.isNotBlank() }?.let { file(it) }
             storePassword = getSecret("keystorePassword", "")
             keyAlias = getSecret("keyAlias", "")
             keyPassword = getSecret("keyPassword", "")
