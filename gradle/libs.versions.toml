@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.1"
+agp = "9.5.1"
 credentials = "1.6.0"
 glide = "5.0.7"
 glideTransformations = "4.3.0"
